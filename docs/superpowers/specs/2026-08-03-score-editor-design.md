@@ -16,6 +16,22 @@ Allan reads drum exercises off a page and wants to reproduce them on the phone �
 notation himself, practise against a metronome, and watch the BPM he can hold on a given score
 climb over weeks.
 
+### Why not paper
+
+Paper is the thing to beat, and it loses on three counts (Allan, 2026-08-03):
+
+1. **Paper isn't always to hand** — the phone is.
+2. **Handwritten notation is bad** — hard to read back, which defeats the purpose of writing it
+   down at all.
+3. **Filling in a notehead takes 5–10 seconds each.** Hollow versus filled is not decoration, it
+   *is* the note value (half and whole hollow, quarter and shorter filled), so it cannot be
+   skipped. On a page of sixteenths that is minutes of colouring in.
+
+Point 3 is the design's whole justification: in this editor, note value is a palette selection
+and the notehead is drawn correctly for free. **Entry speed is therefore the metric the editor
+lives or dies by** — if reproducing a bar is not clearly faster than writing it, the app has
+failed regardless of how correct the engraving is.
+
 Two constraints set before design started:
 
 - **Open source only.** No commercial or proprietary dependencies, here or in future projects.
