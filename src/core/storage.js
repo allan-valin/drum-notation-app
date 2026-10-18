@@ -1,4 +1,4 @@
-import { encode, decode } from './json.js';
+import { encode, decodeFull } from './json.js';
 
 const PREFIX = 'drum.score.';
 const SETTINGS = 'drum.settings';
@@ -18,13 +18,13 @@ export function createStore(storage) {
   };
 
   return {
-    /** Summaries, newest first. A corrupt entry is skipped, never fatal. */
+    /** Summaries, newest first. A corrupt entry is skipped, never fatal. `load` returns the full score, every part. */
     list() {
       const out = [];
       for (const k of keys()) {
         try {
-          const s = decode(storage.getItem(k));
-          out.push({ id: s.id, title: s.title, bars: s.bars.length, updatedAt: s.updatedAt, defaultBpm: s.defaultBpm });
+          const s = decodeFull(storage.getItem(k));
+          out.push({ id: s.id, title: s.title, bars: s.bars.length, updatedAt: s.updatedAt, defaultBpm: s.defaultBpm, instruments: s.parts.map((p) => p.instrument) });
         } catch {
           // ignore
         }
@@ -35,7 +35,7 @@ export function createStore(storage) {
       const raw = storage.getItem(PREFIX + id);
       if (raw === null) return null;
       try {
-        return decode(raw);
+        return decodeFull(raw);
       } catch {
         return null;
       }

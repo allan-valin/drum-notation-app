@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { createStore } from '../src/core/storage.js';
 import { newScore } from '../src/core/score.js';
+import { toFull } from '../src/core/parts.js';
 
 function memoryStorage() {
   const m = new Map();
@@ -23,7 +24,7 @@ describe('score store', () => {
   it('saves and loads a score by id', () => {
     const s = newScore({ id: 'a', title: 'A' });
     store.save(s);
-    expect(store.load('a')).toEqual(s);
+    expect(store.load('a')).toEqual(toFull(s));
   });
   it('lists summaries newest first', () => {
     store.save(newScore({ id: 'a', title: 'A', updatedAt: 1 }));

@@ -24,7 +24,7 @@ describe('score JSON', () => {
   });
   it('stores note values by id, not by object', () => {
     const j = JSON.parse(encode(sample()));
-    expect(j.bars[0].beats[0].division).toBe('sixteenth');
+    expect(j.bars[0].parts.p1.beats[0].division).toBe('sixteenth');
   });
   it('rejects a newer schema', () => {
     const j = { ...JSON.parse(encode(sample())), schema_version: SCHEMA_VERSION + 1 };
@@ -32,12 +32,12 @@ describe('score JSON', () => {
   });
   it('rejects a bar whose cell count disagrees with its division', () => {
     const j = JSON.parse(encode(sample()));
-    j.bars[0].beats[0].cells.pop();
+    j.bars[0].parts.p1.beats[0].cells.pop();
     expect(() => decode(JSON.stringify(j))).toThrow(/cells/);
   });
   it('rejects an unknown slot', () => {
     const j = JSON.parse(encode(sample()));
-    j.bars[0].beats[0].cells[0][0] = 'cowbell';
+    j.bars[0].parts.p1.beats[0].cells[0][0] = 'cowbell';
     expect(() => decode(JSON.stringify(j))).toThrow(/slot/);
   });
   it('fills in a missing id and timestamps on import', () => {
@@ -88,7 +88,7 @@ describe('score JSON v2', () => {
     };
     const s = decode(JSON.stringify(j));
     expect(s.bars[0].beats[0].cells[1].cells.length).toBe(2);
-    expect(JSON.parse(encode(s)).bars[0].beats[0].cells[1]).toEqual({ division: 'sixteenth', cells: [['snare'], ['snare']] });
+    expect(JSON.parse(encode(s)).bars[0].parts.p1.beats[0].cells[1]).toEqual({ division: 'sixteenth', cells: [['snare'], ['snare']] });
   });
   it('rejects a nested group whose cell count does not fit its division', () => {
     const j = { schema_version: 2, bars: [{ beats: [

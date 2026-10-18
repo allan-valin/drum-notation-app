@@ -27,7 +27,7 @@
       { division: 'quarter', cells: [[{ slot: 'snare', roll: 'buzz' }]] },
     ]),
   };
-  const SECTIONS = [['s1t', 's1', 's1e'], ['s2t', 's2', 's2e'], ['s3t', 's3', 's3e'], ['s4t', 's4'], ['s5t', 's5'], ['s7t', 's7'], ['s6t', 's6']];
+  const SECTIONS = [['s1t', 's1', 's1e'], ['s2t', 's2', 's2e'], ['s3t', 's3', 's3e'], ['s4t', 's4'], ['s5t', 's5'], ['s7t', 's7'], ['s8t', 's8'], ['s6t', 's6']];
   let width = $state(600);
 </script>
 

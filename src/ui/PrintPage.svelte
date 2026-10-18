@@ -8,9 +8,13 @@
   import { t } from '../app/prefs.svelte.js';
 
   let { store, id, onBack } = $props();
-  const score = store.load(id);
+  import { partView } from '../core/parts.js';
+  const full = store.load(id);
+  /** Every part, one staff each per bar; `score` (the first part) carries signatures and title. */
+  const views = full ? full.parts.map((p) => ({ id: p.id, instrument: p.instrument, view: partView(full, p.id), staff: profileById(p.instrument).staves[0] })) : [];
+  const score = views[0]?.view ?? null;
+  const many = views.length > 1;
   const colours = normaliseColours(store.loadSettings().colours);
-  const staff = score ? profileById(score.profileId).staves[0] : null;
   let barsPerLine = $state(2);
   const pages = $derived(score ? paginate(score.bars.length, { barsPerLine, linesPerPage: 8 }) : [[]]);
   const LINE = 1000;
@@ -35,7 +39,12 @@
         <div class="line">
           {#each line as bi, k}
             <div class="bar" style="flex: {k === 0 ? 1.25 : 1}">
-              <ScoreSvg bar={score.bars[bi]} {staff} width={k === 0 ? LINE * 1.25 / line.length : LINE / line.length} staffSpacing={9} showClef={k === 0} timeSig={showsTimeSig(score, bi) ? barTimeSig(score, bi) : null} {colours} fixedRange={[8, 10]} />
+              {#each views as v (v.id)}
+                <div class="pstaff">
+                  {#if many && k === 0}<span class="plabel">{t(`instrument.${v.instrument}`)}</span>{/if}
+                  <ScoreSvg bar={v.view.bars[bi]} staff={v.staff} width={k === 0 ? LINE * 1.25 / line.length : LINE / line.length} staffSpacing={9} showClef={k === 0} timeSig={showsTimeSig(score, bi) ? barTimeSig(score, bi) : null} {colours} fixedRange={many ? [7, 6] : [8, 10]} />
+                </div>
+              {/each}
             </div>
           {/each}
         </div>
@@ -55,6 +64,8 @@
   .meta { margin: 0 0 12px; color: #555; font-size: 14px; }
   .line { display: flex; gap: 0; margin: 8px 0 18px; }
   .bar :global(svg) { width: 100%; height: auto; }
+  .pstaff { position: relative; }
+  .plabel { position: absolute; top: 0; left: 0; font-size: 11px; font-weight: 600; color: #555; }
   .missing { padding: 24px; }
   @media print {
     .page { box-shadow: none; margin: 0; padding: 0; max-width: none; }

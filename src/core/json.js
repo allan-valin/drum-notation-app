@@ -3,29 +3,34 @@ import { isGroup } from './tree.js';
 import { noteValueById, cellsPerBeat } from './noteValue.js';
 import { profileById, NOTEHEADS } from './profile.js';
 import { Mark, Roll, Grace } from './score.js';
+import { toFull, partView, fromViews, isFull } from './parts.js';
+import { PROFILES } from './profile.js';
 
 /** Bump when the shape changes. docs/SCORE_IMPORT_PROMPT.md targets this schema. */
-export const SCHEMA_VERSION = 2;
+export const SCHEMA_VERSION = 3;
 
+/** Write a score (one-part or full) as schema v3: parts listed once, notes per part per bar. */
 export function encode(score) {
+  const full = toFull(score);
   return JSON.stringify(
     {
       schema_version: SCHEMA_VERSION,
-      id: score.id,
-      title: score.title,
-      profileId: score.profileId,
-      timeSigNum: score.timeSigNum,
-      timeSigDen: score.timeSigDen,
-      defaultBpm: score.defaultBpm,
-      createdAt: score.createdAt,
-      updatedAt: score.updatedAt,
-      bars: score.bars.map((b) => ({
+      id: full.id,
+      title: full.title,
+      timeSigNum: full.timeSigNum,
+      timeSigDen: full.timeSigDen,
+      defaultBpm: full.defaultBpm,
+      createdAt: full.createdAt,
+      updatedAt: full.updatedAt,
+      parts: full.parts.map((p) => ({ id: p.id, instrument: p.instrument, ...(p.muted ? { muted: true } : {}) })),
+      bars: full.bars.map((b) => ({
         ...(b.timeSig ? { timeSig: b.timeSig } : {}),
-        ...(b.simile ? { simile: true } : {}),
         ...(b.repeatStart ? { repeatStart: true } : {}),
         ...(b.repeatEnd ? { repeatEnd: true } : {}),
-        ...(b.text ? { text: b.text } : {}),
-        beats: b.beats.map(encodeGroup),
+        parts: Object.fromEntries(full.parts.map((p) => {
+          const c = b.parts[p.id];
+          return [p.id, { ...(c.simile ? { simile: true } : {}), ...(c.text ? { text: c.text } : {}), beats: c.beats.map(encodeGroup) }];
+        })),
       })),
     },
     null,
@@ -56,17 +61,46 @@ function encodeNote(n) {
 }
 
 /**
- * Parse and validate. Accepts the full form `encode` writes and the minimal hand-written form
- * where a cell is a list of slot ids. Throws with a message naming what is wrong, so the
- * import dialog can show it.
+ * Parse and validate into a full score. Reads v3 (parts) and v1/v2 (one drum part), including
+ * the minimal hand-written form where a cell is a list of slot ids. Throws with a message
+ * naming what is wrong, so the import dialog can show it.
  */
-export function decode(text) {
+export function decodeFull(text) {
   const j = typeof text === 'string' ? JSON.parse(text) : text;
   if (typeof j !== 'object' || j === null) throw new Error('JSON não é um objeto');
   const version = j.schema_version ?? j.schemaVersion;
   if (version !== undefined && version > SCHEMA_VERSION) {
     throw new Error(`schema_version ${version} é mais nova do que a suportada (${SCHEMA_VERSION})`);
   }
+  if (!Array.isArray(j.parts)) return toFull(decodeOnePart(j));
+  if (j.parts.length === 0) throw new Error('parts precisa ter pelo menos um instrumento');
+  const parts = j.parts.map((p, i) => {
+    if (!PROFILES[p.instrument]) throw new Error(`instrumento ${i + 1}: "${p.instrument}" desconhecido (válidos: ${Object.keys(PROFILES).join(', ')})`);
+    return { id: String(p.id ?? `p${i + 1}`), instrument: p.instrument, muted: !!p.muted };
+  });
+  if (!Array.isArray(j.bars) || j.bars.length === 0) throw new Error('bars precisa ser uma lista com pelo menos um compasso');
+  const views = Object.fromEntries(parts.map((p) => {
+    const bars = j.bars.map((b, bi) => {
+      const c = b.parts?.[p.id];
+      if (!c) throw new Error(`compasso ${bi + 1}: falta a parte "${p.id}"`);
+      return { timeSig: b.timeSig, repeatStart: b.repeatStart, repeatEnd: b.repeatEnd, ...c };
+    });
+    try {
+      return [p.id, decodeOnePart({ ...j, parts: undefined, profileId: p.instrument, bars })];
+    } catch (e) {
+      throw new Error(`${p.instrument} (${p.id}): ${e.message}`);
+    }
+  }));
+  return fromViews(parts, views);
+}
+
+/** The first part as a one-instrument score: what the editor and older callers work with. */
+export function decode(text) {
+  const full = decodeFull(text);
+  return partView(full, full.parts[0].id);
+}
+
+function decodeOnePart(j) {
   const profileId = j.profileId ?? 'drums';
   const staff = profileById(profileId).staves[0];
   const timeSigNum = int(j.timeSigNum ?? 4, 'timeSigNum');

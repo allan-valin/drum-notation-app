@@ -1,6 +1,7 @@
 import { PPQ, beatTicks, leafTicks } from './ticks.js';
 import { barTimeSig, Articulation, Mark, Roll, Grace } from './score.js';
 import { Notehead } from './profile.js';
+import { partView } from './parts.js';
 
 /** Seconds per tick at a tempo in quarter notes per minute. */
 export function secondsPerTick(bpm) {
@@ -31,8 +32,18 @@ export function playOrder(score, a, b) {
   return order;
 }
 
-/** The sound a note makes: its instrument, changed by its head and technique marks. */
-export function soundFor(note) {
+/** The sound a note makes on a given instrument, changed by its head and technique marks. */
+export function soundFor(note, instrument = 'drums') {
+  if (instrument === 'congas') {
+    const base = { quinto: 'congaHigh', conga: 'congaMid', tumba: 'congaLow' }[note.slotId] ?? 'congaMid';
+    if (note.head === Notehead.CROSS) return base.replace('conga', 'congaSlap');
+    if ((note.marks ?? []).includes(Mark.CLOSED)) return base.replace('conga', 'congaMute');
+    return base;
+  }
+  return drumSound(note);
+}
+
+function drumSound(note) {
   const marks = note.marks ?? [];
   if (note.head === Notehead.TRIANGLE) return 'cowbell';
   if (note.head === Notehead.CIRCLE_X) return 'china';
@@ -67,7 +78,7 @@ function velocityOf(note) {
  * Everything needed to play bars `a..b`: hits (with tick, sound, loudness and where they are
  * in the score, for the playhead), one metronome click per beat, and the total length. Pure.
  */
-export function performance(score, a, b) {
+export function performance(score, a, b, instrument = score.profileId ?? 'drums') {
   const hits = [];
   const clicks = [];
   let offset = 0;
@@ -84,7 +95,7 @@ export function performance(score, a, b) {
       for (const leaf of leafTicks(group, den)) {
         const at = offset + beat * bt + leaf.tick;
         for (const note of leaf.leaf.notes) {
-          const where = { bar: shown, beat, path: leaf.path, slotId: note.slotId, sound: soundFor(note) };
+          const where = { bar: shown, beat, path: leaf.path, slotId: note.slotId, sound: soundFor(note, instrument) };
           const velocity = velocityOf(note);
           if (note.grace === Grace.FLAM) hits.push({ ...where, tick: at, ahead: 0.03, velocity: 0.35, grace: true });
           if (note.grace === Grace.DRAG) {
@@ -107,4 +118,17 @@ export function performance(score, a, b) {
   }
   hits.sort((x, y) => x.tick - y.tick || y.ahead - x.ahead);
   return { hits, clicks, totalTicks: offset, firstBarBeats: barTimeSig(score, a)[0], firstBarUnit: barTimeSig(score, a)[1] };
+}
+
+/**
+ * Every unmuted part of a full score, mixed: hits from each part (tagged with `part`), one set
+ * of metronome clicks. The playhead follows whichever part is being edited, so hits keep
+ * their bar, beat and path.
+ */
+export function performanceAll(full, a, b) {
+  const playing = full.parts.filter((p) => !p.muted);
+  const base = performance(partView(full, full.parts[0].id), a, b);
+  const hits = playing.flatMap((p) => performance(partView(full, p.id), a, b, p.instrument).hits.map((h) => ({ ...h, part: p.id })));
+  hits.sort((x, y) => x.tick - y.tick || y.ahead - x.ahead);
+  return { ...base, hits };
 }

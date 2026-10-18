@@ -5,7 +5,8 @@
   import { Notehead } from '../core/profile.js';
   import { NoteValue } from '../core/noteValue.js';
 
-  let { onClose } = $props();
+  import { DRUM_PROFILE } from '../core/profile.js';
+  let { onClose, profile = DRUM_PROFILE } = $props();
   const q = NoteValue.QUARTER;
   const head = (h) => Glyphs.notehead(h, q);
   const ROWS = [
@@ -27,7 +28,11 @@
     ['accent', Glyphs.ACCENT],
     ['simile', Glyphs.SIMILE],
     ['repeat', Glyphs.REPEAT_LEFT + '  ' + Glyphs.REPEAT_RIGHT],
+    ['congaSlap', head(Notehead.CROSS)],
+    ['congaMute', Glyphs.CLOSED],
   ];
+  /** Only the symbols this instrument uses, in the profile's order. */
+  const rows = $derived(profile.legend.map((id) => ROWS.find(([r]) => r === id)).filter(Boolean));
 </script>
 
 <Modal title={t('legend.title')} closeLabel={t('legend.close')} {onClose}>
@@ -35,7 +40,7 @@
   <table>
     <thead><tr><th>{t('legend.symbol')}</th><th>{t('legend.meaning')}</th><th>{t('legend.also')}</th></tr></thead>
     <tbody>
-      {#each ROWS as [id, glyph]}
+      {#each rows as [id, glyph]}
         <tr><td class="smufl sym">{glyph}</td><td>{t(`legend.rows.${id}.meaning`)}</td><td class="also">{t(`legend.rows.${id}.also`)}</td></tr>
       {/each}
     </tbody>

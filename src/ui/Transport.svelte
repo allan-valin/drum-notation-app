@@ -2,20 +2,21 @@
   /** Listen: what to play, play/stop, loop, metronome, count-in and a practice BPM. */
   import { onDestroy } from 'svelte';
   import { t } from '../app/prefs.svelte.js';
-  import { performance } from '../core/schedule.js';
+  import { performanceAll } from '../core/schedule.js';
+  import { INSTRUMENTS } from '../core/profile.js';
   import { createPlayer } from '../audio/player.js';
   import { createKit, METRONOME_VOICES } from '../audio/kit.js';
   import { createSampleKit } from '../audio/samples.js';
 
   let {
-    score, currentBar, range = null, store = null,
+    full, parts = [], onBand = () => {}, currentBar, range = null, store = null,
     mode = $bindable('bar'),
     selecting = $bindable(false),
     onMove = () => {},
     onPlayhead = () => {}, onPlaying = () => {}, onStatus = () => {},
   } = $props();
 
-  let bpm = $state(score.defaultBpm);
+  let bpm = $state(full.defaultBpm);
   let loop = $state(false);
   let metronome = $state(false);
   let countIn = $state(false);
@@ -30,7 +31,7 @@
   const MODES = ['bar', 'all', 'fromHere', 'selection'];
 
   function bounds() {
-    const last = score.bars.length - 1;
+    const last = full.bars.length - 1;
     if (mode === 'all') return [0, last];
     if (mode === 'fromHere') return [currentBar, last];
     if (mode === 'selection' && range) return range;
@@ -62,7 +63,7 @@
     if (!ensureAudio()) return;
     ctx.resume?.();
     const [from, to] = bounds();
-    player.start(performance(score, from, to), { bpm, loop, metronome, countIn });
+    player.start(performanceAll(full, from, to), { bpm, loop, metronome, countIn });
     playing = true;
     onPlaying(true);
     onStatus(t(loop ? 'play.looping' : 'play.playing', { from: from + 1, to: to + 1, bpm })
@@ -131,6 +132,21 @@
       <button aria-label={t('play.faster')} disabled={playing} onclick={() => setBpm(bpm + 5)}>+</button>
     </span>
   </div>
+  <div class="band" aria-label={t('instrument.band')}>
+    <span class="lbl">{t('instrument.band')}</span>
+    {#each parts as p, i (p.id)}
+      <div class="row" class:muted={p.muted}>
+        <span class="n">{i + 1}</span>
+        <select aria-label={`${t('instrument.label')} ${i + 1}`} value={p.instrument} disabled={playing} onchange={(e) => { const v = e.target.value; e.target.value = p.instrument; onBand({ type: 'setInstrument', part: p.id, instrument: v }); }}>
+          {#each INSTRUMENTS as id}<option value={id}>{t(`instrument.${id}`)}</option>{/each}
+        </select>
+        <button class:on={p.muted} aria-pressed={p.muted} aria-label={`${p.muted ? t('instrument.unmute') : t('instrument.mute')}: ${p.label}`} title={p.muted ? t('instrument.unmute') : t('instrument.mute')} onclick={() => onBand({ type: 'toggleMute', part: p.id })}>{p.muted ? '🔇' : '🔊'}</button>
+        <button aria-label={`${t('instrument.remove')}: ${p.label}`} title={t('instrument.remove')} disabled={parts.length <= 1 || playing} onclick={() => onBand({ type: 'removePart', part: p.id })}>✕</button>
+      </div>
+    {/each}
+    <button class="add" disabled={playing} onclick={() => onBand({ type: 'addPart', instrument: INSTRUMENTS.find((id) => !parts.some((p) => p.instrument === id)) ?? INSTRUMENTS[0] })}>{t('instrument.add')}</button>
+  </div>
+
   {#if mode === 'selection'}
     <p class="hint">{range ? t('play.selected', { from: range[0] + 1, to: range[1] + 1 }) + ' · ' : ''}{selecting ? t('play.dragHint') : t('play.selectHint')}</p>
   {/if}
@@ -159,5 +175,12 @@
   .selbox input { width: 20px; height: 20px; }
   .voice { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--muted); }
   .voice select { font: inherit; font-size: 14px; color: var(--ink); background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); min-height: var(--tap); padding: 0 8px; }
+  .band { width: 100%; display: flex; flex-direction: column; gap: 6px; padding: 8px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--panel); }
+  .band .lbl { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); }
+  .band .row { display: flex; gap: 6px; align-items: center; }
+  .band .row.muted select { opacity: 0.5; }
+  .band .n { width: 1.5em; text-align: right; color: var(--muted); font-size: 13px; }
+  .band select { flex: 1; min-width: 0; font: inherit; min-height: var(--tap); color: var(--ink); background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 0 8px; }
+  .band .add { align-self: flex-start; border-style: dashed; color: var(--accent); font-weight: 600; }
   .hint { width: 100%; margin: 0; font-size: 12px; color: var(--muted); }
 </style>

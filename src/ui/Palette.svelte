@@ -5,9 +5,30 @@
   import { Sticking, Mark, Roll, Grace } from '../core/score.js';
   import { t } from '../app/prefs.svelte.js';
 
-  let { tool, onAction, canUndo = false, canMerge = false, onLegend = () => {}, onHelp = () => {} } = $props();
+  import { DRUM_PROFILE } from '../core/profile.js';
+
+  let {
+    tool, onAction, canUndo = false, canMerge = false, onLegend = () => {}, onHelp = () => {},
+    profile = DRUM_PROFILE, parts = [], part = null,
+  } = $props();
+  const q = NoteValue.QUARTER;
   const HEADS = [Notehead.CROSS, Notehead.DIAMOND, Notehead.TRIANGLE, Notehead.CIRCLE_X, Notehead.SLASHED];
-  const MARKS = [[Mark.OPEN, Glyphs.OPEN], [Mark.CLOSED, Glyphs.CLOSED], [Mark.HALF_OPEN, Glyphs.HALF_OPEN], [Mark.CHOKE, Glyphs.CHOKE]];
+  /** Every technique the app knows; a profile shows the ones its instrument uses. */
+  const TECHS = [
+    { id: Mark.OPEN, glyph: Glyphs.OPEN, cls: 'mark' },
+    { id: Mark.CLOSED, glyph: Glyphs.CLOSED, cls: 'mark' },
+    { id: Mark.HALF_OPEN, glyph: Glyphs.HALF_OPEN, cls: 'mark' },
+    { id: Mark.CHOKE, glyph: Glyphs.CHOKE, cls: 'mark' },
+    { id: Roll.BUZZ, glyph: Glyphs.BUZZ, cls: 'mark' },
+    { id: Roll.TREMOLO, glyph: Glyphs.TREMOLO3, cls: 'small' },
+    { id: Grace.FLAM, glyph: Glyphs.GRACE_SLASH + Glyphs.notehead(Notehead.NORMAL, q), cls: 'small' },
+    { id: Grace.DRAG, glyph: Glyphs.GRACE + Glyphs.GRACE + Glyphs.notehead(Notehead.NORMAL, q), cls: 'small' },
+  ];
+  const has = (group) => profile.palette.includes(group);
+  const heads = $derived(HEADS.filter((h) => profile.heads.includes(h)));
+  const techs = $derived(TECHS.filter((x) => profile.techniques.includes(x.id)));
+  /** An instrument may name a symbol its own way: an X head on congas is a slap. */
+  const label = (id) => t(`tech.${profile.labels?.[id] ?? id}`);
   const tech = (x) => onAction({ type: 'setTech', tech: x });
   const TUPLETS = [3, 5, 6, 7];
 </script>
@@ -17,6 +38,12 @@
     <button class="aux" onclick={onLegend} aria-label={t('legend.title')}><span class="glyph text small-text">☰</span><span class="label">{t('legend.open')}</span></button>
     <button class="aux" onclick={onHelp} aria-label={t('help.title')}><span class="glyph text small-text">?</span><span class="label">{t('help.open')}</span></button>
   </div>
+  <section class="instrument">
+    <h3>{t('instrument.editing')}</h3>
+    <select aria-label={t('instrument.label')} value={part} onchange={(e) => onAction({ type: 'setPart', part: e.target.value })}>
+      {#each parts as p}<option value={p.id}>{p.label}</option>{/each}
+    </select>
+  </section>
   <section>
     <h3>{t('palette.edit')}</h3>
     <div class="grid">
@@ -48,6 +75,7 @@
     </div>
   </section>
 
+  {#if has('tuplet')}
   <section>
     <h3>{t('palette.tuplet')}</h3>
     <div class="grid four">
@@ -59,6 +87,7 @@
       {/each}
     </div>
   </section>
+  {/if}
 
   <div class="symbols">
   <section>
@@ -77,17 +106,22 @@
         <span class="smufl glyph">{Glyphs.rest(NoteValue.QUARTER)}</span>
         <span class="label">{t('palette.rest')}</span>
       </button>
+      {#if profile.articulations.includes('accent')}
       <button class:on={tool.accent} aria-label={t('palette.accent')} onclick={() => onAction({ type: 'toggleAccent' })}>
         <span class="smufl glyph small accent">{Glyphs.ACCENT}</span>
         <span class="label">{t('palette.accent')}</span>
       </button>
+      {/if}
+      {#if profile.articulations.includes('ghost')}
       <button class:on={tool.ghost} aria-label={t('palette.ghostLong')} onclick={() => onAction({ type: 'toggleGhost' })}>
         <span class="smufl glyph">{Glyphs.PAREN_LEFT}{Glyphs.notehead(Notehead.NORMAL, NoteValue.QUARTER)}{Glyphs.PAREN_RIGHT}</span>
         <span class="label">{t('palette.ghost')}</span>
       </button>
+      {/if}
     </div>
   </section>
 
+  {#if profile.hands}
   <section>
     <h3>{t('palette.hand')}</h3>
     <div class="grid two">
@@ -99,48 +133,42 @@
       </button>
     </div>
   </section>
+  {/if}
 
+  {#if heads.length}
   <section>
     <h3>{t('tech.head')}</h3>
     <div class="grid">
       <button class:on={!tool.head} aria-label={t('tech.headDefault')} title={t('tech.headDefaultHint')} onclick={() => tool.head && onAction({ type: 'setHead', head: tool.head })}>
-        <span class="smufl glyph head">{Glyphs.notehead(Notehead.NORMAL, NoteValue.QUARTER)}</span><span class="label">{t('tech.headDefault')}</span>
+        <span class="smufl glyph head">{Glyphs.notehead(Notehead.NORMAL, q)}</span><span class="label">{t('tech.headDefault')}</span>
       </button>
-      {#each HEADS as h}
-        <button class:on={tool.head === h} aria-label={t(`tech.${h}`)} onclick={() => onAction({ type: 'setHead', head: h })}>
-          <span class="smufl glyph head">{Glyphs.notehead(h, NoteValue.QUARTER)}</span><span class="label">{t(`tech.${h}`)}</span>
+      {#each heads as h}
+        <button class:on={tool.head === h} aria-label={label(h)} onclick={() => onAction({ type: 'setHead', head: h })}>
+          <span class="smufl glyph head">{Glyphs.notehead(h, q)}</span><span class="label">{label(h)}</span>
         </button>
       {/each}
     </div>
   </section>
+  {/if}
 
+  {#if techs.length}
   <section>
     <h3>{t('tech.technique')}</h3>
     <div class="grid">
-      {#each MARKS as [m, g]}
-        <button class:on={tool.tech === m} aria-label={t(`tech.${m}`)} onclick={() => tech(m)}>
-          <span class="smufl glyph mark">{g}</span><span class="label">{t(`tech.${m}`)}</span>
+      {#each techs as x}
+        <button class:on={tool.tech === x.id} aria-label={label(x.id)} onclick={() => tech(x.id)}>
+          <span class="smufl glyph {x.cls}">{x.glyph}</span><span class="label">{label(x.id)}</span>
         </button>
       {/each}
-      <button class:on={tool.tech === Roll.BUZZ} aria-label={t('tech.buzz')} onclick={() => tech(Roll.BUZZ)}>
-        <span class="smufl glyph mark">{Glyphs.BUZZ}</span><span class="label">{t('tech.buzz')}</span>
-      </button>
-      <button class:on={tool.tech === Roll.TREMOLO} aria-label={t('tech.tremolo')} onclick={() => tech(Roll.TREMOLO)}>
-        <span class="smufl glyph small">{Glyphs.TREMOLO3}</span><span class="label">{t('tech.tremolo')}</span>
-      </button>
-      <button class:on={tool.tech === Grace.FLAM} aria-label={t('tech.flam')} onclick={() => tech(Grace.FLAM)}>
-        <span class="smufl glyph small">{Glyphs.GRACE_SLASH}{Glyphs.notehead(Notehead.NORMAL, NoteValue.QUARTER)}</span><span class="label">{t('tech.flam')}</span>
-      </button>
-      <button class:on={tool.tech === Grace.DRAG} aria-label={t('tech.drag')} onclick={() => tech(Grace.DRAG)}>
-        <span class="smufl glyph small">{Glyphs.GRACE}{Glyphs.GRACE}{Glyphs.notehead(Notehead.NORMAL, NoteValue.QUARTER)}</span><span class="label">{t('tech.drag')}</span>
-      </button>
     </div>
   </section>
+  {/if}
   </div>
 </div>
 
 <style>
   .palette { display: flex; flex-direction: column; gap: 8px; }
+  .instrument select { width: 100%; font: inherit; font-weight: 600; min-height: var(--tap); color: var(--ink); background: var(--panel); border: 2px solid var(--accent); border-radius: var(--radius); padding: 0 8px; }
   .top { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; }
   .aux { min-height: 44px; flex-direction: row; gap: 6px; justify-content: center; }
   .aux .label { font-size: 13px; font-weight: 600; }

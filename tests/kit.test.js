@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { createKit } from '../src/audio/kit.js';
 import { soundFor } from '../src/core/schedule.js';
 import { note, Mark } from '../src/core/score.js';
-import { DRUM_PROFILE, NOTEHEADS } from '../src/core/profile.js';
+import { DRUM_PROFILE, NOTEHEADS, PROFILES } from '../src/core/profile.js';
 
 /** Just enough of an AudioContext to see that every sound builds a graph without throwing. */
 function fakeContext() {
@@ -22,10 +22,11 @@ describe('synth kit', () => {
   it('every sound any note can ask for exists and builds', () => {
     const ctx = fakeContext();
     const kit = createKit(ctx);
-    const slots = DRUM_PROFILE.staves[0].slots.map((s) => s.id);
     const wanted = new Set();
-    for (const slot of slots) for (const head of [null, ...NOTEHEADS]) for (const marks of [[], [Mark.OPEN], [Mark.HALF_OPEN], [Mark.CHOKE]]) {
-      wanted.add(soundFor(note(slot, { head, marks })));
+    for (const profile of Object.values(PROFILES)) {
+      for (const slot of profile.staves[0].slots.map((s) => s.id)) for (const head of [null, ...NOTEHEADS]) for (const marks of [[], [Mark.OPEN], [Mark.CLOSED], [Mark.HALF_OPEN], [Mark.CHOKE]]) {
+        wanted.add(soundFor(note(slot, { head, marks }), profile.id));
+      }
     }
     for (const s of wanted) {
       expect(kit.sounds, s).toContain(s);

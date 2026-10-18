@@ -7,6 +7,9 @@ import { newScore } from '../../src/core/score.js';
 import { Glyphs } from '../../src/core/glyphs.js';
 import { NoteValue } from '../../src/core/noteValue.js';
 import { yOf } from '../../src/core/layout.js';
+import { partView } from '../../src/core/parts.js';
+
+const loadView = (store, id) => { const f = store.load(id); return partView(f, f.parts[0].id); };
 
 function memoryStorage() {
   const m = new Map();
@@ -46,7 +49,7 @@ describe('Editor', () => {
     await tapAt(container, lead + 20, yOf(4, sp)); // snare line, first (focused) beat
     expect(heads(container).length).toBe(1);
     expect(container.querySelector('.status').textContent).toContain('Caixa');
-    expect(store.load('a').bars[0].beats[0].cells[0].notes[0].slotId).toBe('snare');
+    expect(loadView(store, 'a').bars[0].beats[0].cells[0].notes[0].slotId).toBe('snare');
   });
 
   it('a tap on another beat selects it; a second tap on it places the note', async () => {
@@ -55,13 +58,13 @@ describe('Editor', () => {
     const { container } = render(Editor, { store, id: 'a', onBack: () => {}, onPrint: () => {} });
     const sp = spOf(container);
     await tapAt(container, 5.5 * sp + (300 - 6 * sp) * 0.95, yOf(4, sp)); // far right = last beat
-    expect(store.load('a').bars[0].beats[3].cells[0].notes).toEqual([]);
+    expect(loadView(store, 'a').bars[0].beats[3].cells[0].notes).toEqual([]);
     expect(container.querySelector('.status').textContent).toContain('Toque de novo');
     const stage = container.querySelector('.stage svg');
     const cards = [...stage.querySelectorAll('rect.card')];
     const last = cards[3];
     await tapAt(container, Number(last.getAttribute('x')) + Number(last.getAttribute('width')) / 2, yOf(4, sp));
-    expect(store.load('a').bars[0].beats[3].cells[0].notes[0].slotId).toBe('snare');
+    expect(loadView(store, 'a').bars[0].beats[3].cells[0].notes[0].slotId).toBe('snare');
     expect(container.querySelector('.where').textContent).toContain('4');
   });
 
@@ -70,17 +73,17 @@ describe('Editor', () => {
     store.save(newScore({ id: 'a', title: 'T' }));
     const { container, getByLabelText } = render(Editor, { store, id: 'a', onBack: () => {}, onPrint: () => {} });
     await fireEvent.click(getByLabelText('Colcheia'));
-    expect(store.load('a').bars[0].beats[0].cells.length).toBe(2);
+    expect(loadView(store, 'a').bars[0].beats[0].cells.length).toBe(2);
     expect(container.querySelector('.where').textContent).toContain('tempo 1.1');
     await fireEvent.click(getByLabelText('Próxima posição'));
     expect(container.querySelector('.where').textContent).toContain('tempo 1.2');
     const sp = spOf(container), lead = 5.5 * sp;
     const focusedWidth = ((300 - lead - 0.5 * sp) / 5.5) * 2.5;
     await tapAt(container, lead + focusedWidth * 0.75, yOf(-2, sp)); // kick, second cell
-    expect(store.load('a').bars[0].beats[0].cells[1].notes[0].slotId).toBe('kick');
+    expect(loadView(store, 'a').bars[0].beats[0].cells[1].notes[0].slotId).toBe('kick');
     await fireEvent.click(getByLabelText('Apagar'));
     await tapAt(container, lead + focusedWidth * 0.75, yOf(-2, sp));
-    expect(store.load('a').bars[0].beats[0].cells[1].notes.length).toBe(0);
+    expect(loadView(store, 'a').bars[0].beats[0].cells[1].notes.length).toBe(0);
     expect(container.querySelector('.status').textContent).toContain('Apagado');
   });
 
@@ -104,7 +107,7 @@ describe('Editor', () => {
     const [num] = container.querySelectorAll('.picker select');
     await fireEvent.change(num, { target: { value: '3' } });
     await fireEvent.click(getByText('Aplicar'));
-    expect(store.load('a').bars[0].beats.length).toBe(3);
+    expect(loadView(store, 'a').bars[0].beats.length).toBe(3);
     expect(container.querySelector('.status').textContent).toContain('3/4');
   });
 
@@ -116,7 +119,7 @@ describe('Editor', () => {
     await fireEvent.click(getByLabelText('Próxima posição'));
     await fireEvent.click(getByRole('radio', { name: 'Célula' }));
     await fireEvent.click(getByLabelText('Semicolcheia'));
-    const beat = store.load('a').bars[0].beats[0];
+    const beat = loadView(store, 'a').bars[0].beats[0];
     expect(beat.cells[0].notes).toEqual([]);
     expect(beat.cells[1].cells.length).toBe(2);
   });
@@ -140,7 +143,7 @@ describe('legend and help overlays', () => {
     const { getByLabelText, getByRole } = render(Editor, { store, id: 'a', onBack: () => {}, onPrint: () => {} });
     await fireEvent.click(getByLabelText('Como usar'));
     const dialog = getByRole('dialog', { name: 'Como usar' });
-    expect(dialog.querySelectorAll('section').length).toBe(7);
+    expect(dialog.querySelectorAll('section').length).toBe(8);
     expect(dialog.querySelectorAll('figure svg').length).toBe(3);
   });
   it('a technique toggle rides on the next note', async () => {
@@ -151,7 +154,7 @@ describe('legend and help overlays', () => {
     expect(container.querySelector('.status').textContent).toContain('Próximas notas: Aberto');
     const sp = spOf(container);
     await tapAt(container, 5.5 * sp + 20, yOf(9, sp));
-    expect(store.load('a').bars[0].beats[0].cells[0].notes[0]).toMatchObject({ slotId: 'hihat', marks: ['open'] });
+    expect(loadView(store, 'a').bars[0].beats[0].cells[0].notes[0]).toMatchObject({ slotId: 'hihat', marks: ['open'] });
   });
 });
 
@@ -201,7 +204,7 @@ describe('symbol only, in the page', () => {
     await fireEvent.click(getByRole('radio', { name: 'Só símbolo' }));
     await fireEvent.click(getByLabelText('Acento'));
     await tapAt(container, 5.5 * sp + 20, yOf(4, sp));
-    const notes = store.load('a').bars[0].beats[0].cells[0].notes;
+    const notes = loadView(store, 'a').bars[0].beats[0].cells[0].notes;
     expect(notes.length).toBe(1);
     expect(notes[0].articulations).toEqual(['accent']);
     expect(container.querySelector('.status').textContent).toContain('Símbolos postos');
@@ -221,7 +224,7 @@ describe('moving bars', () => {
     await fireEvent.click(getByLabelText('Ir ao compasso 1'));
     await fireEvent.click(getByLabelText('Mover a seleção um compasso para a direita'));
     await fireEvent.click(getByLabelText('Mover a seleção um compasso para a direita'));
-    const bars = store.load('a').bars;
+    const bars = loadView(store, 'a').bars;
     expect(bars[2].beats[0].cells[0].notes[0].slotId).toBe('kick');
     expect(bars[0].beats[0].cells[0].notes).toEqual([]);
     expect(container.querySelector('.status').textContent).toContain('agora 3–3');
@@ -268,5 +271,51 @@ describe('metronome sound', () => {
     await fireEvent.change(select, { target: { value: 'woodblock' } });
     expect(store.loadSettings().metronomeVoice).toBe('woodblock');
     expect(container.querySelector('.status').textContent).toContain('Metrônomo: Bloco de madeira');
+  });
+});
+
+describe('instruments', () => {
+  it('adding congas switches the palette to conga tools only, and the full score stacks both parts', async () => {
+    const store = createStore(memoryStorage());
+    store.save(newScore({ id: 'a', title: 'T' }));
+    const { container, getByText, getByLabelText, queryByLabelText } = render(Editor, { store, id: 'a', onBack: () => {}, onPrint: () => {} });
+    expect(getByLabelText('Losango')).toBeTruthy();
+    await fireEvent.click(getByText('+ Adicionar instrumento'));
+    expect(container.querySelector('.status').textContent).toContain('Congas adicionado');
+    const select = getByLabelText('Instrumento');
+    expect([...select.options].map((o) => o.textContent)).toEqual(['Bateria', 'Congas']);
+    expect(select.value).toBe(store.load('a').parts[1].id);
+    expect(queryByLabelText('Losango')).toBeNull();      // drum-only head gone from the palette
+    expect(queryByLabelText('Aberto')).toBeNull();       // hi-hat technique gone
+    expect(getByLabelText('Slap')).toBeTruthy();         // conga name for the X head
+    expect(getByLabelText('Abafado')).toBeTruthy();
+    expect(getByLabelText('Mão direita')).toBeTruthy();  // hands stay
+    expect(container.querySelectorAll('.full .frame')[0].querySelectorAll('.staff').length).toBe(2);
+    await fireEvent.change(select, { target: { value: 'p1' } });
+    expect(getByLabelText('Losango')).toBeTruthy();      // back on drums, everything is back
+  });
+  it('a conga note lands in the conga part only', async () => {
+    const store = createStore(memoryStorage());
+    store.save(newScore({ id: 'a', title: 'T' }));
+    const { container, getByText } = render(Editor, { store, id: 'a', onBack: () => {}, onPrint: () => {} });
+    await fireEvent.click(getByText('+ Adicionar instrumento'));
+    const sp = spOf(container);
+    await tapAt(container, 5.5 * sp + 20, yOf(4, sp));
+    const full = store.load('a');
+    expect(partView(full, full.parts[1].id).bars[0].beats[0].cells[0].notes[0].slotId).toBe('conga');
+    expect(partView(full, 'p1').bars[0].beats[0].cells[0].notes).toEqual([]);
+  });
+  it('changing the instrument of a written part asks first', async () => {
+    const store = createStore(memoryStorage());
+    store.save(newScore({ id: 'a', title: 'T' }));
+    const { container, getByLabelText } = render(Editor, { store, id: 'a', onBack: () => {}, onPrint: () => {} });
+    const sp = spOf(container);
+    await tapAt(container, 5.5 * sp + 20, yOf(-2, sp));
+    window.confirm = () => false;
+    await fireEvent.change(getByLabelText('Instrumento 1'), { target: { value: 'congas' } });
+    expect(store.load('a').parts[0].instrument).toBe('drums');
+    window.confirm = () => true;
+    await fireEvent.change(getByLabelText('Instrumento 1'), { target: { value: 'congas' } });
+    expect(store.load('a').parts[0].instrument).toBe('congas');
   });
 });

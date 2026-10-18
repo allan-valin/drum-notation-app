@@ -14,6 +14,7 @@
   import { NOTE_VALUES } from '../core/noteValue.js';
   import { newScore, barTimeSig } from '../core/score.js';
   import { t } from '../app/prefs.svelte.js';
+  import { partLabelIndex, isEmptyPart } from '../core/parts.js';
 
   /** `background`: drawn behind the welcome overlay, inert, nothing saved. */
   let { store, id, onBack, onPrint, fallback = null, background = false } = $props();
@@ -35,7 +36,16 @@
   let selecting = $state(false);
   if (!background && loaded) store.saveSettings({ ...store.loadSettings(), lastId: id });
 
-  const staff = $derived(profileById(st.score.profileId).staves[0]);
+  const profile = $derived(profileById(st.score.profileId));
+  const staff = $derived(profile.staves[0]);
+  /** "Bateria", or "Bateria 2" when the instrument appears twice. */
+  const partName = (full, id) => {
+    const p = full.parts.find((x) => x.id === id);
+    if (!p) return '';
+    const n = partLabelIndex(full, id);
+    return t(`instrument.${p.instrument}`) + (n ? ` ${n}` : '');
+  };
+  const partList = $derived(st.full.parts.map((p) => ({ id: p.id, instrument: p.instrument, muted: p.muted, label: partName(st.full, p.id) })));
   const shownBar = $derived(playing && playhead ? playhead.bar : st.cursor.bar);
   const bar = $derived(st.score.bars[shownBar]);
   const slotName = (sid) => t(`slot.${sid}`);
@@ -47,9 +57,9 @@
     const before = st;
     st = reduce(st, action);
     status = st.refused ? t(`refused.${st.refused}`) : describe(action, before, st);
-    if (st.score !== before.score) {
-      store.save(st.score);
-      store.saveSettings({ ...store.loadSettings(), lastId: st.score.id });
+    if (st.full !== before.full) {
+      store.save(st.full);
+      store.saveSettings({ ...store.loadSettings(), lastId: st.full.id });
       savedAt = new Date().toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', second: '2-digit' });
     }
   }
@@ -96,6 +106,14 @@
       case 'setTech': return after.tool.tech ? t(after.tool.withNote ? 'status.techOn' : 'status.techOnSymbol', { what: t(`tech.${after.tool.tech}`) }) : t('status.techOff', { what: t(`tech.${before.tool.tech}`) });
       case 'setWithNote': return after.tool.withNote ? t('tech.withNoteHint') : t('tech.symbolOnlyHint');
       case 'setBarText': return b.text ? t('status.barTextSet', { n, text: b.text }) : t('status.barTextCleared', { n });
+      case 'setPart': return t('status.partSwitched', { name: partName(after.full, after.part) });
+      case 'addPart': return t('status.partAdded', { name: partName(after.full, after.part) });
+      case 'removePart': return t('status.partRemoved', { name: partName(before.full, a.part) });
+      case 'setInstrument': return t('status.instrumentSet', { name: partName(after.full, a.part) });
+      case 'toggleMute': {
+        const p = after.full.parts.find((x) => x.id === a.part);
+        return t(p.muted ? 'status.muted' : 'status.unmuted', { name: partName(after.full, a.part) });
+      }
       case 'setTitle': return t('status.titleSet');
       case 'setBpm': return t('status.bpmSet', { bpm: after.score.defaultBpm });
       default: return status;
@@ -116,6 +134,17 @@
     dispatch({ type: 'goTo', cursor: mkCursor(i, 0, 0) });
   }
 
+  /** The band list next to BPM: add, remove, re-instrument and mute parts. */
+  function band(action) {
+    if (action.type === 'setInstrument' && !isEmptyPart(st.full, action.part)) {
+      if (!confirm(t('instrument.confirmChange'))) return;
+    }
+    if (action.type === 'removePart' && !isEmptyPart(st.full, action.part)) {
+      if (!confirm(t('instrument.confirmRemove', { name: partName(st.full, action.part) }))) return;
+    }
+    dispatch(action);
+  }
+
   function moveBlock(dir) {
     if (!range) { status = t('play.dragHint'); return; }
     const [a, b] = range;
@@ -125,7 +154,7 @@
   function dropBlock(a, b, gap) {
     const before = st;
     dispatch({ type: 'moveBars', from: a, to: b, gap });
-    if (st.score !== before.score) {
+    if (st.full !== before.full) {
       range = st.range;
       status = t('play.moved', { from: range[0] + 1, to: range[1] + 1 });
     }
@@ -164,7 +193,7 @@
 
   <div class="body">
     <aside class="palette-area no-print" class:locked={playing} inert={playing}>
-      <Palette tool={st.tool} canUndo={st.history.length > 0} canMerge={st.cursor.path.length > 1} onAction={dispatch} onLegend={() => (overlay = 'legend')} onHelp={() => (overlay = 'help')} />
+      <Palette tool={st.tool} canUndo={st.history.length > 0} canMerge={st.cursor.path.length > 1} onAction={dispatch} onLegend={() => (overlay = 'legend')} onHelp={() => (overlay = 'help')} {profile} parts={partList} part={st.part} />
     </aside>
 
       <div class="stage">
@@ -198,10 +227,10 @@
 
       <div class="bars-area"><BarRow score={st.score} barIndex={st.cursor.bar} onAction={dispatch} /></div>
 
-      <div class="transport-area"><Transport score={st.score} currentBar={st.cursor.bar} {range} {store} bind:mode={playMode} bind:selecting onMove={moveBlock}
+      <div class="transport-area"><Transport full={st.full} parts={partList} onBand={band} currentBar={st.cursor.bar} {range} {store} bind:mode={playMode} bind:selecting onMove={moveBlock}
         onPlayhead={(p) => (playhead = p)} onPlaying={(on) => { playing = on; if (!on) playhead = null; }} onStatus={(m) => (status = m)} /></div>
 
-      <div class="full-area"><FullScore range={selecting || playMode === 'selection' ? range : null} {selecting} onDrop={dropBlock} playingBar={playing ? playhead?.bar : null} score={st.score} {staff} {colours} current={st.cursor.bar} onOpen={openBar} /></div>
+      <div class="full-area"><FullScore full={st.full} parts={partList} part={st.part} range={selecting || playMode === 'selection' ? range : null} {selecting} onDrop={dropBlock} playingBar={playing ? playhead?.bar : null} {colours} current={st.cursor.bar} onOpen={openBar} /></div>
 
       <details class="colours no-print">
         <summary>{t('editor.colours')}</summary>
@@ -218,7 +247,7 @@
   </div>
 </div>
 
-{#if overlay === 'legend'}<Legend onClose={() => (overlay = null)} />{/if}
+{#if overlay === 'legend'}<Legend {profile} onClose={() => (overlay = null)} />{/if}
 {#if overlay === 'help'}<Help {colours} onClose={() => (overlay = null)} />{/if}
 
 <style>

@@ -94,6 +94,16 @@ export function createKit(ctx) {
     highTom: (t, v) => tone(t, v, 0.35, 260, 180, 'sine', 0.2),
     midTom: (t, v) => tone(t, v, 0.4, 190, 135, 'sine', 0.22),
     floorTom: (t, v) => tone(t, v, 0.5, 125, 85, 'sine', 0.25),
+    // congas: open tones are short pitched skins; a slap is a sharp crack; a muted tone is short and dull
+    congaHigh: (t, v) => { tone(t, v * 0.9, 0.22, 420, 380, 'sine', 0.05); noiseHit(t, v * 0.15, 0.02, [['bandpass', 2500, 1]]); },
+    congaMid: (t, v) => { tone(t, v * 0.9, 0.26, 320, 290, 'sine', 0.05); noiseHit(t, v * 0.15, 0.02, [['bandpass', 2000, 1]]); },
+    congaLow: (t, v) => { tone(t, v * 0.9, 0.32, 230, 205, 'sine', 0.06); noiseHit(t, v * 0.15, 0.02, [['bandpass', 1600, 1]]); },
+    congaSlapHigh: (t, v) => { noiseHit(t, v * 0.8, 0.07, [['bandpass', 3200, 1.2]]); tone(t, v * 0.3, 0.05, 520, 480, 'triangle'); },
+    congaSlapMid: (t, v) => { noiseHit(t, v * 0.8, 0.07, [['bandpass', 2800, 1.2]]); tone(t, v * 0.3, 0.05, 420, 380, 'triangle'); },
+    congaSlapLow: (t, v) => { noiseHit(t, v * 0.8, 0.08, [['bandpass', 2400, 1.2]]); tone(t, v * 0.3, 0.06, 300, 270, 'triangle'); },
+    congaMuteHigh: (t, v) => tone(t, v * 0.6, 0.06, 400, 360, 'sine', 0.02),
+    congaMuteMid: (t, v) => tone(t, v * 0.6, 0.07, 300, 270, 'sine', 0.02),
+    congaMuteLow: (t, v) => tone(t, v * 0.6, 0.08, 215, 195, 'sine', 0.02),
   };
 
   return {

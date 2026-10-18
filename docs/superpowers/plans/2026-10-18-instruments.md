@@ -79,7 +79,7 @@ transposition are just the frequency. A sampled set can follow later like the dr
 
 ## Checkpoints
 
-- [ ] **I1 Parts.** Schema v3: `score.parts[]` (`{ id, instrument, muted }`), bars keep shared
+- [x] **I1 Parts.** (2026-10-18: done; hit-test 0 stolen clicks for drums (38 buttons) and congas (28) at 1280×800, 800×360, 390×844; drums+congas played together, muting congas removed exactly their 7 voices.) Schema v3: `score.parts[]` (`{ id, instrument, muted }`), bars keep shared
   attributes (signature, repeats) and hold each part's content in `bar.parts[partId]`; v2 files
   load as one drum part. Editor edits a projected one-part view, so editing code is unchanged.
   Palette instrument dropdown; transport band list with + Add instrument, mute, remove; full

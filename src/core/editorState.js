@@ -7,6 +7,7 @@ import {
   setTimeSig, toggleSimile, toggleRepeatStart, toggleRepeatEnd, setBarText, moveBars,
 } from './edit.js';
 import { profileById, slotNearest } from './profile.js';
+import { toFull, partView, zipPart, applyAll, addPart, removePart, setInstrument, toggleMute } from './parts.js';
 
 const HISTORY = 50;
 
@@ -15,8 +16,12 @@ const HISTORY = 50;
  * `refused` is set when an action did nothing on purpose, so the status line can say why.
  */
 export function initialState(score) {
+  const full = toFull(score);
+  const part = full.parts[0].id;
   const st = {
-    score,
+    full,
+    part,
+    score: partView(full, part),
     cursor: mkCursor(0, 0, 0),
     tool: { value: NoteValue.QUARTER, tuplet: null, delete: false, accent: false, ghost: false, sticking: null, splitMode: 'beat', head: null, tech: null, withNote: true },
     history: [],
@@ -25,7 +30,75 @@ export function initialState(score) {
   return syncTool(clampCursor(st));
 }
 
+/**
+ * Parts: the rules below edit `st.score`, a one-part view of `st.full`. This layer writes each
+ * change back into the full score, runs bar operations on every part so they stay aligned,
+ * keeps whole full scores in the undo history, and handles the part actions themselves.
+ */
+const BAR_OPS = {
+  addBar: () => (v) => addBar(v),
+  removeBar: (st) => (v) => removeBar(v, st.cursor.bar),
+  setTimeSig: (st, a) => (v) => setTimeSig(v, st.cursor.bar, a.sig),
+  moveBars: (st, a) => (v) => moveBars(v, a.from, a.to, a.gap).score,
+};
+
 export function reduce(state, action) {
+  switch (action.type) {
+    case 'setPart': return switchPart(state, action.part);
+    case 'addPart': {
+      const full = addPart(state.full, action.instrument);
+      return switchPart({ ...pushFull(state), full }, full.parts[full.parts.length - 1].id);
+    }
+    case 'removePart': {
+      const full = removePart(state.full, action.part);
+      if (full === state.full) return { ...state, refused: 'lastPart' };
+      const part = full.parts.some((p) => p.id === state.part) ? state.part : full.parts[0].id;
+      return switchPart({ ...pushFull(state), full }, part, true);
+    }
+    case 'setInstrument': {
+      const full = setInstrument(state.full, action.part, action.instrument);
+      if (full === state.full) return state;
+      return switchPart({ ...pushFull(state), full }, state.part, true);
+    }
+    case 'toggleMute': return { ...state, full: toggleMute(state.full, action.part) };
+    case 'undo': {
+      if (state.history.length === 0) return state;
+      const [full, ...history] = state.history;
+      const part = full.parts.some((p) => p.id === state.part) ? state.part : full.parts[0].id;
+      const score = partView(full, part);
+      return syncTool({ ...state, full, part, score, history, refused: null, cursor: clamp(score, state.cursor) });
+    }
+    default: break;
+  }
+  const next = reduceView(state, action);
+  if (next.score === state.score) return next;
+  const op = BAR_OPS[action.type];
+  const full = op ? applyAll(state.full, op(state, action)) : zipPart(state.full, state.part, next.score);
+  const score = op ? partView(full, state.part) : next.score;
+  return { ...next, full, score, cursor: clamp(score, next.cursor) };
+}
+
+function switchPart(st, part, force = false) {
+  if (!force && part === st.part) return st;
+  const score = partView(st.full, part);
+  const profile = profileById(score.profileId);
+  const t = st.tool;
+  const tool = {
+    ...t,
+    head: profile.heads.includes(t.head) ? t.head : null,
+    tech: profile.techniques.includes(t.tech) ? t.tech : null,
+    sticking: profile.hands ? t.sticking : null,
+    accent: profile.articulations.includes('accent') && t.accent,
+    ghost: profile.articulations.includes('ghost') && t.ghost,
+  };
+  return syncTool({ ...st, part, score, tool, refused: null, cursor: clamp(score, st.cursor) });
+}
+
+function pushFull(st) {
+  return { ...st, history: [st.full, ...st.history].slice(0, HISTORY) };
+}
+
+function reduceView(state, action) {
   const st = state.refused || state.selectedOnly || state.symbolsRemoved !== undefined ? { ...state, refused: null, selectedOnly: false, symbolsRemoved: undefined } : state;
   switch (action.type) {
     case 'tap': return tap(st, action.staffPosition);
@@ -88,11 +161,6 @@ export function reduce(state, action) {
     }
     case 'toggleRepeatStart': return edit(st, (s) => toggleRepeatStart(s, st.cursor.bar));
     case 'toggleRepeatEnd': return edit(st, (s) => toggleRepeatEnd(s, st.cursor.bar));
-    case 'undo': {
-      if (st.history.length === 0) return st;
-      const [score, ...history] = st.history;
-      return syncTool({ ...st, score, history, cursor: clamp(score, st.cursor) });
-    }
     case 'setTitle': return edit(st, (s) => ({ ...s, title: action.title }));
     case 'setBpm': return edit(st, (s) => ({ ...s, defaultBpm: action.bpm }));
     case 'setScore': return initialState(action.score);
@@ -205,7 +273,7 @@ function edit(st, f) {
 }
 
 function push(st) {
-  return { ...st, history: [st.score, ...st.history].slice(0, HISTORY) };
+  return pushFull(st);
 }
 
 function tool(st, patch) {

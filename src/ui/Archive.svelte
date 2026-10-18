@@ -1,6 +1,6 @@
 <script>
   import { newScore } from '../core/score.js';
-  import { encode, decode } from '../core/json.js';
+  import { encode, decodeFull } from '../core/json.js';
   import { t, prefs } from '../app/prefs.svelte.js';
   import { importPromptUrl } from '../app/importPrompt.js';
   import Prefs from './Prefs.svelte';
@@ -43,7 +43,9 @@
 
   function duplicate(item) {
     const s = store.load(item.id);
-    const copy = newScore({ ...s, id: undefined, title: `${s.title} ${t('archive.copySuffix')}`, createdAt: undefined, updatedAt: undefined });
+    // keep every part: a copy is the whole score under a new id
+    const now = Date.now();
+    const copy = { ...s, id: newScore({}).id, title: `${s.title} ${t('archive.copySuffix')}`, createdAt: now, updatedAt: now };
     store.save(copy);
     refresh();
     status = t('archive.duplicated', { title: copy.title });
@@ -51,7 +53,7 @@
 
   function importFromText() {
     try {
-      const s = decode(importText);
+      const s = decodeFull(importText);
       const fresh = { ...s, id: store.load(s.id) ? newScore({}).id : s.id };
       store.save(fresh);
       refresh();

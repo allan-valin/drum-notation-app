@@ -20,7 +20,8 @@ const fetchOk = async (url) => ({ ok: true, arrayBuffer: async () => new TextEnc
 describe('sample kit', () => {
   it('has a file for every sound the synth kit knows', () => {
     const synthSounds = createKit(fakeContext()).sounds;
-    for (const s of synthSounds) if (s !== 'crashChoke') expect(Object.keys(SAMPLE_FILES), s).toContain(s);
+    // the recorded kit has no congas: those stay synthesized (the fallback)
+    for (const s of synthSounds) if (s !== 'crashChoke' && !s.startsWith('conga')) expect(Object.keys(SAMPLE_FILES), s).toContain(s);
   });
   it('plays the synth until the samples arrive, then the samples', async () => {
     const ctx = fakeContext();

@@ -17,6 +17,11 @@ export function format(s, params = {}) {
 
 export const STRINGS = {
   pt: {
+    instrument: {
+      label: 'Instrumento', editing: 'Editando', drums: 'Bateria', congas: 'Congas',
+      band: 'Instrumentos', add: '+ Adicionar instrumento', mute: 'Silenciar', unmute: 'Ativar som', remove: 'Remover instrumento',
+      confirmChange: 'Trocar o instrumento apaga as notas já escritas nesta parte (dá para desfazer). Continuar?', confirmRemove: 'Remover {name} e as notas dele? (dá para desfazer)',
+    },
     play: {
       metronomeSound: 'Som do metrônomo', voice_beep: 'Bipe', voice_woodblock: 'Bloco de madeira', voice_click: 'Clique', voice_cowbell: 'Cowbell', voice_sidestick: 'Aro (cross-stick)', voice_hihat: 'Chimbal fechado', voiceSet: 'Metrônomo: {voice}',
       selectBars: 'Selecionar compassos', moveLeft: 'Mover a seleção um compasso para a esquerda', moveRight: 'Mover a seleção um compasso para a direita', dragHint: 'Toque nos compassos para selecionar. Arraste um compasso (ou a seleção) e solte onde aparecer a barra |.', moved: 'Compassos movidos: agora {from}–{to}', cantMove: 'A seleção já está na ponta',
@@ -30,6 +35,7 @@ export const STRINGS = {
       editLocked: 'Tocando: pare para editar',
     },
     tech: {
+      slap: 'Slap', mute: 'Abafado',
       tapDoes: 'Ao tocar na pauta', withNote: 'Nota + símbolo', symbolOnly: 'Só símbolo', withNoteHint: 'Cada toque escreve uma nota com os símbolos escolhidos abaixo', symbolOnlyHint: 'Um toque em qualquer ponto da célula põe (ou tira) os símbolos na nota dela; com várias notas, na mais próxima do toque',
       head: 'Cabeça', technique: 'Técnica', headDefault: 'Padrão', headDefaultHint: 'A cabeça normal do instrumento',
       cross: 'X', diamond: 'Losango', triangle: 'Triângulo', circleX: 'X no círculo', slashed: 'Cortada',
@@ -41,6 +47,8 @@ export const STRINGS = {
       open: 'Legenda', title: 'Legenda dos símbolos', close: 'Fechar', symbol: 'Símbolo', meaning: 'Neste app', also: 'Outros autores usam para',
       note: 'Cada método escreve bateria um pouco diferente. O app segue a convenção da Percussive Arts Society (Norman Weinberg); a coluna da direita lista o que outros livros usam para o mesmo símbolo. Se o seu livro usa outro sentido, escreva o símbolo como está no livro.',
       rows: {
+        congaSlap: { meaning: 'Congas: slap (tapa)', also: 'Alguns métodos usam triângulo ou S acima' },
+        congaMute: { meaning: 'Congas: som abafado (mão apoiada)', also: 'Alguns métodos usam M ou ponto' },
         cross: { meaning: 'Chimbal fechado, ride, crash', also: 'Qualquer prato' },
         diamond: { meaning: 'Cúpula do prato (bell)', also: 'Cúpula do chimbal; china em alguns livros' },
         triangle: { meaning: 'Cowbell', also: 'Bell, wood block' },
@@ -78,6 +86,8 @@ export const STRINGS = {
       s5: 'Abaixo do editor: + e − compasso, a fórmula de compasso (só deste compasso em diante), % para repetir o anterior, ||: e :|| para repetições, e um texto livre (ex.: "vassouras"). A partitura inteira fica abaixo; toque num compasso para editá-lo.',
       s7t: '7. Ouvir',
       s7: 'Em "Ouvir": escolha este compasso, do início, daqui em diante, ou uma seleção (marque "Selecionar compassos" e toque nos compassos; as setas ao lado, ou arrastar, mudam os compassos de lugar). "Repetir" toca em loop, "Metrônomo" marca os tempos, "Contagem" dá um compasso de cliques antes. O BPM daqui não muda a partitura. Enquanto toca, o editor fica travado e acompanha o compasso tocado; % e repetições ||: :|| são tocados como escritos. Em "Som", escolha a bateria gravada, a sintetizada, ou \"Sem som\" para praticar só com os destaques e o metrônomo.',
+      s8t: '8. Instrumentos',
+      s8: 'Uma partitura pode ter vários instrumentos, como uma banda. Em "Instrumentos", ao lado do BPM, escolha o instrumento de cada linha, silencie ou remova, e use "+ Adicionar instrumento". Em "Editando", no alto da paleta, escolha qual instrumento está escrevendo: a paleta mostra só o que aquele instrumento usa. Compassos, fórmulas e repetições valem para todos; Tocar toca todos juntos.',
       s6t: '6. Salvar, PDF e foto',
       s6: 'Tudo é salvo neste navegador a cada mudança. "PDF" abre a página de impressão. No arquivo, "JSON" exporta uma cópia. Para importar de uma foto, use o link "Como importar de uma foto".',
     },
@@ -95,6 +105,7 @@ export const STRINGS = {
       continue: 'Continuar: {title}', or: 'ou escolha uma partitura',
     },
     refused: {
+      lastPart: 'A partitura precisa de pelo menos um instrumento',
       noNoteThere: 'Esta célula não tem nota para receber o símbolo', nothingToApply: 'Escolha antes um símbolo (acento, mão, cabeça ou técnica)',
       sameValue: 'A célula já tem essa figura', wouldLoseNotes: 'Juntar apagaria notas. Apague-as antes (ou use Desfazer depois).', notInThisBeat: 'Essa figura não cabe neste tempo',
       notShorter: 'Escolha uma figura menor que a da célula para dividi-la (ou use o modo Tempo)',
@@ -113,6 +124,7 @@ export const STRINGS = {
       eighth: 'colcheias', sixteenth: 'semicolcheias', thirtySecond: 'fusas',
     },
     slot: {
+      tumba: 'Tumba', conga: 'Conga', quinto: 'Quinto',
       hihatPedal: 'Chimbal (pé)', kick: 'Bumbo', floorTom: 'Surdo', snare: 'Caixa',
       midTom: 'Tom médio', highTom: 'Tom agudo', hihat: 'Chimbal', ride: 'Ride', crash: 'Crash',
     },
@@ -134,6 +146,7 @@ export const STRINGS = {
       colourReset: 'Padrão', landscapeHint: 'Na horizontal o tempo em foco fica maior.', ok: 'ok', barAria: 'Compasso',
     },
     status: {
+      partSwitched: 'Editando: {name}', partAdded: '{name} adicionado. Escreva no editor; a lista ao lado do BPM controla o som.', partRemoved: '{name} removido', instrumentSet: 'Parte agora é {name}', muted: '{name} sem som', unmuted: '{name} com som',
       techOnSymbol: 'Próximo toque numa nota põe: {what}',
       symbolsAdded: 'Símbolos postos em {pos}: {notes}', symbolsRemoved: 'Símbolos tirados em {pos}: {notes}',
       selected: 'Posição {pos} selecionada. Toque de novo para escrever.', merged2: 'Célula {pos} agora é {value}',
@@ -178,6 +191,11 @@ export const STRINGS = {
   },
 
   en: {
+    instrument: {
+      label: 'Instrument', editing: 'Editing', drums: 'Drum kit', congas: 'Congas',
+      band: 'Instruments', add: '+ Add instrument', mute: 'Mute', unmute: 'Unmute', remove: 'Remove instrument',
+      confirmChange: 'Changing the instrument deletes the notes already in this part (undo brings them back). Continue?', confirmRemove: 'Remove {name} and its notes? (undo brings them back)',
+    },
     play: {
       metronomeSound: 'Metronome sound', voice_beep: 'Beep', voice_woodblock: 'Wood block', voice_click: 'Click', voice_cowbell: 'Cowbell', voice_sidestick: 'Side stick', voice_hihat: 'Closed hi-hat', voiceSet: 'Metronome: {voice}',
       selectBars: 'Select bars', moveLeft: 'Move the selection one bar left', moveRight: 'Move the selection one bar right', dragHint: 'Tap bars to select them. Drag a bar (or the selection) and drop it where the | appears.', moved: 'Bars moved: now {from}–{to}', cantMove: 'The selection is already at the end',
@@ -191,6 +209,7 @@ export const STRINGS = {
       editLocked: 'Playing: stop to edit',
     },
     tech: {
+      slap: 'Slap', mute: 'Muted',
       tapDoes: 'Tapping the staff', withNote: 'Note + symbol', symbolOnly: 'Symbol only', withNoteHint: 'Each tap writes a note carrying the symbols chosen below', symbolOnlyHint: 'A tap anywhere in the cell puts (or takes) the symbols on its note; with several notes, on the one nearest the tap',
       head: 'Notehead', technique: 'Technique', headDefault: 'Default', headDefaultHint: 'The instrument\'s normal head',
       cross: 'X', diamond: 'Diamond', triangle: 'Triangle', circleX: 'Circled X', slashed: 'Slashed',
@@ -202,6 +221,8 @@ export const STRINGS = {
       open: 'Legend', title: 'Symbol legend', close: 'Close', symbol: 'Symbol', meaning: 'In this app', also: 'Other authors use it for',
       note: 'Every method book notates drums a little differently. The app follows the Percussive Arts Society convention (Norman Weinberg); the right column lists what other books use the same symbol for. If your book means something else, write the symbol as it is in the book.',
       rows: {
+        congaSlap: { meaning: 'Congas: slap', also: 'Some methods use a triangle or S above' },
+        congaMute: { meaning: 'Congas: muted tone (hand resting)', also: 'Some methods use M or a dot' },
         cross: { meaning: 'Closed hi-hat, ride, crash', also: 'Any cymbal' },
         diamond: { meaning: 'Cymbal bell', also: 'Hi-hat bell; china in some books' },
         triangle: { meaning: 'Cowbell', also: 'Bell, wood block' },
@@ -239,6 +260,8 @@ export const STRINGS = {
       s5: 'Below the editor: + and − bar, the time signature (this bar onwards), % to repeat the previous bar, ||: and :|| for repeats, and free text (e.g. "brushes"). The whole score is below; tap a bar to edit it.',
       s7t: '7. Listen',
       s7: 'Under "Listen": choose this bar, from the start, from here on, or a selection (tick "Select bars" and tap the bars; the arrows beside it, or dragging, move bars around). "Loop" repeats, "Metronome" clicks the beats, "Count-in" gives one bar of clicks first. The BPM here does not change the score. While playing, the editor is locked and follows the bar being played; % and ||: :|| repeats play as written. Under "Sound", choose the recorded or the synthesized kit, or \"Silent\" to practise with just the highlights and the metronome.',
+      s8t: '8. Instruments',
+      s8: 'A score can hold several instruments, like a band. Under "Instruments", next to BPM, pick each row's instrument, mute or remove it, and use "+ Add instrument". Under "Editing", at the top of the palette, choose which instrument you are writing: the palette shows only what that instrument uses. Bars, time signatures and repeats apply to all; Play plays them together.',
       s6t: '6. Saving, PDF and photos',
       s6: 'Every change is saved in this browser. "PDF" opens the print page. In the library, "JSON" exports a copy. To import from a photo, follow "How to import from a photo".',
     },
@@ -256,6 +279,7 @@ export const STRINGS = {
       continue: 'Continue: {title}', or: 'or pick a score',
     },
     refused: {
+      lastPart: 'A score needs at least one instrument',
       noNoteThere: 'This cell has no note to take the symbol', nothingToApply: 'Choose a symbol first (accent, hand, head or technique)',
       sameValue: 'The cell already has that value', wouldLoseNotes: 'Merging would delete notes. Delete them first (or Undo afterwards).', notInThisBeat: 'That value does not fit this beat',
       notShorter: 'Pick a value shorter than the cell to split it (or use Beat mode)',
@@ -274,6 +298,7 @@ export const STRINGS = {
       eighth: 'eighth notes', sixteenth: 'sixteenth notes', thirtySecond: '32nd notes',
     },
     slot: {
+      tumba: 'Tumba', conga: 'Conga', quinto: 'Quinto',
       hihatPedal: 'Hi-hat (foot)', kick: 'Bass drum', floorTom: 'Floor tom', snare: 'Snare',
       midTom: 'Mid tom', highTom: 'High tom', hihat: 'Hi-hat', ride: 'Ride', crash: 'Crash',
     },
@@ -295,6 +320,7 @@ export const STRINGS = {
       colourReset: 'Default', landscapeHint: 'Turn the phone sideways for a bigger beat.', ok: 'ok', barAria: 'Bar',
     },
     status: {
+      partSwitched: 'Editing: {name}', partAdded: '{name} added. Write in the editor; the list next to BPM controls its sound.', partRemoved: '{name} removed', instrumentSet: 'Part is now {name}', muted: '{name} muted', unmuted: '{name} unmuted',
       techOnSymbol: 'Next tap on a note adds: {what}',
       symbolsAdded: 'Symbols added at {pos}: {notes}', symbolsRemoved: 'Symbols removed at {pos}: {notes}',
       selected: 'Position {pos} selected. Tap again to write.', merged2: 'Cell {pos} is now {value}',
@@ -339,6 +365,11 @@ export const STRINGS = {
   },
 
   de: {
+    instrument: {
+      label: 'Instrument', editing: 'Bearbeitet', drums: 'Schlagzeug', congas: 'Congas',
+      band: 'Instrumente', add: '+ Instrument hinzufügen', mute: 'Stumm', unmute: 'Ton an', remove: 'Instrument entfernen',
+      confirmChange: 'Ein anderes Instrument löscht die Noten dieser Stimme (Rückgängig holt sie zurück). Weiter?', confirmRemove: '{name} und seine Noten entfernen? (Rückgängig holt sie zurück)',
+    },
     play: {
       metronomeSound: 'Metronomklang', voice_beep: 'Piep', voice_woodblock: 'Holzblock', voice_click: 'Klick', voice_cowbell: 'Cowbell', voice_sidestick: 'Side Stick', voice_hihat: 'Geschlossene Hi-Hat', voiceSet: 'Metronom: {voice}',
       selectBars: 'Takte auswählen', moveLeft: 'Auswahl einen Takt nach links', moveRight: 'Auswahl einen Takt nach rechts', dragHint: 'Takte antippen, um sie auszuwählen. Einen Takt (oder die Auswahl) ziehen und dort loslassen, wo der Strich | erscheint.', moved: 'Takte verschoben: jetzt {from}–{to}', cantMove: 'Die Auswahl ist schon am Rand',
@@ -352,6 +383,7 @@ export const STRINGS = {
       editLocked: 'Wiedergabe läuft: zum Bearbeiten stoppen',
     },
     tech: {
+      slap: 'Slap', mute: 'Gedämpft',
       tapDoes: 'Tippen ins System', withNote: 'Note + Zeichen', symbolOnly: 'Nur Zeichen', withNoteHint: 'Jedes Tippen schreibt eine Note mit den unten gewählten Zeichen', symbolOnlyHint: 'Ein Tippen irgendwo in der Zelle setzt (oder entfernt) die Zeichen an ihrer Note; bei mehreren an der nächstgelegenen',
       head: 'Notenkopf', technique: 'Technik', headDefault: 'Standard', headDefaultHint: 'Der normale Kopf des Instruments',
       cross: 'X', diamond: 'Raute', triangle: 'Dreieck', circleX: 'X im Kreis', slashed: 'Durchgestrichen',
@@ -363,6 +395,8 @@ export const STRINGS = {
       open: 'Legende', title: 'Zeichenlegende', close: 'Schließen', symbol: 'Zeichen', meaning: 'In dieser App', also: 'Andere Autoren nutzen es für',
       note: 'Jede Schule notiert Schlagzeug etwas anders. Die App folgt der Konvention der Percussive Arts Society (Norman Weinberg); die rechte Spalte nennt, wofür andere Bücher dasselbe Zeichen verwenden. Meint dein Buch etwas anderes, schreib das Zeichen so wie im Buch.',
       rows: {
+        congaSlap: { meaning: 'Congas: Slap', also: 'Manche Schulen nutzen ein Dreieck oder S darüber' },
+        congaMute: { meaning: 'Congas: gedämpfter Ton (Hand liegt auf)', also: 'Manche Schulen nutzen M oder einen Punkt' },
         cross: { meaning: 'Geschlossene Hi-Hat, Ride, Crash', also: 'Jedes Becken' },
         diamond: { meaning: 'Beckenglocke (Bell)', also: 'Hi-Hat-Glocke; in manchen Büchern China' },
         triangle: { meaning: 'Cowbell', also: 'Glocke, Woodblock' },
@@ -400,6 +434,8 @@ export const STRINGS = {
       s5: 'Unter dem Editor: + und − Takt, die Taktart (ab diesem Takt), % für die Wiederholung des vorherigen Takts, ||: und :|| für Wiederholungen und freier Text (z. B. "Besen"). Darunter die ganze Partitur; einen Takt antippen, um ihn zu bearbeiten.',
       s7t: '7. Anhören',
       s7: 'Unter "Anhören": diesen Takt, von Anfang an, ab hier oder eine Auswahl ("Takte auswählen" ankreuzen und Takte antippen; die Pfeile daneben oder Ziehen verschieben Takte). "Schleife" wiederholt, "Metronom" klickt die Schläge, "Einzählen" gibt vorher einen Takt Klicks. Das BPM hier ändert die Partitur nicht. Während der Wiedergabe ist der Editor gesperrt und folgt dem gespielten Takt; % und ||: :|| werden wie notiert gespielt. Unter "Klang" aufgenommenes oder synthetisches Set wählen, oder \"Stumm\" zum Üben nur mit Markierungen und Metronom.',
+      s8t: '8. Instrumente',
+      s8: 'Eine Partitur kann mehrere Instrumente haben, wie eine Band. Unter "Instrumente" neben BPM für jede Zeile das Instrument wählen, stummschalten oder entfernen, und "+ Instrument hinzufügen" nutzen. Unter "Bearbeitet" oben in der Palette wählen, welches Instrument man schreibt: die Palette zeigt nur, was es nutzt. Takte, Taktarten und Wiederholungen gelten für alle; Abspielen spielt alle zusammen.',
       s6t: '6. Speichern, PDF und Fotos',
       s6: 'Jede Änderung wird in diesem Browser gespeichert. "PDF" öffnet die Druckseite. In der Bibliothek exportiert "JSON" eine Kopie. Zum Import aus einem Foto dem Link "Aus einem Foto importieren" folgen.',
     },
@@ -417,6 +453,7 @@ export const STRINGS = {
       continue: 'Weiter: {title}', or: 'oder eine Partitur wählen',
     },
     refused: {
+      lastPart: 'Eine Partitur braucht mindestens ein Instrument',
       noNoteThere: 'Diese Zelle hat keine Note für das Zeichen', nothingToApply: 'Erst ein Zeichen wählen (Akzent, Hand, Kopf oder Technik)',
       sameValue: 'Die Zelle hat diesen Wert schon', wouldLoseNotes: 'Verbinden würde Noten löschen. Erst löschen (oder danach Rückgängig).', notInThisBeat: 'Dieser Wert passt nicht in diesen Schlag',
       notShorter: 'Einen kürzeren Notenwert als die Zelle wählen, um sie zu teilen (oder Schlag-Modus nutzen)',
@@ -435,6 +472,7 @@ export const STRINGS = {
       eighth: 'Achtel', sixteenth: 'Sechzehntel', thirtySecond: '32tel',
     },
     slot: {
+      tumba: 'Tumba', conga: 'Conga', quinto: 'Quinto',
       hihatPedal: 'Hi-Hat (Fuß)', kick: 'Bassdrum', floorTom: 'Standtom', snare: 'Snare',
       midTom: 'Mitteltom', highTom: 'Hochtom', hihat: 'Hi-Hat', ride: 'Ride', crash: 'Crash',
     },
@@ -456,6 +494,7 @@ export const STRINGS = {
       colourReset: 'Standard', landscapeHint: 'Im Querformat wird der Schlag größer.', ok: 'ok', barAria: 'Takt',
     },
     status: {
+      partSwitched: 'Bearbeitet: {name}', partAdded: '{name} hinzugefügt. Im Editor schreiben; die Liste neben BPM steuert den Klang.', partRemoved: '{name} entfernt', instrumentSet: 'Stimme ist jetzt {name}', muted: '{name} stumm', unmuted: '{name} mit Ton',
       techOnSymbol: 'Nächstes Tippen auf eine Note setzt: {what}',
       symbolsAdded: 'Zeichen gesetzt bei {pos}: {notes}', symbolsRemoved: 'Zeichen entfernt bei {pos}: {notes}',
       selected: 'Position {pos} gewählt. Nochmals tippen zum Schreiben.', merged2: 'Zelle {pos} ist jetzt {value}',

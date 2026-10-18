@@ -5,7 +5,14 @@
   import { barTimeSig, showsTimeSig } from '../core/score.js';
   import { createDrag } from '../app/lib/drag.js';
 
-  let { score, staff, colours, current, onOpen, range = null, playingBar = null, selecting = false, onDrop = () => {} } = $props();
+  import { partView } from '../core/parts.js';
+  import { profileById } from '../core/profile.js';
+
+  let { full, parts = [], part = null, colours, current, onOpen, range = null, playingBar = null, selecting = false, onDrop = () => {} } = $props();
+  /** One view per part, drawn as one staff each inside every bar frame, in band order. */
+  const views = $derived(full.parts.map((p) => ({ id: p.id, muted: p.muted, view: partView(full, p.id), staff: profileById(p.instrument).staves[0], label: parts.find((x) => x.id === p.id)?.label ?? p.instrument })));
+  const score = $derived(views[0].view);
+  const many = $derived(views.length > 1);
 
   // ---- drag (casus caret-preview): nothing moves while aiming; a caret marks the gap ----
   let pool;
@@ -89,7 +96,12 @@
       {#each row as i}
         <button bind:this={frames[i]} class="frame" class:current={i === current} class:flash={i === flash} class:inrange={range && i >= range[0] && i <= range[1]} class:playing={i === playingBar} class:lifted={lifting !== null && i >= block(lifting)[0] && i <= block(lifting)[1]} onpointerdown={(e) => down(e, i)} onclick={() => click(i)} aria-label={t('editor.goToBar', { n: i + 1 })} aria-current={i === current}>
           <span class="n">{i + 1}</span>
-          <ScoreSvg bar={score.bars[i]} {staff} width={barW - 4} staffSpacing={sp} showClef={i % perRow === 0} timeSig={showsTimeSig(score, i) ? barTimeSig(score, i) : null} {colours} fixedRange={[8.5, 6]} />
+          {#each views as v (v.id)}
+            <div class="staff" class:active={many && v.id === part} class:mutedpart={v.muted}>
+              {#if many && i % perRow === 0}<span class="plabel">{v.label}</span>{/if}
+              <ScoreSvg bar={v.view.bars[i]} staff={v.staff} width={barW - 4} staffSpacing={sp} showClef={i % perRow === 0} timeSig={showsTimeSig(score, i) ? barTimeSig(score, i) : null} {colours} fixedRange={many ? [6.5, 6.5] : [8.5, 6]} />
+            </div>
+          {/each}
         </button>
       {/each}
     </div>
@@ -113,6 +125,11 @@
   .frame.playing { border: 2.5px solid #1f8f4e; box-shadow: 0 0 0 3px color-mix(in srgb, #1f8f4e 35%, transparent); }
   .frame.flash { animation: flash 0.9s ease-out; }
   @keyframes flash { 0% { box-shadow: 0 0 0 6px var(--focus-ring); } 100% { box-shadow: 0 0 0 0 transparent; } }
+  .staff { position: relative; }
+  .staff + .staff { border-top: 1px dashed var(--line); }
+  .staff.active { background: color-mix(in srgb, var(--accent) 7%, transparent); }
+  .staff.mutedpart { opacity: 0.45; }
+  .plabel { position: absolute; top: 2px; left: 22px; font-size: 11px; color: var(--muted); font-weight: 600; z-index: 1; }
   .n { position: absolute; top: 4px; left: 6px; font-size: 12px; color: var(--muted); }
   .frame :global(svg) { width: 100%; height: auto; }
 </style>
