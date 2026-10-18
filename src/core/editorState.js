@@ -5,7 +5,7 @@ import { cursor as mkCursor, next, prev, leafAt, clamp } from './cursor.js';
 import { parentOf, leafPaths, getAt } from './tree.js';
 import {
   placeNote, deleteNote, clearLeaf, splitBeat, splitCell, resizeCell, mergeCell, addBar, removeBar,
-  setTimeSig, toggleSimile, toggleRepeatStart, toggleRepeatEnd, setBarText, moveBars, setKey, setLength, toggleTie, setDynamic, setWedge, setLyric, setSlur, setChord, distributeLyrics,
+  setTimeSig, toggleSimile, toggleRepeatStart, toggleRepeatEnd, setBarText, moveBars, setKey, setLength, toggleTie, setDynamic, setWedge, setLyric, setSlur, setChord, distributeLyrics, setPedal,
 } from './edit.js';
 import { barLeaves } from './edit.js';
 import { profileById, slotNearest } from './profile.js';
@@ -101,7 +101,7 @@ function switchPart(st, part, force = false) {
     accent: profile.articulations.includes('accent') && t.accent,
     ghost: profile.articulations.includes('ghost') && t.ghost,
     accidental: profile.palette.includes('accidental') ? t.accidental : null,
-    dot: profile.staves[0].pitched ? t.dot : false,
+    dot: profile.palette.includes('length') ? t.dot : false,
     arts: t.arts.filter((a) => profile.articulations.includes(a)),
   };
   return syncTool({ ...st, part, score, tool, refused: null, cursor: clamp(score, st.cursor) });
@@ -150,6 +150,7 @@ function reduceView(state, action) {
     case 'toggleDot': return tool(st, { dot: !st.tool.dot });
     case 'setDyn': return tool(st, { dyn: st.tool.dyn === action.dyn ? null : action.dyn });
     case 'setSlur': return edit(st, (s) => setSlur(s, st.cursor, action.kind));
+    case 'setPedal': return edit(st, (s) => setPedal(s, st.cursor, action.kind));
     case 'pasteLyrics': {
       const r = distributeLyrics(st.score, st.cursor, action.text);
       const out = r.score === st.score ? st : { ...push(st), score: r.score };
@@ -317,7 +318,7 @@ function applySymbols(st, staffPosition, techFields) {
 
 function split(st, value, tuplet) {
   // pitched, Tempo mode: a value longer than the beat, or dotted, is a note length, not a split
-  const pitched = profileById(st.score.profileId).staves[0].pitched;
+  const pitched = profileById(st.score.profileId).palette.includes('length');
   const [, den] = barTimeSig(st.score, st.cursor.bar);
   if (pitched && st.tool.splitMode !== 'cell' && !tuplet && (st.tool.dot || value.divisionsPerWhole < den)) {
     const s = setLength(st.score, st.cursor, value, st.tool.dot);

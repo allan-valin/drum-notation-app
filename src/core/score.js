@@ -22,6 +22,8 @@ export const Mark = Object.freeze({
   FALL: 'fall', DOIT: 'doit', SCOOP: 'scoop', PLOP: 'plop',
   // strings and ornaments
   PIZZ: 'pizz', ARCO: 'arco', DOWN_BOW: 'downBow', UP_BOW: 'upBow', HARMONIC: 'harmonic', TRILL: 'trill',
+  // let ring (l.v.): cymbals, piano, harp, guitar, vibes
+  LV: 'lv',
 });
 export const Roll = Object.freeze({ BUZZ: 'buzz', TREMOLO: 'tremolo' });
 export const Grace = Object.freeze({ FLAM: 'flam', DRAG: 'drag' });

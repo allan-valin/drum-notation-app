@@ -47,6 +47,7 @@ export const STRINGS = {
       editLocked: 'Tocando: pare para editar',
     },
     tech: {
+      lv: 'Deixar soar',
       pizz: 'Pizzicato', arco: 'Arco', downBow: 'Arcada para baixo', upBow: 'Arcada para cima', harmonic: 'Harmônico', trill: 'Trinado', roll: 'Rufo',
       slash: 'Barra rítmica', fall: 'Fall', doit: 'Doit', scoop: 'Scoop', plop: 'Plop',
       slap: 'Slap', mute: 'Abafado',
@@ -61,6 +62,9 @@ export const STRINGS = {
       open: 'Legenda', title: 'Legenda dos símbolos', close: 'Fechar', symbol: 'Símbolo', meaning: 'Neste app', also: 'Outros autores usam para',
       note: 'Cada método escreve bateria um pouco diferente. O app segue a convenção da Percussive Arts Society (Norman Weinberg); a coluna da direita lista o que outros livros usam para o mesmo símbolo. Se o seu livro usa outro sentido, escreva o símbolo como está no livro.',
       rows: {
+        dot: { meaning: 'Ponto: a nota vale uma vez e meia (semínima pontuada = semínima + colcheia)', also: 'Ponto duplo: uma vez e três quartos' },
+        pedal: { meaning: 'Ped. … *: pedal de sustentação abaixado até o asterisco; as notas continuam soando', also: 'Também escrito com uma linha sob a pauta' },
+        lv: { meaning: 'l.v. (deixar soar): não abafar, a nota soa livre', also: 'Pratos, piano, harpa, violão, vibrafone' },
         taiko: { meaning: 'Taiko pelas sílabas (kuchishōga): don no centro (embaixo), tsu leve, ka na borda (X)', also: 'A notação tradicional escreve as sílabas em katakana' },
         quarterFlat: { meaning: 'Meio bemol: um quarto de tom abaixo (música árabe)', also: 'Bemol cortado em outras tradições' },
         quarterSharp: { meaning: 'Meio sustenido: um quarto de tom acima', also: '—' },
@@ -181,6 +185,7 @@ export const STRINGS = {
       midTom: 'Tom médio', highTom: 'Tom agudo', hihat: 'Chimbal', ride: 'Ride', crash: 'Crash',
     },
     palette: {
+      pedal: 'Pedal', pedDown: 'Pedal (Ped.)', pedUp: 'Soltar (*)', pedHint: 'Pedal de sustentação na célula selecionada: as notas soam até soltar',
       paste: 'Colar letra', pasteHint: 'Cole ou digite a letra: Glo-ri-a in ex-cel-sis. Vai da nota selecionada em diante; _ pula uma nota.',
       quarterFlat: 'Meio bemol', quarterSharp: 'Meio sustenido', threeQuarterFlat: 'Bemol e meio', threeQuarterSharp: 'Sustenido e meio',
       chords: 'Cifra', chordHint: 'ex.: C7, Bbmaj7, F#m7b5', chordApply: 'Escrever a cifra e ir para o próximo tempo', chordHelp: 'Enter escreve no tempo selecionado e vai para o próximo. Vazio apaga.',
@@ -205,6 +210,7 @@ export const STRINGS = {
       colourReset: 'Padrão', landscapeHint: 'Na horizontal o tempo em foco fica maior.', ok: 'ok', barAria: 'Compasso',
     },
     status: {
+      ped_down: 'Pedal abaixa em {pos}', ped_up: 'Pedal sobe em {pos}', pedRemoved: 'Marca de pedal removida em {pos}',
       lyricsPasted: '{n} sílabas colocadas', lyricsPastedLeft: '{n} sílabas colocadas; {left} ficaram sem nota',
       chordSet: 'Cifra {text} em {pos}', chordCleared: 'Cifra removida', swingOn: 'Swing ligado: colcheias suingadas', swingOff: 'Colcheias retas',
       lyricSet: '“{text}” em {pos}', lyricCleared: 'Letra removida', slur_start: 'Ligadura começa em {pos}', slur_end: 'Ligadura termina em {pos}', slurRemoved: 'Marca de ligadura removida em {pos}',
@@ -286,6 +292,7 @@ export const STRINGS = {
       editLocked: 'Playing: stop to edit',
     },
     tech: {
+      lv: 'Let ring',
       pizz: 'Pizzicato', arco: 'Arco', downBow: 'Down-bow', upBow: 'Up-bow', harmonic: 'Harmonic', trill: 'Trill', roll: 'Roll',
       slash: 'Rhythm slash', fall: 'Fall', doit: 'Doit', scoop: 'Scoop', plop: 'Plop',
       slap: 'Slap', mute: 'Muted',
@@ -300,6 +307,9 @@ export const STRINGS = {
       open: 'Legend', title: 'Symbol legend', close: 'Close', symbol: 'Symbol', meaning: 'In this app', also: 'Other authors use it for',
       note: 'Every method book notates drums a little differently. The app follows the Percussive Arts Society convention (Norman Weinberg); the right column lists what other books use the same symbol for. If your book means something else, write the symbol as it is in the book.',
       rows: {
+        dot: { meaning: 'Dot: the note lasts one and a half times (dotted quarter = quarter + eighth)', also: 'Double dot: one and three quarters' },
+        pedal: { meaning: 'Ped. … *: sustain pedal down until the asterisk; notes keep sounding', also: 'Also written as a line under the staff' },
+        lv: { meaning: 'l.v. (let ring): do not damp, let the note sound freely', also: 'Cymbals, piano, harp, guitar, vibraphone' },
         taiko: { meaning: 'Taiko by its syllables (kuchishōga): don in the centre (low), tsu light, ka on the rim (X)', also: 'Traditional scores write the syllables in katakana' },
         quarterFlat: { meaning: 'Half flat: a quarter tone lower (Arabic music)', also: 'A slashed flat in other traditions' },
         quarterSharp: { meaning: 'Half sharp: a quarter tone higher', also: '—' },
@@ -420,6 +430,7 @@ export const STRINGS = {
       midTom: 'Mid tom', highTom: 'High tom', hihat: 'Hi-hat', ride: 'Ride', crash: 'Crash',
     },
     palette: {
+      pedal: 'Pedal', pedDown: 'Pedal (Ped.)', pedUp: 'Release (*)', pedHint: 'Sustain pedal on the selected cell: notes ring until it is released',
       paste: 'Paste lyrics', pasteHint: 'Paste or type the words: Glo-ri-a in ex-cel-sis. Goes from the selected note on; _ skips a note.',
       quarterFlat: 'Half flat', quarterSharp: 'Half sharp', threeQuarterFlat: 'Flat and a half', threeQuarterSharp: 'Sharp and a half',
       chords: 'Chord symbol', chordHint: 'e.g. C7, Bbmaj7, F#m7b5', chordApply: 'Write the chord and go to the next beat', chordHelp: 'Enter writes on the selected beat and moves to the next. Empty removes it.',
@@ -444,6 +455,7 @@ export const STRINGS = {
       colourReset: 'Default', landscapeHint: 'Turn the phone sideways for a bigger beat.', ok: 'ok', barAria: 'Bar',
     },
     status: {
+      ped_down: 'Pedal down at {pos}', ped_up: 'Pedal up at {pos}', pedRemoved: 'Pedal mark removed at {pos}',
       lyricsPasted: '{n} syllables placed', lyricsPastedLeft: '{n} syllables placed; {left} had no note left',
       chordSet: 'Chord {text} at {pos}', chordCleared: 'Chord removed', swingOn: 'Swing on: eighths swung', swingOff: 'Straight eighths',
       lyricSet: '“{text}” at {pos}', lyricCleared: 'Lyric removed', slur_start: 'Slur starts at {pos}', slur_end: 'Slur ends at {pos}', slurRemoved: 'Slur mark removed at {pos}',
@@ -525,6 +537,7 @@ export const STRINGS = {
       editLocked: 'Wiedergabe läuft: zum Bearbeiten stoppen',
     },
     tech: {
+      lv: 'Klingen lassen',
       pizz: 'Pizzicato', arco: 'Arco', downBow: 'Abstrich', upBow: 'Aufstrich', harmonic: 'Flageolett', trill: 'Triller', roll: 'Wirbel',
       slash: 'Rhythmusstrich', fall: 'Fall', doit: 'Doit', scoop: 'Scoop', plop: 'Plop',
       slap: 'Slap', mute: 'Gedämpft',
@@ -539,6 +552,9 @@ export const STRINGS = {
       open: 'Legende', title: 'Zeichenlegende', close: 'Schließen', symbol: 'Zeichen', meaning: 'In dieser App', also: 'Andere Autoren nutzen es für',
       note: 'Jede Schule notiert Schlagzeug etwas anders. Die App folgt der Konvention der Percussive Arts Society (Norman Weinberg); die rechte Spalte nennt, wofür andere Bücher dasselbe Zeichen verwenden. Meint dein Buch etwas anderes, schreib das Zeichen so wie im Buch.',
       rows: {
+        dot: { meaning: 'Punkt: die Note gilt anderthalbfach (punktierte Viertel = Viertel + Achtel)', also: 'Doppelpunkt: eindreiviertelfach' },
+        pedal: { meaning: 'Ped. … *: Haltepedal gedrückt bis zum Stern; die Noten klingen weiter', also: 'Auch als Linie unter dem System' },
+        lv: { meaning: 'l.v. (klingen lassen): nicht abdämpfen, frei ausklingen', also: 'Becken, Klavier, Harfe, Gitarre, Vibraphon' },
         taiko: { meaning: 'Taiko nach Silben (Kuchishōga): Don in der Mitte (unten), Tsu leicht, Ka am Rand (X)', also: 'Traditionelle Noten schreiben die Silben in Katakana' },
         quarterFlat: { meaning: 'Viertelton-Be: einen Viertelton tiefer (arabische Musik)', also: 'In anderen Traditionen ein durchgestrichenes Be' },
         quarterSharp: { meaning: 'Viertelton-Kreuz: einen Viertelton höher', also: '—' },
@@ -659,6 +675,7 @@ export const STRINGS = {
       midTom: 'Mitteltom', highTom: 'Hochtom', hihat: 'Hi-Hat', ride: 'Ride', crash: 'Crash',
     },
     palette: {
+      pedal: 'Pedal', pedDown: 'Pedal (Ped.)', pedUp: 'Loslassen (*)', pedHint: 'Haltepedal an der gewählten Zelle: Noten klingen bis zum Loslassen',
       paste: 'Text einfügen', pasteHint: 'Text einfügen oder tippen: Glo-ri-a in ex-cel-sis. Ab der gewählten Note; _ überspringt eine Note.',
       quarterFlat: 'Viertelton-Be', quarterSharp: 'Viertelton-Kreuz', threeQuarterFlat: 'Dreiviertelton-Be', threeQuarterSharp: 'Dreiviertelton-Kreuz',
       chords: 'Akkord', chordHint: 'z. B. C7, Bbmaj7, F#m7b5', chordApply: 'Akkord schreiben und zum nächsten Schlag', chordHelp: 'Enter schreibt auf den gewählten Schlag und geht zum nächsten. Leer löscht.',
@@ -683,6 +700,7 @@ export const STRINGS = {
       colourReset: 'Standard', landscapeHint: 'Im Querformat wird der Schlag größer.', ok: 'ok', barAria: 'Takt',
     },
     status: {
+      ped_down: 'Pedal unten bei {pos}', ped_up: 'Pedal oben bei {pos}', pedRemoved: 'Pedalmarke bei {pos} entfernt',
       lyricsPasted: '{n} Silben gesetzt', lyricsPastedLeft: '{n} Silben gesetzt; {left} ohne Note',
       chordSet: 'Akkord {text} bei {pos}', chordCleared: 'Akkord entfernt', swingOn: 'Swing an: Achtel geswingt', swingOff: 'Gerade Achtel',
       lyricSet: '„{text}“ bei {pos}', lyricCleared: 'Text entfernt', slur_start: 'Bogen beginnt bei {pos}', slur_end: 'Bogen endet bei {pos}', slurRemoved: 'Bogenmarke bei {pos} entfernt',

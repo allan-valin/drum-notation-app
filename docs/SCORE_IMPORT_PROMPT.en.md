@@ -92,6 +92,7 @@ For a score with more than one instrument use `"schema_version": 3`:
   (`start`/`end`), `chord` (chord symbol: `C7`, `Bbmaj7`, `F#m7b5`, `C/E`).
 - Strings and ornaments: `"marks": ["pizz"]` (also `arco`, `downBow`, `upBow`, `harmonic`, `trill`); tremolo: `"roll": "tremolo"`.
 - Arabic music: `key` can also be a maqam: `"rast"`, `"bayati"`, `"saba"`, `"hijaz"`, `"nahawand"`, `"kurd"`, `"sikah"` (signature with half-flats). Darbuka, riq and daf: `dum`, `tak`, `ka`. Taiko: `don`, `tsu`, `ka`.
+- Let ring: `"marks": ["lv"]`. Sustain pedal on the cell: `"ped": "down"` (Ped.) and `"ped": "up"` (*). Dots and ties work for every instrument, drums included (`{ "cont": true }`).
 - `"swing": true` at the top plays the eighths swung.
 - Rhythm section: `"head": "slash"` on the middle line = play the chord symbol in this rhythm.
   Brass and saxophones: `"marks": ["fall"]` (also `doit`, `scoop`, `plop`).

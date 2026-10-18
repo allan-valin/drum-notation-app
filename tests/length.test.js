@@ -155,10 +155,9 @@ describe('lengths in the file and the editor', () => {
     st = reduce(reduce(st, { type: 'toggleDot' }), { type: 'selectValue', value: NoteValue.HALF });
     expect(conts(st.score)).toEqual(['n', 'c', 'c', '-']);
   });
-  it('drums keep the old behaviour: a half on a beat is one cell', () => {
+  it('drums now have lengths too: a half on a beat holds the next beat (Allan, round 5)', () => {
     let st = initialState(newScore({ title: 't' }));
-    st = reduce(st, { type: 'selectValue', value: NoteValue.HALF });
-    expect(st.score.bars[0].beats.length).toBe(4);
-    expect(st.score.bars[0].beats[1].cells[0].cont).toBeFalsy();
+    st = reduce(reduce(st, { type: 'tap', staffPosition: 4 }), { type: 'selectValue', value: NoteValue.HALF });
+    expect(st.score.bars[0].beats[1].cells[0].cont).toBe(true);
   });
 });

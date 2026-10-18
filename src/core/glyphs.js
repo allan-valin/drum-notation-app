@@ -66,6 +66,8 @@ export const Glyphs = Object.freeze({
   HARMONIC: cp(0xe614),
   TRILL: cp(0xe566),
   BRACE: cp(0xe000),
+  PED: cp(0xe650),     // keyboardPedalPed
+  PED_UP: cp(0xe655),  // keyboardPedalUp
   BARLINE: cp(0xe030),
   PERCUSSION_CLEF: cp(0xe069),
   ACCENT: cp(0xe4a0),

@@ -132,7 +132,7 @@ describe('legend and help overlays', () => {
     const { getByLabelText, getByRole, queryByRole } = render(Editor, { store, id: 'a', onBack: () => {}, onPrint: () => {} });
     await fireEvent.click(getByLabelText('Legenda dos símbolos'));
     const dialog = getByRole('dialog', { name: 'Legenda dos símbolos' });
-    expect(dialog.querySelectorAll('tbody tr').length).toBe(20);
+    expect(dialog.querySelectorAll('tbody tr').length).toBe(22);
     expect(dialog.textContent).toContain('Outros autores usam para');
     await fireEvent.click(getByLabelText('Fechar'));
     expect(queryByRole('dialog')).toBeNull();

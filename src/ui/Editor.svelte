@@ -141,6 +141,7 @@
       }
       case 'setDyn': return after.tool.dyn ? t('status.dynOn', { what: after.tool.dyn }) : t('status.dynOff');
       case 'setWedge': return after.tool.wedge ? t('status.dynOn', { what: after.tool.wedge === 'cresc' ? 'cresc.' : 'dim.' }) : t('status.dynOff');
+      case 'setPedal': return leafAt(after.score, after.cursor).ped ? t(`status.ped_${a.kind}`, { pos: p }) : t('status.pedRemoved', { pos: p });
       case 'setChord': return a.text ? t('status.chordSet', { text: prettyChord(a.text), pos: `${before.cursor.bar + 1}.${posLabel(before.cursor)}` }) : t('status.chordCleared');
       case 'setSwing': return after.score.swing ? t('status.swingOn') : t('status.swingOff');
       case 'setLyricAt': return a.text ? t('status.lyricSet', { text: a.text, pos: `${n}.${posLabel(after.cursor)}` }) : t('status.lyricCleared');

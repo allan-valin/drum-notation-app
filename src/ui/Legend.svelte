@@ -41,6 +41,7 @@
     ['stringTremolo', Glyphs.TREMOLO3], ['trill', Glyphs.TRILL],
     ['quarterFlat', Glyphs.QUARTER_FLAT], ['quarterSharp', Glyphs.QUARTER_SHARP], ['dumTak', head(Notehead.NORMAL) + '  ' + head(Notehead.CROSS)],
     ['taiko', head(Notehead.NORMAL) + '  ' + head(Notehead.CROSS)],
+    ['dot', head(Notehead.NORMAL) + ' ' + Glyphs.DOT], ['pedal', Glyphs.PED + '   ' + Glyphs.PED_UP], ['lv', head(Notehead.NORMAL) + ' ⌒ l.v.'],
     ['congaSlap', head(Notehead.CROSS)],
     ['congaMute', Glyphs.CLOSED],
   ];

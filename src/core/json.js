@@ -49,7 +49,7 @@ function encodeGroup(g) {
     ...(g.tuplet ? { tuplet: g.tuplet } : {}),
     cells: g.cells.map((c) => {
       if (isGroup(c)) return encodeGroup(c);
-      const marks = { ...(c.dyn ? { dyn: c.dyn } : {}), ...(c.wedge ? { wedge: c.wedge } : {}), ...(c.lyric ? { lyric: c.lyric } : {}), ...(c.slur ? { slur: c.slur } : {}), ...(c.chord ? { chord: c.chord } : {}) };
+      const marks = { ...(c.dyn ? { dyn: c.dyn } : {}), ...(c.wedge ? { wedge: c.wedge } : {}), ...(c.lyric ? { lyric: c.lyric } : {}), ...(c.slur ? { slur: c.slur } : {}), ...(c.chord ? { chord: c.chord } : {}), ...(c.ped ? { ped: c.ped } : {}) };
       if (c.cont) return { cont: true, ...marks };
       return Object.keys(marks).length ? { notes: c.notes.map(encodeNote), ...marks } : c.notes.map(encodeNote);
     }),
@@ -178,6 +178,10 @@ function decodeGroup(g, expected, staff, where) {
       if (c.chord !== undefined) {
         if (!parseChord(c.chord)) throw new Error(`${here}: cifra que o app não lê "${c.chord}" (ex.: C7, Bbmaj7, F#m7b5, C/E)`);
         marks.chord = String(c.chord).trim();
+      }
+      if (c.ped !== undefined) {
+        if (!['down', 'up'].includes(c.ped)) throw new Error(`${here}: pedal desconhecido "${c.ped}" (válidos: down, up)`);
+        marks.ped = c.ped;
       }
       if (c.slur !== undefined) {
         if (!['start', 'end'].includes(c.slur)) throw new Error(`${here}: slur desconhecido "${c.slur}" (válidos: start, end)`);

@@ -96,6 +96,7 @@ Para uma partitura com mais de um instrumento use `"schema_version": 3`:
   (`start`/`end`), `chord` (cifra: `C7`, `Bbmaj7`, `F#m7b5`, `C/E`).
 - Cordas e ornamentos: `"marks": ["pizz"]` (também `arco`, `downBow`, `upBow`, `harmonic`, `trill`); trêmolo: `"roll": "tremolo"`.
 - Música árabe: `key` também pode ser um maqam: `"rast"`, `"bayati"`, `"saba"`, `"hijaz"`, `"nahawand"`, `"kurd"`, `"sikah"` (armadura com meio-bemóis). Darbuka, riq e daf: `dum`, `tak`, `ka`. Taiko: `don`, `tsu`, `ka`.
+- Deixar soar: `"marks": ["lv"]`. Pedal de sustentação na célula: `"ped": "down"` (Ped.) e `"ped": "up"` (*). Pontos e ligaduras valem para todo instrumento, bateria inclusive (`{ "cont": true }`).
 - `"swing": true` no topo toca as colcheias suingadas.
 - Base rítmica: cabeça `"head": "slash"` no meio da pauta = toque o acorde da cifra nesse ritmo.
   Metais e saxofones: `"marks": ["fall"]` (também `doit`, `scoop`, `plop`).

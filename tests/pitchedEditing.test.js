@@ -35,7 +35,7 @@ describe('rock band pitched profiles', () => {
       expect(p.staves[0].pitched).toBe(true);
       expect(p.hands).toBe(false);
       expect(p.heads.every((h) => h === 'slash')).toBe(true); // only the rhythm slash, never drum heads
-      expect(p.techniques.every((x) => ['fall', 'doit', 'scoop', 'plop'].includes(x))).toBe(true);
+      expect(p.techniques.every((x) => ['fall', 'doit', 'scoop', 'plop', 'lv'].includes(x))).toBe(true);
       expect(p.palette).toContain('accidental');
       expect(p.palette).not.toContain('hand');
     });

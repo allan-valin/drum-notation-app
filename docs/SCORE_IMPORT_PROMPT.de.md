@@ -96,6 +96,7 @@ Für eine Partitur mit mehr als einem Instrument `"schema_version": 3` verwenden
   (`start`/`end`), `chord` (Akkordsymbol: `C7`, `Bbmaj7`, `F#m7b5`, `C/E`).
 - Streicher und Verzierungen: `"marks": ["pizz"]` (auch `arco`, `downBow`, `upBow`, `harmonic`, `trill`); Tremolo: `"roll": "tremolo"`.
 - Arabische Musik: `key` kann auch ein Maqam sein: `"rast"`, `"bayati"`, `"saba"`, `"hijaz"`, `"nahawand"`, `"kurd"`, `"sikah"` (Vorzeichnung mit Halb-Be). Darbuka, Riq und Daf: `dum`, `tak`, `ka`. Taiko: `don`, `tsu`, `ka`.
+- Klingen lassen: `"marks": ["lv"]`. Haltepedal an der Zelle: `"ped": "down"` (Ped.) und `"ped": "up"` (*). Punkte und Haltebögen gelten für jedes Instrument, auch Schlagzeug (`{ "cont": true }`).
 - `"swing": true` oben spielt die Achtel geswingt.
 - Rhythmusgruppe: `"head": "slash"` auf der Mittellinie = das Akkordsymbol in diesem Rhythmus
   spielen. Blechbläser und Saxophone: `"marks": ["fall"]` (auch `doit`, `scoop`, `plop`).

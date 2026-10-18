@@ -22,7 +22,7 @@ function withNotes(l, notes) {
 /** What belongs to the cell rather than its notes: dynamics, cresc./dim., lyric, slur ends. */
 export function cellMarksOf(l) {
   const out = {};
-  for (const k of ['dyn', 'wedge', 'lyric', 'slur', 'chord']) if (l[k]) out[k] = l[k];
+  for (const k of ['dyn', 'wedge', 'lyric', 'slur', 'chord', 'ped']) if (l[k]) out[k] = l[k];
   return out;
 }
 
@@ -44,6 +44,14 @@ export function setChord(score, c, text) {
     const { chord: had, ...rest } = l;
     if (!clean) return had === undefined ? l : rest;
     return had === clean ? l : { ...rest, chord: clean };
+  });
+}
+
+/** Sustain pedal: 'down' (Ped.) or 'up' (*) at the cell; choosing the same again removes it. */
+export function setPedal(score, c, kind) {
+  return mapLeaf(score, c, (l) => {
+    const { ped: had, ...rest } = l;
+    return had === kind ? rest : { ...rest, ped: kind };
   });
 }
 

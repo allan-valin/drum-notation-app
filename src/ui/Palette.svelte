@@ -33,6 +33,7 @@
     { id: Mark.UP_BOW, glyph: Glyphs.UP_BOW, cls: 'mark' },
     { id: Mark.HARMONIC, glyph: Glyphs.HARMONIC, cls: 'mark' },
     { id: Mark.TRILL, glyph: Glyphs.TRILL, cls: 'small' },
+    { id: Mark.LV, text: 'l.v.', cls: 'word' },
   ];
   const has = (group) => profile.palette.includes(group);
   const heads = $derived(HEADS.filter((h) => profile.heads.includes(h)));
@@ -241,6 +242,20 @@
       <button type="submit">{t('palette.paste')}</button>
     </form>
     {#if lyricsInfo}<p class="hint">{lyricsInfo}</p>{/if}
+  </section>
+  {/if}
+
+  {#if has('pedal')}
+  <section>
+    <h3>{t('palette.pedal')}</h3>
+    <div class="grid two">
+      <button aria-label={t('palette.pedDown')} title={t('palette.pedHint')} onclick={() => onAction({ type: 'setPedal', kind: 'down' })}>
+        <span class="smufl glyph dyn">{Glyphs.PED}</span><span class="label">{t('palette.pedDown')}</span>
+      </button>
+      <button aria-label={t('palette.pedUp')} title={t('palette.pedHint')} onclick={() => onAction({ type: 'setPedal', kind: 'up' })}>
+        <span class="smufl glyph dyn">{Glyphs.PED_UP}</span><span class="label">{t('palette.pedUp')}</span>
+      </button>
+    </div>
   </section>
   {/if}
 

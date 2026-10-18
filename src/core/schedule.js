@@ -140,6 +140,7 @@ export function performance(score, a, b, instrument = score.profileId ?? 'drums'
   const marks = []; // { tick, dyn?, wedge? } in played order, for loudness
   let chord = null; // the chord symbol in force, for rhythm slashes
   let repeating = []; // trills and tremolos still going: held cells keep repeating them
+  const pedals = []; // { tick, kind } in played order
   for (const shown of playOrder(score, a, b)) {
     let src = shown;
     while (src > 0 && score.bars[src].simile) src -= 1;
@@ -156,6 +157,7 @@ export function performance(score, a, b, instrument = score.profileId ?? 'drums'
         const at = offset + beat * bt + leaf.tick;
         if (leaf.leaf.dyn || leaf.leaf.wedge) marks.push({ tick: at, dyn: leaf.leaf.dyn, wedge: leaf.leaf.wedge });
         if (leaf.leaf.chord) chord = parseChord(leaf.leaf.chord);
+        if (leaf.leaf.ped) pedals.push({ tick: at, kind: leaf.leaf.ped });
         if (pitchedStaff) {
           if (leaf.leaf.cont) {
             open.forEach((h) => { h.length += leaf.length; });
@@ -206,7 +208,9 @@ export function performance(score, a, b, instrument = score.profileId ?? 'drums'
               repeating.push(r);
               continue;
             }
-            const hit = { bar: shown, beat, path: leaf.path, slotId: note.slotId, sound, freq: f, length: leaf.length, tick: at, ahead: 0, velocity: velocityOf(note), ...(bend ? { bend } : {}) };
+            // let ring: at least three beats
+            const ring = marksOf.includes('lv') ? 3 * PPQ : 0;
+            const hit = { bar: shown, beat, path: leaf.path, slotId: note.slotId, sound, freq: f, length: Math.max(leaf.length, ring), tick: at, ahead: 0, velocity: velocityOf(note), ...(bend ? { bend } : {}) };
             hits.push(hit);
             open.push(hit);
             continue;
@@ -231,6 +235,13 @@ export function performance(score, a, b, instrument = score.profileId ?? 'drums'
       }
     }
     offset += num * bt;
+  }
+  // sustain pedal: a note played while it is down sounds until it comes up (or the end)
+  for (let k = 0; k < pedals.length; k++) {
+    if (pedals[k].kind !== 'down') continue;
+    const up = pedals.slice(k + 1).find((x) => x.kind === 'up');
+    const end = up ? up.tick : offset;
+    for (const h of hits) if (h.freq && h.tick >= pedals[k].tick && h.tick < end) h.length = Math.max(h.length, end - h.tick);
   }
   if (score.swing) swingIt(hits);
   hits.sort((x, y) => x.tick - y.tick || y.ahead - x.ahead);

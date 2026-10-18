@@ -113,7 +113,7 @@
           {#each blk.views as v (v.id)}
             <div class="staff" class:active={many && v.id === part} class:mutedpart={v.muted} class:selpart={onlyPart && v.id === part && range && i >= range[0] && i <= range[1]}>
               {#if many && i % perRow === 0}<span class="plabel">{v.label}</span>{/if}
-              <ScoreSvg bar={v.view.bars[i]} staff={v.staff} width={barW - 4} staffSpacing={sp} showClef={i % perRow === 0} timeSig={showsTimeSig(score, i) ? barTimeSig(score, i) : null} keyFifths={partKey(barKey(score, i), profileById(v.view.profileId))} showKey={i % perRow === 0 || showsKey(score, i)} den={barTimeSig(score, i)[1]} carry={carryInto(v.view, i)} tieOut={tiesOut(v.view, i)} dynamicsAbove={!!profileById(v.view.profileId).dynamicsAbove} slurIn={slurOpenAt(v.view, i)} {colours} fixedRange={many ? [6.5, 8.5] : [8.5, 8.5]} />
+              <ScoreSvg bar={v.view.bars[i]} staff={v.staff} width={barW - 4} staffSpacing={sp} showClef={i % perRow === 0} timeSig={showsTimeSig(score, i) ? barTimeSig(score, i) : null} keyFifths={partKey(barKey(score, i), profileById(v.view.profileId))} showKey={i % perRow === 0 || showsKey(score, i)} den={barTimeSig(score, i)[1]} carry={carryInto(v.view, i)} tieOut={tiesOut(v.view, i)} dynamicsAbove={!!profileById(v.view.profileId).dynamicsAbove} slurIn={slurOpenAt(v.view, i)} {colours} fixedRange={[many ? 6.5 : 8.5, profileById(v.view.profileId).palette.includes('pedal') ? 11 : 8.5]} />
             </div>
           {/each}
           </div>

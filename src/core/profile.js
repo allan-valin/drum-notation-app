@@ -37,12 +37,12 @@ export const DRUM_PROFILE = Object.freeze({
   id: 'drums',
   name: 'Bateria',
   family: 'rock',
-  palette: ['edit', 'figure', 'tuplet', 'tapMode', 'articulation', 'dynamics', 'hand', 'head', 'technique'],
+  palette: ['edit', 'figure', 'length', 'tuplet', 'tapMode', 'articulation', 'dynamics', 'hand', 'head', 'technique'],
   articulations: ['accent', 'ghost'],
   heads: ALL_HEADS,
-  techniques: ALL_TECHS,
+  techniques: [...ALL_TECHS, 'lv'],
   hands: true,
-  legend: ['cross', 'diamond', 'triangle', 'circleX', 'crossStick', 'slashed', 'open', 'closed', 'halfOpen', 'choke', 'buzz', 'tremolo', 'flam', 'drag', 'ghost', 'accent', 'dynamics', 'wedges', 'simile', 'repeat'],
+  legend: ['cross', 'diamond', 'triangle', 'circleX', 'crossStick', 'slashed', 'open', 'closed', 'halfOpen', 'choke', 'lv', 'buzz', 'tremolo', 'flam', 'drag', 'ghost', 'accent', 'dynamics', 'wedges', 'dot', 'simile', 'repeat'],
   staves: Object.freeze([
     Object.freeze({
       lineCount: 5,
@@ -70,7 +70,7 @@ export const CONGAS_PROFILE = Object.freeze({
   id: 'congas',
   name: 'Congas',
   family: 'rock',
-  palette: ['edit', 'figure', 'tuplet', 'tapMode', 'articulation', 'dynamics', 'hand', 'head', 'technique'],
+  palette: ['edit', 'figure', 'length', 'tuplet', 'tapMode', 'articulation', 'dynamics', 'hand', 'head', 'technique'],
   articulations: ['accent', 'ghost'],
   heads: ['cross'],
   techniques: ['closed', 'flam'],
@@ -96,7 +96,7 @@ export const CONGAS_PROFILE = Object.freeze({
  */
 const PITCHED_PALETTE = ['edit', 'figure', 'length', 'tuplet', 'tapMode', 'accidental', 'articulation', 'dynamics'];
 const PITCHED_ARTS = ['accent', 'staccato', 'tenuto', 'marcato', 'fermata'];
-const PITCHED_LEGEND = ['sharp', 'flat', 'natural', 'doubleSharp', 'doubleFlat', 'staccato', 'tenuto', 'accent', 'marcato', 'fermata', 'dynamics', 'wedges', 'simile', 'repeat'];
+const PITCHED_LEGEND = ['dot', 'sharp', 'flat', 'natural', 'doubleSharp', 'doubleFlat', 'staccato', 'tenuto', 'accent', 'marcato', 'fermata', 'dynamics', 'wedges', 'simile', 'repeat'];
 function pitchedProfile(id, family, clef, low, high, voice, extra = {}) {
   return Object.freeze({
     id, name: id, family, palette: PITCHED_PALETTE, articulations: PITCHED_ARTS,
@@ -111,9 +111,10 @@ function pitchedProfile(id, family, clef, low, high, voice, extra = {}) {
  * slash ("comp the chord in this rhythm"). Horns: falls, doits, scoops and plops, slurs and breaths.
  */
 const RHYTHM_EXTRA = {
-  palette: [...PITCHED_PALETTE, 'chords', 'head'],
+  palette: [...PITCHED_PALETTE, 'chords', 'head', 'technique'],
   heads: ['slash'],
-  legend: [...PITCHED_LEGEND, 'chord', 'slashHead'],
+  techniques: ['lv'],
+  legend: [...PITCHED_LEGEND, 'chord', 'slashHead', 'lv'],
 };
 const BASS_EXTRA = { palette: [...PITCHED_PALETTE, 'chords'], legend: [...PITCHED_LEGEND, 'chord'] };
 const HORN_EXTRA = {
@@ -126,7 +127,7 @@ const HORN_EXTRA = {
 /** Rock band. Guitar and bass are written an octave above where they sound (the 8 under the clef). */
 export const ELECTRIC_GUITAR_PROFILE = pitchedProfile('electricGuitar', 'rock', 'treble8vb', 'D3', 'E6', 'guitar', RHYTHM_EXTRA);
 export const BASS_GUITAR_PROFILE = pitchedProfile('bassGuitar', 'rock', 'bass8vb', 'C2', 'G4', 'bass', BASS_EXTRA);
-export const KEYS_PROFILE = pitchedProfile('keys', 'rock', 'treble', 'F3', 'C7', 'keys', RHYTHM_EXTRA);
+export const KEYS_PROFILE = pitchedProfile('keys', 'rock', 'treble', 'F3', 'C7', 'keys', { ...RHYTHM_EXTRA, palette: [...RHYTHM_EXTRA.palette, 'pedal'], legend: [...RHYTHM_EXTRA.legend, 'pedal'] });
 
 /**
  * Jazz. Transposing horns are written where the player reads: B♭ trumpet a tone above concert
@@ -138,7 +139,7 @@ export const ALTO_SAX_PROFILE = pitchedProfile('altoSax', 'jazz', 'treble', 'A3'
 export const TENOR_SAX_PROFILE = pitchedProfile('tenorSax', 'jazz', 'treble', 'A3', 'F6', 'sax', { ...HORN_EXTRA, transpose: -14, keyShift: 2 });
 export const TROMBONE_PROFILE = pitchedProfile('trombone', 'jazz', 'bass', 'E2', 'F4', 'brass', HORN_EXTRA);
 export const DOUBLE_BASS_PROFILE = pitchedProfile('doubleBass', 'jazz', 'bass8vb', 'E2', 'G4', 'upright', BASS_EXTRA);
-export const VIBRAPHONE_PROFILE = pitchedProfile('vibraphone', 'jazz', 'treble', 'F3', 'F6', 'vibes', { palette: [...PITCHED_PALETTE, 'chords'], legend: [...PITCHED_LEGEND, 'chord'] });
+export const VIBRAPHONE_PROFILE = pitchedProfile('vibraphone', 'jazz', 'treble', 'F3', 'F6', 'vibes', { palette: [...PITCHED_PALETTE, 'chords', 'pedal', 'technique'], techniques: ['lv'], legend: [...PITCHED_LEGEND, 'chord', 'pedal', 'lv'] });
 /**
  * Voices: lyrics, breath marks and slurs; dynamics above the staff so lyrics have the space
  * below (the choral convention). Tenor is written in treble clef, sounding an octave lower.
@@ -159,7 +160,7 @@ export const BASS_PROFILE = pitchedProfile('bass', 'choir', 'bass', 'C2', 'F4', 
  * Grand-staff instruments are two linked parts, one per hand, so each hand keeps its own
  * rhythm: right hand on a treble staff, left hand on a bass staff.
  */
-const KEYBOARD_EXTRA = { palette: [...PITCHED_PALETTE, 'chords', 'phrasing'], articulations: [...PITCHED_ARTS], legend: [...PITCHED_LEGEND, 'chord', 'slur'] };
+const KEYBOARD_EXTRA = { palette: [...PITCHED_PALETTE, 'chords', 'phrasing', 'pedal', 'technique'], articulations: [...PITCHED_ARTS], techniques: ['lv'], legend: [...PITCHED_LEGEND, 'chord', 'slur', 'pedal', 'lv'] };
 export const PIANO_RH_PROFILE = pitchedProfile('pianoRH', 'orchestra', 'treble', 'A3', 'C8', 'piano', KEYBOARD_EXTRA);
 export const PIANO_LH_PROFILE = pitchedProfile('pianoLH', 'orchestra', 'bass', 'A0', 'E4', 'piano', KEYBOARD_EXTRA);
 export const HARP_RH_PROFILE = pitchedProfile('harpRH', 'orchestra', 'treble', 'A3', 'G7', 'harp', KEYBOARD_EXTRA);
@@ -211,7 +212,7 @@ export const NEY_PROFILE = pitchedProfile('ney', 'arabic', 'treble', 'C4', 'D7',
 function frameDrum(id) {
   return Object.freeze({
     id, name: id, family: 'arabic',
-    palette: ['edit', 'figure', 'tuplet', 'tapMode', 'articulation', 'dynamics', 'hand'],
+    palette: ['edit', 'figure', 'length', 'tuplet', 'tapMode', 'articulation', 'dynamics', 'hand'],
     articulations: ['accent', 'ghost'], heads: [], techniques: [], hands: true,
     legend: ['dumTak', 'ghost', 'accent', 'dynamics', 'wedges', 'simile', 'repeat'],
     staves: Object.freeze([Object.freeze({ lineCount: 5, slots: Object.freeze([
@@ -236,7 +237,7 @@ export const SHAMISEN_PROFILE = pitchedProfile('shamisen', 'japanese', 'treble8v
 export const SHAKUHACHI_PROFILE = pitchedProfile('shakuhachi', 'japanese', 'treble', 'D4', 'D7', 'shakuhachi', JAPANESE_EXTRA);
 export const TAIKO_PROFILE = Object.freeze({
   id: 'taiko', name: 'taiko', family: 'japanese',
-  palette: ['edit', 'figure', 'tuplet', 'tapMode', 'articulation', 'dynamics', 'hand'],
+  palette: ['edit', 'figure', 'length', 'tuplet', 'tapMode', 'articulation', 'dynamics', 'hand'],
   articulations: ['accent', 'ghost'], heads: [], techniques: [], hands: true,
   legend: ['taiko', 'ghost', 'accent', 'dynamics', 'wedges', 'simile', 'repeat'],
   staves: Object.freeze([Object.freeze({ lineCount: 5, slots: Object.freeze([

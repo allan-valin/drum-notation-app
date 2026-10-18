@@ -117,6 +117,11 @@ export function layoutBar(bar, staff, config) {
         const high = notes.length ? Math.min(...notes.map((n) => yOf(posOf(n), sp))) : 0;
         texts.push({ kind: 'chord', text: lf.chord, x: headX(i) - 0.2 * sp, y: Math.min(-2.4 * sp, high - 4.8 * sp), beat: beatIndex, cell: span.unit.idx });
       }
+      if (lf.ped) {
+        // pedal marks under everything else on the staff
+        const low = notes.length ? Math.max(...notes.map((n) => yOf(posOf(n), sp))) : 4 * sp;
+        glyphs.push({ ...base, kind: 'pedal', glyph: lf.ped === 'down' ? Glyphs.PED : Glyphs.PED_UP, x: headX(i), y: Math.max(9.4 * sp, low + 4.2 * sp) });
+      }
       if (lf.dyn || lf.wedge) {
         const low = notes.length ? Math.max(...notes.map((n) => yOf(posOf(n), sp))) : 4 * sp;
         const high = notes.length ? Math.min(...notes.map((n) => yOf(posOf(n), sp))) : 0;
@@ -166,6 +171,10 @@ export function layoutBar(bar, staff, config) {
         if (span.unit.tiedIn) {
           const from = lastHead.get(slot.id);
           ties.push({ x1: from ? from.x + headW : 0, x2: headX(i) + dx, y, slotId: slot.id, below: dir === 'up' });
+        }
+        if ((n.marks ?? []).includes(Mark.LV)) {
+          // let ring: a short tie that goes nowhere
+          ties.push({ x1: headX(i) + dx + wOf(i), x2: headX(i) + dx + wOf(i) + 1.8 * sp, y, slotId: slot.id, below: dir === 'up', open: true });
         }
         lastHead.set(slot.id, { x: headX(i) + dx, y });
         lastSounding.push({ x: headX(i) + dx, y, slotId: slot.id, below: dir === 'up' });
