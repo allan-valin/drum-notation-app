@@ -40,6 +40,7 @@
     ['pizz', 'pizz.'], ['downBow', Glyphs.DOWN_BOW], ['upBow', Glyphs.UP_BOW], ['harmonic', Glyphs.HARMONIC],
     ['stringTremolo', Glyphs.TREMOLO3], ['trill', Glyphs.TRILL],
     ['quarterFlat', Glyphs.QUARTER_FLAT], ['quarterSharp', Glyphs.QUARTER_SHARP], ['dumTak', head(Notehead.NORMAL) + '  ' + head(Notehead.CROSS)],
+    ['taiko', head(Notehead.NORMAL) + '  ' + head(Notehead.CROSS)],
     ['congaSlap', head(Notehead.CROSS)],
     ['congaMute', Glyphs.CLOSED],
   ];

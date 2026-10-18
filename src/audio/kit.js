@@ -96,6 +96,10 @@ export function createKit(ctx) {
     highTom: (t, v) => tone(t, v, 0.35, 260, 180, 'sine', 0.2),
     midTom: (t, v) => tone(t, v, 0.4, 190, 135, 'sine', 0.22),
     floorTom: (t, v) => tone(t, v, 0.5, 125, 85, 'sine', 0.25),
+    // taiko: a big low skin (don), a softer stroke (tsu), the wooden rim (ka)
+    taikoDon: (t, v) => { tone(t, v * 1.3, 0.9, 90, 60, 'sine', 0.2); noiseHit(t, v * 0.2, 0.08, [['lowpass', 500]]); },
+    taikoTsu: (t, v) => { tone(t, v * 0.7, 0.5, 100, 70, 'sine', 0.15); },
+    taikoKa: (t, v) => { tone(t, v * 0.6, 0.05, 1100, 900, 'square'); noiseHit(t, v * 0.5, 0.04, [['bandpass', 2600, 2]]); },
     // frame drums: dum is the deep centre, tak the bright rim, ka the other hand's lighter tak
     darbukaDum: (t, v) => { tone(t, v * 1.1, 0.35, 140, 90, 'sine', 0.08); noiseHit(t, v * 0.1, 0.03, [['lowpass', 800]]); },
     darbukaTak: (t, v) => { noiseHit(t, v * 0.8, 0.06, [['bandpass', 3500, 1.5]]); tone(t, v * 0.35, 0.05, 700, 650, 'triangle'); },

@@ -79,7 +79,7 @@ nos tempos 1 e 3):
 
 Para uma partitura com mais de um instrumento use `"schema_version": 3`:
 
-- `parts` lista os instrumentos: `{ "id": "p1", "instrument": "drums" }`. Instrumentos: `drums`, `congas`, `electricGuitar`, `bassGuitar`, `keys`, `vocal`, `soprano`, `alto`, `tenor`, `bass`, `trumpet`, `altoSax`, `tenorSax`, `trombone`, `doubleBass`, `vibraphone`, `piano`, `harp`, `violin`, `viola`, `cello`, `contrabass`, `flute`, `oboe`, `clarinet`, `bassoon`, `horn`, `tuba`, `timpani`, `glockenspiel`, `xylophone`, `marimba`, `oud`, `qanun`, `ney`, `darbuka`, `riq`, `daf` (`piano`/`harp`: two parts, `pianoRH` + `pianoLH` / `harpRH` + `harpLH`, same `group`).
+- `parts` lista os instrumentos: `{ "id": "p1", "instrument": "drums" }`. Instrumentos: `drums`, `congas`, `electricGuitar`, `bassGuitar`, `keys`, `vocal`, `soprano`, `alto`, `tenor`, `bass`, `trumpet`, `altoSax`, `tenorSax`, `trombone`, `doubleBass`, `vibraphone`, `piano`, `harp`, `violin`, `viola`, `cello`, `contrabass`, `flute`, `oboe`, `clarinet`, `bassoon`, `horn`, `tuba`, `timpani`, `glockenspiel`, `xylophone`, `marimba`, `oud`, `qanun`, `ney`, `darbuka`, `riq`, `daf`, `koto`, `shamisen`, `shakuhachi`, `taiko` (`piano`/`harp`: two parts, `pianoRH` + `pianoLH` / `harpRH` + `harpLH`, same `group`).
 - Cada compasso tem as marcas comuns (`timeSig`, `key`, `repeatStart`, `repeatEnd`) e, em
   `parts`, o conteúdo de cada instrumento pelo `id`: `{ "beats": [...] }` (opcionais
   `simile` e `text`).
@@ -95,7 +95,7 @@ Para uma partitura com mais de um instrumento use `"schema_version": 3`:
   `wedge` (`cresc`/`dim`), `lyric` (uma sílaba; termine com `-` para hífen), `slur`
   (`start`/`end`), `chord` (cifra: `C7`, `Bbmaj7`, `F#m7b5`, `C/E`).
 - Cordas e ornamentos: `"marks": ["pizz"]` (também `arco`, `downBow`, `upBow`, `harmonic`, `trill`); trêmolo: `"roll": "tremolo"`.
-- Música árabe: `key` também pode ser um maqam: `"rast"`, `"bayati"`, `"saba"`, `"hijaz"`, `"nahawand"`, `"kurd"`, `"sikah"` (armadura com meio-bemóis). Darbuka, riq e daf: `dum`, `tak`, `ka`.
+- Música árabe: `key` também pode ser um maqam: `"rast"`, `"bayati"`, `"saba"`, `"hijaz"`, `"nahawand"`, `"kurd"`, `"sikah"` (armadura com meio-bemóis). Darbuka, riq e daf: `dum`, `tak`, `ka`. Taiko: `don`, `tsu`, `ka`.
 - `"swing": true` no topo toca as colcheias suingadas.
 - Base rítmica: cabeça `"head": "slash"` no meio da pauta = toque o acorde da cifra nesse ritmo.
   Metais e saxofones: `"marks": ["fall"]` (também `doit`, `scoop`, `plop`).

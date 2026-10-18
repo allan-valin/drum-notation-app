@@ -76,7 +76,7 @@ Example, one bar of basic rock (eighths on the hi-hat, snare on 2 and 4, bass dr
 
 For a score with more than one instrument use `"schema_version": 3`:
 
-- `parts` lists the instruments: `{ "id": "p1", "instrument": "drums" }`. Instruments: `drums`, `congas`, `electricGuitar`, `bassGuitar`, `keys`, `vocal`, `soprano`, `alto`, `tenor`, `bass`, `trumpet`, `altoSax`, `tenorSax`, `trombone`, `doubleBass`, `vibraphone`, `piano`, `harp`, `violin`, `viola`, `cello`, `contrabass`, `flute`, `oboe`, `clarinet`, `bassoon`, `horn`, `tuba`, `timpani`, `glockenspiel`, `xylophone`, `marimba`, `oud`, `qanun`, `ney`, `darbuka`, `riq`, `daf` (`piano`/`harp`: two parts, `pianoRH` + `pianoLH` / `harpRH` + `harpLH`, same `group`).
+- `parts` lists the instruments: `{ "id": "p1", "instrument": "drums" }`. Instruments: `drums`, `congas`, `electricGuitar`, `bassGuitar`, `keys`, `vocal`, `soprano`, `alto`, `tenor`, `bass`, `trumpet`, `altoSax`, `tenorSax`, `trombone`, `doubleBass`, `vibraphone`, `piano`, `harp`, `violin`, `viola`, `cello`, `contrabass`, `flute`, `oboe`, `clarinet`, `bassoon`, `horn`, `tuba`, `timpani`, `glockenspiel`, `xylophone`, `marimba`, `oud`, `qanun`, `ney`, `darbuka`, `riq`, `daf`, `koto`, `shamisen`, `shakuhachi`, `taiko` (`piano`/`harp`: two parts, `pianoRH` + `pianoLH` / `harpRH` + `harpLH`, same `group`).
 - Each bar has the shared marks (`timeSig`, `key`, `repeatStart`, `repeatEnd`) and, under
   `parts`, each instrument's content by `id`: `{ "beats": [...] }` (optional `simile`, `text`).
 - `key` is the key signature in fifths: `2` = two sharps (D major), `-3` = three flats. Write the
@@ -91,7 +91,7 @@ For a score with more than one instrument use `"schema_version": 3`:
   `wedge` (`cresc`/`dim`), `lyric` (one syllable; end with `-` for a hyphen), `slur`
   (`start`/`end`), `chord` (chord symbol: `C7`, `Bbmaj7`, `F#m7b5`, `C/E`).
 - Strings and ornaments: `"marks": ["pizz"]` (also `arco`, `downBow`, `upBow`, `harmonic`, `trill`); tremolo: `"roll": "tremolo"`.
-- Arabic music: `key` can also be a maqam: `"rast"`, `"bayati"`, `"saba"`, `"hijaz"`, `"nahawand"`, `"kurd"`, `"sikah"` (signature with half-flats). Darbuka, riq and daf: `dum`, `tak`, `ka`.
+- Arabic music: `key` can also be a maqam: `"rast"`, `"bayati"`, `"saba"`, `"hijaz"`, `"nahawand"`, `"kurd"`, `"sikah"` (signature with half-flats). Darbuka, riq and daf: `dum`, `tak`, `ka`. Taiko: `don`, `tsu`, `ka`.
 - `"swing": true` at the top plays the eighths swung.
 - Rhythm section: `"head": "slash"` on the middle line = play the chord symbol in this rhythm.
   Brass and saxophones: `"marks": ["fall"]` (also `doit`, `scoop`, `plop`).

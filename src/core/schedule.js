@@ -84,6 +84,7 @@ export function playOrder(score, a, b) {
 
 /** The sound a note makes on a given instrument, changed by its head and technique marks. */
 export function soundFor(note, instrument = 'drums') {
+  if (instrument === 'taiko') return { don: 'taikoDon', tsu: 'taikoTsu', ka: 'taikoKa' }[note.slotId] ?? 'taikoDon';
   if (['darbuka', 'riq', 'daf'].includes(instrument)) {
     return `${instrument}${{ dum: 'Dum', tak: 'Tak', ka: 'Ka' }[note.slotId] ?? 'Tak'}`;
   }

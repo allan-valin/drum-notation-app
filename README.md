@@ -16,6 +16,12 @@ barlines, drum noteheads and technique marks with a legend of what other authors
 a help overlay with examples, and playback (this bar, from the start, from here, or a looped
 selection) with a recorded kit or a synthesized one.
 
+Beyond drums: 42 instruments in one score, each with its own synthesized sound — rock band,
+choir (SATB with lyrics), jazz (transposing horns, chord symbols, rhythm slashes, swing),
+orchestra (strings, winds, brass, percussion, piano and harp on braced staves), Arabic music
+(quarter tones, maqam key signatures, oud, qanun, ney, darbuka) and Japanese instruments on a
+Western staff (koto, shamisen, shakuhachi, taiko). Plan: `docs/superpowers/plans/2026-10-18-instruments.md`.
+
 - Design: `docs/superpowers/specs/2026-08-03-score-editor-design.md`
 - Web platform decision: `docs/superpowers/specs/2026-10-18-web-platform.md`
 - Plan and checklist: `docs/superpowers/plans/2026-10-18-v1-web-editor.md`

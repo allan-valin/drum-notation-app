@@ -225,6 +225,27 @@ export const DARBUKA_PROFILE = frameDrum('darbuka');
 export const RIQ_PROFILE = frameDrum('riq');
 export const DAF_PROFILE = frameDrum('daf');
 
+/**
+ * Japanese instruments written on a Western staff (traditional vertical notation is not
+ * supported). Taiko strokes go by their kuchishōga syllables: don (centre), tsu (light centre),
+ * ka (rim, X head).
+ */
+const JAPANESE_EXTRA = { palette: [...PITCHED_PALETTE, 'phrasing'], articulations: [...PITCHED_ARTS, 'breath'], legend: [...PITCHED_LEGEND, 'slur'] };
+export const KOTO_PROFILE = pitchedProfile('koto', 'japanese', 'treble', 'D3', 'D6', 'koto', JAPANESE_EXTRA);
+export const SHAMISEN_PROFILE = pitchedProfile('shamisen', 'japanese', 'treble8vb', 'B3', 'C6', 'shamisen', JAPANESE_EXTRA);
+export const SHAKUHACHI_PROFILE = pitchedProfile('shakuhachi', 'japanese', 'treble', 'D4', 'D7', 'shakuhachi', JAPANESE_EXTRA);
+export const TAIKO_PROFILE = Object.freeze({
+  id: 'taiko', name: 'taiko', family: 'japanese',
+  palette: ['edit', 'figure', 'tuplet', 'tapMode', 'articulation', 'dynamics', 'hand'],
+  articulations: ['accent', 'ghost'], heads: [], techniques: [], hands: true,
+  legend: ['taiko', 'ghost', 'accent', 'dynamics', 'wedges', 'simile', 'repeat'],
+  staves: Object.freeze([Object.freeze({ lineCount: 5, slots: Object.freeze([
+    slot('don', 'Don', 2, Notehead.NORMAL),
+    slot('tsu', 'Tsu', 4, Notehead.NORMAL),
+    slot('ka', 'Ka', 7, Notehead.CROSS),
+  ]) })]),
+});
+
 /** Instruments made of several linked parts, by the name offered in the dropdowns. */
 export const GROUPS = Object.freeze({ piano: ['pianoRH', 'pianoLH'], harp: ['harpRH', 'harpLH'] });
 
@@ -269,6 +290,10 @@ export const PROFILES = Object.freeze({
   darbuka: DARBUKA_PROFILE,
   riq: RIQ_PROFILE,
   daf: DAF_PROFILE,
+  koto: KOTO_PROFILE,
+  shamisen: SHAMISEN_PROFILE,
+  shakuhachi: SHAKUHACHI_PROFILE,
+  taiko: TAIKO_PROFILE,
 });
 
 /** Instruments offered in the dropdowns, in order: hands of a grand staff come as their instrument. */

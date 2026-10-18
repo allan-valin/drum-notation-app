@@ -96,5 +96,5 @@ transposition are just the frequency. A sampled set can follow later like the dr
 - [x] **I7 Orchestra.** (2026-10-18: piano and harp as two linked hand parts with a brace, one band row; strings, woodwinds, brass, timpani, mallets; pizz./arco, bowings, harmonics, tremolo, trills drawn and played; 15 voices; hit-test 0 for all orchestral palettes. Single staff per part: cello stays in bass clef (no tenor-clef switching), marimba on one treble staff.)
 - [x] **I8 Arabic.** (2026-10-18: half-flat/half-sharp and three-quarter signs; maqam key signatures rast, bayati, saba, hijaz, nahawand, kurd, sikah with half-flats, played at quarter-tone pitch; oud (octave below), qanun, ney; darbuka, riq, daf with dum/tak/ka. Maqam keys are not transposed for B♭/E♭ instruments.) Quarter-tone accidentals and maqam key signatures, quarter-tone playback,
   oud/qanun/ney profiles, darbuka/riq/daf percussion.
-- [ ] **I9 Japanese on a Western staff.** Taiko (don/ka/tsu), koto, shakuhachi, shamisen
+- [x] **I9 Japanese on a Western staff.** (2026-10-18: koto, shamisen (octave below, sawari buzz), shakuhachi, taiko (don/tsu/ka). Final hit-test: 42 instruments × 3 sizes, 0 stolen clicks.) Taiko (don/ka/tsu), koto, shakuhachi, shamisen
   profiles and sounds. Traditional vertical notation: not planned (see above).

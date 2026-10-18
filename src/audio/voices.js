@@ -5,7 +5,7 @@
  * - keys: a few decaying partials, like an electric piano
  * - voice: a sawtooth through vowel formants with a late vibrato
  */
-export const VOICES = ['guitar', 'bass', 'keys', 'voice', 'brass', 'sax', 'upright', 'vibes', 'piano', 'harp', 'strings', 'pizz', 'harmonic', 'flute', 'oboe', 'clarinet', 'bassoon', 'horn', 'tuba', 'timpani', 'glock', 'xylo', 'marimba', 'oud', 'qanun', 'ney'];
+export const VOICES = ['guitar', 'bass', 'keys', 'voice', 'brass', 'sax', 'upright', 'vibes', 'piano', 'harp', 'strings', 'pizz', 'harmonic', 'flute', 'oboe', 'clarinet', 'bassoon', 'horn', 'tuba', 'timpani', 'glock', 'xylo', 'marimba', 'oud', 'qanun', 'ney', 'koto', 'shamisen', 'shakuhachi'];
 
 export function createVoices(ctx, out) {
   const plucks = new Map();
@@ -190,6 +190,10 @@ export function createVoices(ctx, out) {
     oud: (t, f, d, v) => pluck(t, f, Math.max(d, 0.5), v * 1.1, { damping: 0.995, cutoff: 2600 }),
     qanun: (t, f, d, v) => pluck(t, f, Math.max(d, 0.7), v, { damping: 0.997, cutoff: 6000 }),
     ney: (t, f, d, v, b) => sustain(t, f, d, v, { type: 'sine', cutoff: 5000, attack: 0.08, level: 0.24, vibrato: 0.005, breath: 0.09, extra: [['sine', 2, 0.08]], bend: b }),
+    koto: (t, f, d, v) => pluck(t, f, Math.max(d, 0.8), v * 1.1, { damping: 0.997, cutoff: 4500 }),
+    // shamisen: a hard pluck with the buzzing sawari, a little drive
+    shamisen: (t, f, d, v) => pluck(t, f, Math.max(d, 0.4), v, { damping: 0.993, cutoff: 3500, drive: 2.5 }),
+    shakuhachi: (t, f, d, v, b) => sustain(t, f, d, v, { type: 'sine', cutoff: 4000, attack: 0.1, level: 0.24, vibrato: 0.006, breath: 0.14, extra: [['sine', 2, 0.06]], bend: b }),
     marimba: (t, f, d, v) => struck(t, f, d, v, [[1, 1], [4, 0.3], [10, 0.05]], 0.7, 0.32),
     brass: (t, f, d, v, b) => horn(t, f, d, v, { bright: 6, breath: false, square: false, bend: b }),
     sax: (t, f, d, v, b) => horn(t, f, d, v, { bright: 4, breath: true, square: true, bend: b }),

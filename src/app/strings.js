@@ -20,6 +20,7 @@ export const STRINGS = {
     maqam: { rast: 'Rast (Dó)', bayati: 'Bayati (Ré)', saba: 'Saba (Ré)', hijaz: 'Hijaz (Ré)', nahawand: 'Nahawand (Dó)', kurd: 'Kurd (Ré)', sikah: 'Sikah (Mi meio bemol)' },
     noteNames: { C: 'Dó', D: 'Ré', E: 'Mi', F: 'Fá', G: 'Sol', A: 'Lá', B: 'Si' },
     instrument: {
+      koto: 'Koto', shamisen: 'Shamisen', shakuhachi: 'Shakuhachi', taiko: 'Taiko',
       oud: 'Alaúde árabe (oud)', qanun: 'Qanun', ney: 'Ney', darbuka: 'Darbuka', riq: 'Riq', daf: 'Daf',
       piano: 'Piano', harp: 'Harpa', pianoRH: 'Piano (mão direita)', pianoLH: 'Piano (mão esquerda)', harpRH: 'Harpa (mão direita)', harpLH: 'Harpa (mão esquerda)', violin: 'Violino', viola: 'Viola', cello: 'Violoncelo', contrabass: 'Contrabaixo (orquestra)', flute: 'Flauta', oboe: 'Oboé', clarinet: 'Clarinete (Si♭)', bassoon: 'Fagote', horn: 'Trompa (Fá)', tuba: 'Tuba', timpani: 'Tímpanos', glockenspiel: 'Glockenspiel', xylophone: 'Xilofone', marimba: 'Marimba',
       trumpet: 'Trompete (Si♭)', altoSax: 'Sax alto (Mi♭)', tenorSax: 'Sax tenor (Si♭)', trombone: 'Trombone', doubleBass: 'Contrabaixo', vibraphone: 'Vibrafone',
@@ -57,6 +58,7 @@ export const STRINGS = {
       open: 'Legenda', title: 'Legenda dos símbolos', close: 'Fechar', symbol: 'Símbolo', meaning: 'Neste app', also: 'Outros autores usam para',
       note: 'Cada método escreve bateria um pouco diferente. O app segue a convenção da Percussive Arts Society (Norman Weinberg); a coluna da direita lista o que outros livros usam para o mesmo símbolo. Se o seu livro usa outro sentido, escreva o símbolo como está no livro.',
       rows: {
+        taiko: { meaning: 'Taiko pelas sílabas (kuchishōga): don no centro (embaixo), tsu leve, ka na borda (X)', also: 'A notação tradicional escreve as sílabas em katakana' },
         quarterFlat: { meaning: 'Meio bemol: um quarto de tom abaixo (música árabe)', also: 'Bemol cortado em outras tradições' },
         quarterSharp: { meaning: 'Meio sustenido: um quarto de tom acima', also: '—' },
         dumTak: { meaning: 'Dum (grave, no centro) embaixo, tak (agudo, na borda) em cima, ka (tak da outra mão) com X', also: 'Alguns escrevem D/T/K sobre uma só linha' },
@@ -167,6 +169,7 @@ export const STRINGS = {
       eighth: 'colcheias', sixteenth: 'semicolcheias', thirtySecond: 'fusas',
     },
     slot: {
+      don: 'Don', tsu: 'Tsu',
       dum: 'Dum', tak: 'Tak', ka: 'Ka',
       tumba: 'Tumba', conga: 'Conga', quinto: 'Quinto',
       hihatPedal: 'Chimbal (pé)', kick: 'Bumbo', floorTom: 'Surdo', snare: 'Caixa',
@@ -249,6 +252,7 @@ export const STRINGS = {
     maqam: { rast: 'Rast (C)', bayati: 'Bayati (D)', saba: 'Saba (D)', hijaz: 'Hijaz (D)', nahawand: 'Nahawand (C)', kurd: 'Kurd (D)', sikah: 'Sikah (E half-flat)' },
     noteNames: { C: 'C', D: 'D', E: 'E', F: 'F', G: 'G', A: 'A', B: 'B' },
     instrument: {
+      koto: 'Koto', shamisen: 'Shamisen', shakuhachi: 'Shakuhachi', taiko: 'Taiko',
       oud: 'Oud', qanun: 'Qanun', ney: 'Ney', darbuka: 'Darbuka', riq: 'Riq', daf: 'Daf',
       piano: 'Piano', harp: 'Harp', pianoRH: 'Piano (right hand)', pianoLH: 'Piano (left hand)', harpRH: 'Harp (right hand)', harpLH: 'Harp (left hand)', violin: 'Violin', viola: 'Viola', cello: 'Cello', contrabass: 'Double bass (orchestra)', flute: 'Flute', oboe: 'Oboe', clarinet: 'Clarinet (B♭)', bassoon: 'Bassoon', horn: 'Horn (F)', tuba: 'Tuba', timpani: 'Timpani', glockenspiel: 'Glockenspiel', xylophone: 'Xylophone', marimba: 'Marimba',
       trumpet: 'Trumpet (B♭)', altoSax: 'Alto sax (E♭)', tenorSax: 'Tenor sax (B♭)', trombone: 'Trombone', doubleBass: 'Double bass', vibraphone: 'Vibraphone',
@@ -286,6 +290,7 @@ export const STRINGS = {
       open: 'Legend', title: 'Symbol legend', close: 'Close', symbol: 'Symbol', meaning: 'In this app', also: 'Other authors use it for',
       note: 'Every method book notates drums a little differently. The app follows the Percussive Arts Society convention (Norman Weinberg); the right column lists what other books use the same symbol for. If your book means something else, write the symbol as it is in the book.',
       rows: {
+        taiko: { meaning: 'Taiko by its syllables (kuchishōga): don in the centre (low), tsu light, ka on the rim (X)', also: 'Traditional scores write the syllables in katakana' },
         quarterFlat: { meaning: 'Half flat: a quarter tone lower (Arabic music)', also: 'A slashed flat in other traditions' },
         quarterSharp: { meaning: 'Half sharp: a quarter tone higher', also: '—' },
         dumTak: { meaning: 'Dum (low, centre) below, tak (high, rim) above, ka (the other hand\'s tak) with an X', also: 'Some write D/T/K on a single line' },
@@ -396,6 +401,7 @@ export const STRINGS = {
       eighth: 'eighth notes', sixteenth: 'sixteenth notes', thirtySecond: '32nd notes',
     },
     slot: {
+      don: 'Don', tsu: 'Tsu',
       dum: 'Dum', tak: 'Tak', ka: 'Ka',
       tumba: 'Tumba', conga: 'Conga', quinto: 'Quinto',
       hihatPedal: 'Hi-hat (foot)', kick: 'Bass drum', floorTom: 'Floor tom', snare: 'Snare',
@@ -478,6 +484,7 @@ export const STRINGS = {
     maqam: { rast: 'Rast (C)', bayati: 'Bayati (D)', saba: 'Saba (D)', hijaz: 'Hijaz (D)', nahawand: 'Nahawand (C)', kurd: 'Kurd (D)', sikah: 'Sikah (E-Halb-Be)' },
     noteNames: { C: 'C', D: 'D', E: 'E', F: 'F', G: 'G', A: 'A', B: 'H' },
     instrument: {
+      koto: 'Koto', shamisen: 'Shamisen', shakuhachi: 'Shakuhachi', taiko: 'Taiko',
       oud: 'Oud', qanun: 'Qanun', ney: 'Ney', darbuka: 'Darbuka', riq: 'Riq', daf: 'Daf',
       piano: 'Klavier', harp: 'Harfe', pianoRH: 'Klavier (rechte Hand)', pianoLH: 'Klavier (linke Hand)', harpRH: 'Harfe (rechte Hand)', harpLH: 'Harfe (linke Hand)', violin: 'Violine', viola: 'Bratsche', cello: 'Violoncello', contrabass: 'Kontrabass (Orchester)', flute: 'Flöte', oboe: 'Oboe', clarinet: 'Klarinette (B)', bassoon: 'Fagott', horn: 'Horn (F)', tuba: 'Tuba', timpani: 'Pauken', glockenspiel: 'Glockenspiel', xylophone: 'Xylophon', marimba: 'Marimba',
       trumpet: 'Trompete (B)', altoSax: 'Altsaxophon (Es)', tenorSax: 'Tenorsaxophon (B)', trombone: 'Posaune', doubleBass: 'Kontrabass', vibraphone: 'Vibraphon',
@@ -515,6 +522,7 @@ export const STRINGS = {
       open: 'Legende', title: 'Zeichenlegende', close: 'Schließen', symbol: 'Zeichen', meaning: 'In dieser App', also: 'Andere Autoren nutzen es für',
       note: 'Jede Schule notiert Schlagzeug etwas anders. Die App folgt der Konvention der Percussive Arts Society (Norman Weinberg); die rechte Spalte nennt, wofür andere Bücher dasselbe Zeichen verwenden. Meint dein Buch etwas anderes, schreib das Zeichen so wie im Buch.',
       rows: {
+        taiko: { meaning: 'Taiko nach Silben (Kuchishōga): Don in der Mitte (unten), Tsu leicht, Ka am Rand (X)', also: 'Traditionelle Noten schreiben die Silben in Katakana' },
         quarterFlat: { meaning: 'Viertelton-Be: einen Viertelton tiefer (arabische Musik)', also: 'In anderen Traditionen ein durchgestrichenes Be' },
         quarterSharp: { meaning: 'Viertelton-Kreuz: einen Viertelton höher', also: '—' },
         dumTak: { meaning: 'Dum (tief, Mitte) unten, Tak (hoch, Rand) oben, Ka (Tak der anderen Hand) mit X', also: 'Manche schreiben D/T/K auf eine einzige Linie' },
@@ -625,6 +633,7 @@ export const STRINGS = {
       eighth: 'Achtel', sixteenth: 'Sechzehntel', thirtySecond: '32tel',
     },
     slot: {
+      don: 'Don', tsu: 'Tsu',
       dum: 'Dum', tak: 'Tak', ka: 'Ka',
       tumba: 'Tumba', conga: 'Conga', quinto: 'Quinto',
       hihatPedal: 'Hi-Hat (Fuß)', kick: 'Bassdrum', floorTom: 'Standtom', snare: 'Snare',
