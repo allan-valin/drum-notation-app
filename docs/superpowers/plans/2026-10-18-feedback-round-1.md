@@ -181,10 +181,13 @@ every sound was found. 18 WAV files, 648 KB: WAV not MP3/OGG because MP3 adds a 
 and Ogg Opus is missing on older iPhones. Details in docs/SOUNDS.md. Verified: 18 × HTTP 200
 under the Pages base, recorded kit plays.
 
-### C7 — phone pass and docs — [ ]
+### C7 — phone pass and docs — partly done 2026-10-18
 
-- [ ] Headless shots both orientations, then Allan on the Redmi.
-- [ ] README, import prompt, memory updated; this file's boxes ticked.
+- [x] Headless shots at 800×360, 390×844 (dark) and 1280×800 after each checkpoint; playback
+  checked against the live site (18 sound files 200, playhead, auto-stop).
+- [x] README, import prompt v2, SOUNDS.md, memory updated; boxes above ticked.
+- [ ] **Allan on the Redmi** (only he can): open the live site, write one real exercise with a
+  nested cell and a technique mark, play it with the recorded kit, print to PDF.
 
 ## Open questions (decide from use, not in advance)
 
