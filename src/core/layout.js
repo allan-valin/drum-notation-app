@@ -4,6 +4,7 @@ import { Articulation, Mark, Roll, Grace } from './score.js';
 import { slotById } from './profile.js';
 import { beams as beamsOf, beamLevel } from './beaming.js';
 import { leafSpans, groupSpans } from './tree.js';
+import { parseSlot, keyAlter } from './pitch.js';
 
 /** Vertical centre of a staff position, measured down from the top line; 0 is the bottom line. */
 export function yOf(staffPosition, spacing) {
@@ -42,6 +43,10 @@ export function layoutBar(bar, staff, config) {
   let x = lead;
 
   if (bar.repeatStart) glyphs.push({ kind: 'barline', glyph: Glyphs.REPEAT_LEFT, x: 0, y: yOf(0, sp) });
+  const pitched = !!staff.pitched;
+  const key = config.key ?? 0;
+  // the alteration in force for each written position so far in this bar (accidentals carry)
+  const inForce = new Map();
 
   bar.beats.forEach((beat, beatIndex) => {
     const beatWidth = unit * weights[beatIndex];
@@ -52,18 +57,38 @@ export function layoutBar(bar, staff, config) {
 
     const centreX = (i) => x + (spans[i].start + spans[i].size / 2) * beatWidth;
     const headX = (i) => centreX(i) - headW / 2;
-    const stemX = (i) => headX(i) + Metrics.stemUpSE.x * sp - (Metrics.stemThickness * sp) / 2;
     const valueOf = (i) => spans[i].parent.division;
-    const topOf = (i) => Math.min(...spans[i].leaf.notes.map((n) => yOf(slotById(staff, n.slotId).staffPosition, sp)));
+    const posOf = (n) => slotById(staff, n.slotId).staffPosition;
+    const topOf = (i) => Math.min(...spans[i].leaf.notes.map((n) => yOf(posOf(n), sp)));
+    const bottomOf = (i) => Math.max(...spans[i].leaf.notes.map((n) => yOf(posOf(n), sp)));
 
     const beatBeams = beamsOf(beat);
     const hosts = beatBeams.filter((b) => b.level === 1);
     const hostOf = (i) => hosts.find((h) => i >= h.from && i <= h.to);
+    /**
+     * Drums: stems always up. Pitched: a beamed group (or a lone note) stems down when its notes
+     * sit, on average, on the middle line or above, the usual engraving rule.
+     */
+    const dirOf = (i) => {
+      if (!pitched) return 'up';
+      const h = hostOf(i);
+      const [a, b] = h && h.from !== h.to ? [h.from, h.to] : [i, i];
+      const ps = [];
+      for (let k = a; k <= b; k++) ps.push(...spans[k].leaf.notes.map(posOf));
+      return ps.length && ps.reduce((m, v) => m + v, 0) / ps.length >= 4 ? 'down' : 'up';
+    };
+    const stemX = (i) => (dirOf(i) === 'down'
+      ? headX(i) + (Metrics.stemThickness * sp) / 2
+      : headX(i) + Metrics.stemUpSE.x * sp - (Metrics.stemThickness * sp) / 2);
     const beamY = new Map();
     hosts.forEach((h) => {
-      let top = Infinity;
-      for (let i = h.from; i <= h.to; i++) if (spans[i].leaf.notes.length) top = Math.min(top, topOf(i));
-      beamY.set(h, top - Metrics.stemLength * sp);
+      const down = dirOf(h.from) === 'down';
+      let edge = down ? -Infinity : Infinity;
+      for (let i = h.from; i <= h.to; i++) {
+        if (!spans[i].leaf.notes.length) continue;
+        edge = down ? Math.max(edge, bottomOf(i)) : Math.min(edge, topOf(i));
+      }
+      beamY.set(h, down ? edge + Metrics.stemLength * sp : edge - Metrics.stemLength * sp);
     });
 
     spans.forEach((span, i) => {
@@ -77,12 +102,32 @@ export function layoutBar(bar, staff, config) {
       }
       let topY = Infinity;
       let bottomY = -Infinity;
+      const dir = dirOf(i);
+      // a chord with notes a step apart: every second head of a cluster goes to the other side of the stem
+      const order = [...notes].sort((p, q) => posOf(p) - posOf(q));
+      const shifted = new Set();
+      for (let k = 1; k < order.length; k++) {
+        if (posOf(order[k]) - posOf(order[k - 1]) === 1 && !shifted.has(order[k - 1])) shifted.add(dir === 'up' ? order[k] : order[k - 1]);
+      }
+      let accidentalColumn = 0;
+      [...order].reverse().forEach((n) => {
+        if (!pitched) return;
+        const { step } = parseSlot(n.slotId);
+        const sounding = n.alter ?? keyAlter(key, step);
+        const before = inForce.has(n.slotId) ? inForce.get(n.slotId) : keyAlter(key, step);
+        inForce.set(n.slotId, sounding);
+        if (sounding === before) return;
+        const extra = shifted.has(n) && dir === 'down' ? headW : 0;
+        glyphs.push({ ...base, kind: 'accidental', glyph: Glyphs.accidental(sounding), x: headX(i) - extra - (1.25 + 1.1 * accidentalColumn) * sp, y: yOf(posOf(n), sp), slotRef: n.slotId });
+        accidentalColumn = (accidentalColumn + 1) % 3;
+      });
       notes.forEach((n) => {
         const slot = slotById(staff, n.slotId);
         const y = yOf(slot.staffPosition, sp);
         topY = Math.min(topY, y);
         bottomY = Math.max(bottomY, y);
-        glyphs.push({ ...base, kind: 'note', glyph: Glyphs.notehead(n.head ?? slot.notehead, value), x: headX(i), y, slotId: slot.id, staffPosition: slot.staffPosition });
+        const dx = shifted.has(n) ? (dir === 'up' ? headW - Metrics.stemThickness * sp : -(headW - Metrics.stemThickness * sp)) : 0;
+        glyphs.push({ ...base, kind: 'note', glyph: Glyphs.notehead(n.head ?? slot.notehead, value), x: headX(i) + dx, y, slotId: slot.id, staffPosition: slot.staffPosition });
         if (n.grace === Grace.FLAM) glyphs.push({ ...base, kind: 'grace', glyph: Glyphs.GRACE_SLASH, x: headX(i) - 1.9 * sp, y, slotRef: slot.id });
         if (n.grace === Grace.DRAG) {
           glyphs.push({ ...base, kind: 'grace', glyph: Glyphs.GRACE, x: headX(i) - 3.2 * sp, y, slotRef: slot.id });
@@ -95,15 +140,31 @@ export function layoutBar(bar, staff, config) {
       });
       const host = hostOf(i);
       const beamed = host && host.from !== host.to;
-      const stemTop = beamed ? beamY.get(host) : topY - Metrics.stemLength * sp;
+      const down = dir === 'down';
+      const stemEnd = beamed ? beamY.get(host) : down ? bottomY + Metrics.stemLength * sp : topY - Metrics.stemLength * sp;
+      const stemTop = down ? topY : stemEnd;
       if (value !== NoteValue.WHOLE) {
-        stems.push({ x: stemX(i), y1: bottomY - Metrics.stemUpSE.y * sp, y2: stemTop, beat: beatIndex, cell: i, value });
+        stems.push(down
+          ? { x: stemX(i), y1: topY + Metrics.stemUpSE.y * sp, y2: stemEnd, beat: beatIndex, cell: i, value, dir }
+          : { x: stemX(i), y1: bottomY - Metrics.stemUpSE.y * sp, y2: stemEnd, beat: beatIndex, cell: i, value, dir });
       }
       if (!beamed && beamLevel(value) > 0) {
-        glyphs.push({ ...base, kind: 'flag', glyph: Glyphs.flag(value), x: stemX(i) - (Metrics.stemThickness * sp) / 2, y: stemTop });
+        glyphs.push({ ...base, kind: 'flag', glyph: Glyphs.flag(value, dir), x: stemX(i) - (Metrics.stemThickness * sp) / 2, y: stemEnd });
+      }
+      if (pitched) {
+        // articulations on the notehead side, away from the stem; fermata always above the staff
+        let y = down ? topY - 1.1 * sp : bottomY + 1.1 * sp;
+        for (const a of ['staccato', 'tenuto', 'accent', 'marcato']) {
+          if (!notes.some((n) => n.articulations.includes(a))) continue;
+          glyphs.push({ ...base, kind: 'artic', glyph: Glyphs.artic(a, down), x: centreX(i) - 0.5 * sp, y: down ? y : y + 0.3 * sp });
+          y += down ? -1.0 * sp : 1.0 * sp;
+        }
+        if (notes.some((n) => n.articulations.includes(Articulation.FERMATA))) {
+          glyphs.push({ ...base, kind: 'artic', glyph: Glyphs.FERMATA, x: centreX(i) - 1.2 * sp, y: Math.min(-1 * sp, topY - 2.5 * sp, stemTop - 1.2 * sp) });
+        }
       }
       let markY = stemTop - 0.5 * sp;
-      if (notes.some((n) => n.articulations.includes(Articulation.ACCENT))) {
+      if (!pitched && notes.some((n) => n.articulations.includes(Articulation.ACCENT))) {
         glyphs.push({ ...base, kind: 'accent', glyph: Glyphs.ACCENT, x: centreX(i) - 0.68 * sp, y: markY });
         markY -= 1.3 * sp;
       }
@@ -126,7 +187,10 @@ export function layoutBar(bar, staff, config) {
     const stub = 1.1 * sp;
     beatBeams.forEach((b) => {
       const host = b.level === 1 ? b : hostOf(b.from);
-      const y = beamY.get(host) + (b.level - 1) * (Metrics.beamThickness + Metrics.beamSpacing) * sp;
+      const step = (b.level - 1) * (Metrics.beamThickness + Metrics.beamSpacing) * sp;
+      const y = dirOf(b.from) === 'down'
+        ? beamY.get(host) - Metrics.beamThickness * sp - step
+        : beamY.get(host) + step;
       let x1 = stemX(b.from) - stemHalf;
       let x2 = stemX(b.to) + stemHalf;
       if (b.stub === 'left') x1 = x2 - stub;

@@ -17,7 +17,9 @@ export function format(s, params = {}) {
 
 export const STRINGS = {
   pt: {
+    noteNames: { C: 'Dó', D: 'Ré', E: 'Mi', F: 'Fá', G: 'Sol', A: 'Lá', B: 'Si' },
     instrument: {
+      electricGuitar: 'Guitarra elétrica', bassGuitar: 'Baixo elétrico', keys: 'Teclado', vocal: 'Voz',
       label: 'Instrumento', editing: 'Editando', drums: 'Bateria', congas: 'Congas',
       band: 'Instrumentos', add: '+ Adicionar instrumento', mute: 'Silenciar', unmute: 'Ativar som', remove: 'Remover instrumento',
       confirmChange: 'Trocar o instrumento apaga as notas já escritas nesta parte (dá para desfazer). Continuar?', confirmRemove: 'Remover {name} e as notas dele? (dá para desfazer)',
@@ -47,6 +49,15 @@ export const STRINGS = {
       open: 'Legenda', title: 'Legenda dos símbolos', close: 'Fechar', symbol: 'Símbolo', meaning: 'Neste app', also: 'Outros autores usam para',
       note: 'Cada método escreve bateria um pouco diferente. O app segue a convenção da Percussive Arts Society (Norman Weinberg); a coluna da direita lista o que outros livros usam para o mesmo símbolo. Se o seu livro usa outro sentido, escreva o símbolo como está no livro.',
       rows: {
+        sharp: { meaning: 'Sustenido: meio tom acima', also: '—' },
+        flat: { meaning: 'Bemol: meio tom abaixo', also: '—' },
+        natural: { meaning: 'Bequadro: cancela o sustenido ou bemol', also: '—' },
+        doubleSharp: { meaning: 'Dobrado sustenido: um tom acima', also: '—' },
+        doubleFlat: { meaning: 'Dobrado bemol: um tom abaixo', also: '—' },
+        staccato: { meaning: 'Staccato: nota curta, destacada', also: '—' },
+        tenuto: { meaning: 'Tenuto: nota sustentada pelo valor inteiro', also: 'Leve acento em alguns estilos' },
+        marcato: { meaning: 'Marcato: acento forte', also: 'Em jazz, nota curta e forte' },
+        fermata: { meaning: 'Fermata: segurar a nota além do valor', also: 'No fim, sinal de final' },
         congaSlap: { meaning: 'Congas: slap (tapa)', also: 'Alguns métodos usam triângulo ou S acima' },
         congaMute: { meaning: 'Congas: som abafado (mão apoiada)', also: 'Alguns métodos usam M ou ponto' },
         cross: { meaning: 'Chimbal fechado, ride, crash', also: 'Qualquer prato' },
@@ -92,6 +103,7 @@ export const STRINGS = {
       s6: 'Tudo é salvo neste navegador a cada mudança. "PDF" abre a página de impressão. No arquivo, "JSON" exporta uma cópia. Para importar de uma foto, use o link "Como importar de uma foto".',
     },
     bars: {
+      key: 'Armadura', keyLong: 'Armadura de clave deste compasso em diante', keyNone: 'Sem acidentes', keySharps: '{n} ♯', keyFlats: '{n} ♭', major: 'maior', minor: 'menor',
       heading: 'Compasso {n}', add: 'Compasso', addLong: 'Adicionar compasso no fim', remove: 'Compasso', removeLong: 'Remover este compasso',
       timeSig: 'Fórmula {sig}', timeSigLong: 'Mudar a fórmula de compasso deste compasso', timeSigTitle: 'Fórmula de compasso do compasso {n}',
       beats: 'Tempos', unit: 'Figura do tempo', apply: 'Aplicar', inherit: 'Igual ao anterior', cancel: 'Cancelar',
@@ -129,6 +141,7 @@ export const STRINGS = {
       midTom: 'Tom médio', highTom: 'Tom agudo', hihat: 'Chimbal', ride: 'Ride', crash: 'Crash',
     },
     palette: {
+      accidental: 'Acidente', byKey: 'Pela armadura', byKeyHint: 'Sem acidente: a nota segue a armadura', sharp: 'Sustenido', flat: 'Bemol', natural: 'Bequadro', doubleSharp: 'Dobrado sustenido', doubleFlat: 'Dobrado bemol', staccato: 'Staccato', tenuto: 'Tenuto', marcato: 'Marcato', fermata: 'Fermata',
       figure: 'Figura', tuplet: 'Quiáltera', articulation: 'Articulação', hand: 'Mão', edit: 'Edição',
       tupletN: 'Quiáltera de {n}', tupletShort: '{n} em 1',
       rest: 'Pausa', restHint: 'Esvazia a célula',
@@ -146,6 +159,7 @@ export const STRINGS = {
       colourReset: 'Padrão', landscapeHint: 'Na horizontal o tempo em foco fica maior.', ok: 'ok', barAria: 'Compasso',
     },
     status: {
+      accidentalOn: 'Próximas notas: {what}', accidentalOff: 'Notas seguem a armadura', keySet: 'Armadura a partir do compasso {n}: {key}', artOn: 'Próximas notas: {what}', artOff: '{what} desligado',
       partSwitched: 'Editando: {name}', partAdded: '{name} adicionado. Escreva no editor; a lista ao lado do BPM controla o som.', partRemoved: '{name} removido', instrumentSet: 'Parte agora é {name}', muted: '{name} sem som', unmuted: '{name} com som',
       techOnSymbol: 'Próximo toque numa nota põe: {what}',
       symbolsAdded: 'Símbolos postos em {pos}: {notes}', symbolsRemoved: 'Símbolos tirados em {pos}: {notes}',
@@ -191,7 +205,9 @@ export const STRINGS = {
   },
 
   en: {
+    noteNames: { C: 'C', D: 'D', E: 'E', F: 'F', G: 'G', A: 'A', B: 'B' },
     instrument: {
+      electricGuitar: 'Electric guitar', bassGuitar: 'Bass guitar', keys: 'Keyboard', vocal: 'Vocals',
       label: 'Instrument', editing: 'Editing', drums: 'Drum kit', congas: 'Congas',
       band: 'Instruments', add: '+ Add instrument', mute: 'Mute', unmute: 'Unmute', remove: 'Remove instrument',
       confirmChange: 'Changing the instrument deletes the notes already in this part (undo brings them back). Continue?', confirmRemove: 'Remove {name} and its notes? (undo brings them back)',
@@ -221,6 +237,15 @@ export const STRINGS = {
       open: 'Legend', title: 'Symbol legend', close: 'Close', symbol: 'Symbol', meaning: 'In this app', also: 'Other authors use it for',
       note: 'Every method book notates drums a little differently. The app follows the Percussive Arts Society convention (Norman Weinberg); the right column lists what other books use the same symbol for. If your book means something else, write the symbol as it is in the book.',
       rows: {
+        sharp: { meaning: 'Sharp: a semitone higher', also: '—' },
+        flat: { meaning: 'Flat: a semitone lower', also: '—' },
+        natural: { meaning: 'Natural: cancels a sharp or flat', also: '—' },
+        doubleSharp: { meaning: 'Double sharp: a tone higher', also: '—' },
+        doubleFlat: { meaning: 'Double flat: a tone lower', also: '—' },
+        staccato: { meaning: 'Staccato: short, detached', also: '—' },
+        tenuto: { meaning: 'Tenuto: held for its full value', also: 'A slight accent in some styles' },
+        marcato: { meaning: 'Marcato: strong accent', also: 'In jazz, short and strong' },
+        fermata: { meaning: 'Fermata: hold beyond the value', also: 'At the end, the final sign' },
         congaSlap: { meaning: 'Congas: slap', also: 'Some methods use a triangle or S above' },
         congaMute: { meaning: 'Congas: muted tone (hand resting)', also: 'Some methods use M or a dot' },
         cross: { meaning: 'Closed hi-hat, ride, crash', also: 'Any cymbal' },
@@ -266,6 +291,7 @@ export const STRINGS = {
       s6: 'Every change is saved in this browser. "PDF" opens the print page. In the library, "JSON" exports a copy. To import from a photo, follow "How to import from a photo".',
     },
     bars: {
+      key: 'Key', keyLong: 'Key signature from this bar on', keyNone: 'No sharps or flats', keySharps: '{n} ♯', keyFlats: '{n} ♭', major: 'major', minor: 'minor',
       heading: 'Bar {n}', add: 'Bar', addLong: 'Add a bar at the end', remove: 'Bar', removeLong: 'Remove this bar',
       timeSig: 'Time {sig}', timeSigLong: 'Change this bar\'s time signature', timeSigTitle: 'Time signature of bar {n}',
       beats: 'Beats', unit: 'Beat unit', apply: 'Apply', inherit: 'Same as before', cancel: 'Cancel',
@@ -303,6 +329,7 @@ export const STRINGS = {
       midTom: 'Mid tom', highTom: 'High tom', hihat: 'Hi-hat', ride: 'Ride', crash: 'Crash',
     },
     palette: {
+      accidental: 'Accidental', byKey: 'By key', byKeyHint: 'No accidental: the note follows the key signature', sharp: 'Sharp', flat: 'Flat', natural: 'Natural', doubleSharp: 'Double sharp', doubleFlat: 'Double flat', staccato: 'Staccato', tenuto: 'Tenuto', marcato: 'Marcato', fermata: 'Fermata',
       figure: 'Note value', tuplet: 'Tuplet', articulation: 'Articulation', hand: 'Hand', edit: 'Edit',
       tupletN: 'Tuplet of {n}', tupletShort: '{n} in 1',
       rest: 'Rest', restHint: 'Empties the cell',
@@ -320,6 +347,7 @@ export const STRINGS = {
       colourReset: 'Default', landscapeHint: 'Turn the phone sideways for a bigger beat.', ok: 'ok', barAria: 'Bar',
     },
     status: {
+      accidentalOn: 'Next notes: {what}', accidentalOff: 'Notes follow the key signature', keySet: 'Key from bar {n}: {key}', artOn: 'Next notes: {what}', artOff: '{what} off',
       partSwitched: 'Editing: {name}', partAdded: '{name} added. Write in the editor; the list next to BPM controls its sound.', partRemoved: '{name} removed', instrumentSet: 'Part is now {name}', muted: '{name} muted', unmuted: '{name} unmuted',
       techOnSymbol: 'Next tap on a note adds: {what}',
       symbolsAdded: 'Symbols added at {pos}: {notes}', symbolsRemoved: 'Symbols removed at {pos}: {notes}',
@@ -365,7 +393,9 @@ export const STRINGS = {
   },
 
   de: {
+    noteNames: { C: 'C', D: 'D', E: 'E', F: 'F', G: 'G', A: 'A', B: 'H' },
     instrument: {
+      electricGuitar: 'E-Gitarre', bassGuitar: 'E-Bass', keys: 'Keyboard', vocal: 'Gesang',
       label: 'Instrument', editing: 'Bearbeitet', drums: 'Schlagzeug', congas: 'Congas',
       band: 'Instrumente', add: '+ Instrument hinzufügen', mute: 'Stumm', unmute: 'Ton an', remove: 'Instrument entfernen',
       confirmChange: 'Ein anderes Instrument löscht die Noten dieser Stimme (Rückgängig holt sie zurück). Weiter?', confirmRemove: '{name} und seine Noten entfernen? (Rückgängig holt sie zurück)',
@@ -395,6 +425,15 @@ export const STRINGS = {
       open: 'Legende', title: 'Zeichenlegende', close: 'Schließen', symbol: 'Zeichen', meaning: 'In dieser App', also: 'Andere Autoren nutzen es für',
       note: 'Jede Schule notiert Schlagzeug etwas anders. Die App folgt der Konvention der Percussive Arts Society (Norman Weinberg); die rechte Spalte nennt, wofür andere Bücher dasselbe Zeichen verwenden. Meint dein Buch etwas anderes, schreib das Zeichen so wie im Buch.',
       rows: {
+        sharp: { meaning: 'Kreuz: einen Halbton höher', also: '—' },
+        flat: { meaning: 'Be: einen Halbton tiefer', also: '—' },
+        natural: { meaning: 'Auflösungszeichen: hebt Kreuz oder Be auf', also: '—' },
+        doubleSharp: { meaning: 'Doppelkreuz: einen Ganzton höher', also: '—' },
+        doubleFlat: { meaning: 'Doppel-B: einen Ganzton tiefer', also: '—' },
+        staccato: { meaning: 'Staccato: kurz, abgesetzt', also: '—' },
+        tenuto: { meaning: 'Tenuto: voll ausgehalten', also: 'In manchen Stilen leicht betont' },
+        marcato: { meaning: 'Marcato: starker Akzent', also: 'Im Jazz kurz und stark' },
+        fermata: { meaning: 'Fermate: über den Wert hinaus halten', also: 'Am Ende das Schlusszeichen' },
         congaSlap: { meaning: 'Congas: Slap', also: 'Manche Schulen nutzen ein Dreieck oder S darüber' },
         congaMute: { meaning: 'Congas: gedämpfter Ton (Hand liegt auf)', also: 'Manche Schulen nutzen M oder einen Punkt' },
         cross: { meaning: 'Geschlossene Hi-Hat, Ride, Crash', also: 'Jedes Becken' },
@@ -440,6 +479,7 @@ export const STRINGS = {
       s6: 'Jede Änderung wird in diesem Browser gespeichert. "PDF" öffnet die Druckseite. In der Bibliothek exportiert "JSON" eine Kopie. Zum Import aus einem Foto dem Link "Aus einem Foto importieren" folgen.',
     },
     bars: {
+      key: 'Tonart', keyLong: 'Tonart ab diesem Takt', keyNone: 'Ohne Vorzeichen', keySharps: '{n} ♯', keyFlats: '{n} ♭', major: 'Dur', minor: 'Moll',
       heading: 'Takt {n}', add: 'Takt', addLong: 'Takt am Ende hinzufügen', remove: 'Takt', removeLong: 'Diesen Takt entfernen',
       timeSig: 'Taktart {sig}', timeSigLong: 'Taktart dieses Takts ändern', timeSigTitle: 'Taktart von Takt {n}',
       beats: 'Schläge', unit: 'Schlageinheit', apply: 'Übernehmen', inherit: 'Wie vorher', cancel: 'Abbrechen',
@@ -477,6 +517,7 @@ export const STRINGS = {
       midTom: 'Mitteltom', highTom: 'Hochtom', hihat: 'Hi-Hat', ride: 'Ride', crash: 'Crash',
     },
     palette: {
+      accidental: 'Vorzeichen', byKey: 'Nach Tonart', byKeyHint: 'Ohne Vorzeichen: die Note folgt der Tonart', sharp: 'Kreuz', flat: 'Be', natural: 'Auflösung', doubleSharp: 'Doppelkreuz', doubleFlat: 'Doppel-B', staccato: 'Staccato', tenuto: 'Tenuto', marcato: 'Marcato', fermata: 'Fermate',
       figure: 'Notenwert', tuplet: 'Tole', articulation: 'Artikulation', hand: 'Hand', edit: 'Bearbeiten',
       tupletN: '{n}er-Tole', tupletShort: '{n} auf 1',
       rest: 'Pause', restHint: 'Leert die Zelle',
@@ -494,6 +535,7 @@ export const STRINGS = {
       colourReset: 'Standard', landscapeHint: 'Im Querformat wird der Schlag größer.', ok: 'ok', barAria: 'Takt',
     },
     status: {
+      accidentalOn: 'Nächste Noten: {what}', accidentalOff: 'Noten folgen der Tonart', keySet: 'Tonart ab Takt {n}: {key}', artOn: 'Nächste Noten: {what}', artOff: '{what} aus',
       partSwitched: 'Bearbeitet: {name}', partAdded: '{name} hinzugefügt. Im Editor schreiben; die Liste neben BPM steuert den Klang.', partRemoved: '{name} entfernt', instrumentSet: 'Stimme ist jetzt {name}', muted: '{name} stumm', unmuted: '{name} mit Ton',
       techOnSymbol: 'Nächstes Tippen auf eine Note setzt: {what}',
       symbolsAdded: 'Zeichen gesetzt bei {pos}: {notes}', symbolsRemoved: 'Zeichen entfernt bei {pos}: {notes}',

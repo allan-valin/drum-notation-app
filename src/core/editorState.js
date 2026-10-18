@@ -1,10 +1,11 @@
 import { NoteValue, NOTE_VALUES } from './noteValue.js';
-import { note, Articulation, Mark, Roll, Grace } from './score.js';
+import { note, Articulation, Mark, Roll, Grace, barKey } from './score.js';
+import { parseSlot, keyAlter } from './pitch.js';
 import { cursor as mkCursor, next, prev, leafAt, clamp } from './cursor.js';
 import { parentOf, leafPaths, getAt } from './tree.js';
 import {
   placeNote, deleteNote, clearLeaf, splitBeat, splitCell, resizeCell, mergeCell, addBar, removeBar,
-  setTimeSig, toggleSimile, toggleRepeatStart, toggleRepeatEnd, setBarText, moveBars,
+  setTimeSig, toggleSimile, toggleRepeatStart, toggleRepeatEnd, setBarText, moveBars, setKey,
 } from './edit.js';
 import { profileById, slotNearest } from './profile.js';
 import { toFull, partView, zipPart, applyAll, addPart, removePart, setInstrument, toggleMute } from './parts.js';
@@ -23,7 +24,7 @@ export function initialState(score) {
     part,
     score: partView(full, part),
     cursor: mkCursor(0, 0, 0),
-    tool: { value: NoteValue.QUARTER, tuplet: null, delete: false, accent: false, ghost: false, sticking: null, splitMode: 'beat', head: null, tech: null, withNote: true },
+    tool: { value: NoteValue.QUARTER, tuplet: null, delete: false, accent: false, ghost: false, sticking: null, splitMode: 'beat', head: null, tech: null, withNote: true, accidental: null, arts: [] },
     history: [],
     refused: null,
   };
@@ -90,6 +91,8 @@ function switchPart(st, part, force = false) {
     sticking: profile.hands ? t.sticking : null,
     accent: profile.articulations.includes('accent') && t.accent,
     ghost: profile.articulations.includes('ghost') && t.ghost,
+    accidental: profile.palette.includes('accidental') ? t.accidental : null,
+    arts: t.arts.filter((a) => profile.articulations.includes(a)),
   };
   return syncTool({ ...st, part, score, tool, refused: null, cursor: clamp(score, st.cursor) });
 }
@@ -131,6 +134,9 @@ function reduceView(state, action) {
     case 'setHead': return tool(st, { head: st.tool.head === action.head ? null : action.head });
     case 'setTech': return tool(st, { tech: st.tool.tech === action.tech ? null : action.tech });
     case 'setWithNote': return tool(st, { withNote: action.on !== false });
+    case 'setAccidental': return tool(st, { accidental: st.tool.accidental === action.alter ? null : action.alter });
+    case 'toggleArt': return tool(st, { arts: st.tool.arts.includes(action.art) ? st.tool.arts.filter((a) => a !== action.art) : [...st.tool.arts, action.art] });
+    case 'setKey': return edit(st, (s) => setKey(s, st.cursor.bar, action.key));
     case 'moveBars': {
       const { score, range } = moveBars(st.score, action.from, action.to, action.gap);
       if (score === st.score) return st;
@@ -183,7 +189,12 @@ function tap(st, staffPosition) {
   const articulations = [];
   if (accent) articulations.push(Articulation.ACCENT);
   if (ghost) articulations.push(Articulation.GHOST);
-  return edit(st, (s) => placeNote(s, st.cursor, note(slot.id, { articulations, sticking, head, ...techFields })));
+  articulations.push(...st.tool.arts);
+  // pitched: the chosen accidental, else what the key signature gives that letter
+  const alter = staff.pitched
+    ? st.tool.accidental ?? keyAlter(barKey(st.score, st.cursor.bar), parseSlot(slot.id).step)
+    : undefined;
+  return edit(st, (s) => placeNote(s, st.cursor, note(slot.id, { articulations, sticking, head, ...techFields, alter })));
 }
 
 /**
@@ -191,21 +202,23 @@ function tap(st, staffPosition) {
  * note already carries all of them, they come off again, so a second tap undoes the first.
  */
 function applySymbols(st, staffPosition, techFields) {
-  const { head, tech, sticking, accent, ghost } = st.tool;
-  if (!accent && !ghost && !sticking && !head && !tech) return { ...st, refused: 'nothingToApply' };
+  const { head, tech, sticking, accent, ghost, accidental } = st.tool;
+  const extraArts = st.tool.arts;
+  if (!accent && !ghost && !sticking && !head && !tech && accidental === null && extraArts.length === 0) return { ...st, refused: 'nothingToApply' };
   // anywhere in the cell counts; with several notes, the one nearest the tap height
   const staff = profileById(st.score.profileId).staves[0];
   const pos = (n) => staff.slots.find((x) => x.id === n.slotId)?.staffPosition ?? 0;
   const existing = leafAt(st.score, st.cursor).notes
     .reduce((best, n) => (!best || Math.abs(pos(n) - staffPosition) < Math.abs(pos(best) - staffPosition) ? n : best), null);
   if (!existing) return { ...st, refused: 'noNoteThere' };
-  const arts = [accent && Articulation.ACCENT, ghost && Articulation.GHOST].filter(Boolean);
+  const arts = [accent && Articulation.ACCENT, ghost && Articulation.GHOST, ...extraArts].filter(Boolean);
   const has = arts.every((a) => existing.articulations.includes(a))
     && (!sticking || existing.sticking === sticking)
     && (!head || existing.head === head)
     && (!techFields.marks.length || (existing.marks ?? []).includes(techFields.marks[0]))
     && (!techFields.roll || existing.roll === techFields.roll)
-    && (!techFields.grace || existing.grace === techFields.grace);
+    && (!techFields.grace || existing.grace === techFields.grace)
+    && (accidental === null || existing.alter === accidental);
   const next = has
     ? {
       ...existing,
@@ -215,6 +228,7 @@ function applySymbols(st, staffPosition, techFields) {
       marks: techFields.marks.length ? [] : existing.marks,
       roll: techFields.roll ? null : existing.roll,
       grace: techFields.grace ? null : existing.grace,
+      ...(accidental !== null ? { alter: keyAlter(barKey(st.score, st.cursor.bar), parseSlot(existing.slotId).step) } : {}),
     }
     : {
       ...existing,
@@ -224,6 +238,7 @@ function applySymbols(st, staffPosition, techFields) {
       marks: techFields.marks.length ? techFields.marks : existing.marks,
       roll: techFields.roll ?? existing.roll,
       grace: techFields.grace ?? existing.grace,
+      ...(accidental !== null ? { alter: accidental } : {}),
     };
   return { ...edit(st, (s) => placeNote(s, st.cursor, next)), symbolsRemoved: has };
 }

@@ -28,6 +28,9 @@
     ['accent', Glyphs.ACCENT],
     ['simile', Glyphs.SIMILE],
     ['repeat', Glyphs.REPEAT_LEFT + '  ' + Glyphs.REPEAT_RIGHT],
+    ['sharp', Glyphs.SHARP], ['flat', Glyphs.FLAT], ['natural', Glyphs.NATURAL],
+    ['doubleSharp', Glyphs.DOUBLE_SHARP], ['doubleFlat', Glyphs.DOUBLE_FLAT],
+    ['staccato', Glyphs.STACCATO], ['tenuto', Glyphs.TENUTO], ['marcato', Glyphs.MARCATO], ['fermata', Glyphs.FERMATA],
     ['congaSlap', head(Notehead.CROSS)],
     ['congaMute', Glyphs.CLOSED],
   ];

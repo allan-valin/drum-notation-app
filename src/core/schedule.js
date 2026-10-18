@@ -1,6 +1,7 @@
 import { PPQ, beatTicks, leafTicks } from './ticks.js';
 import { barTimeSig, Articulation, Mark, Roll, Grace } from './score.js';
-import { Notehead } from './profile.js';
+import { Notehead, profileById } from './profile.js';
+import { midiOf, frequencyOf } from './pitch.js';
 import { partView } from './parts.js';
 
 /** Seconds per tick at a tempo in quarter notes per minute. */
@@ -88,6 +89,8 @@ export function performance(score, a, b, instrument = score.profileId ?? 'drums'
     const [num, den] = barTimeSig(score, shown);
     const bt = beatTicks(den);
     const bar = score.bars[src];
+    const profile = profileById(instrument);
+    const pitchedStaff = profile.staves[0].pitched ? profile.staves[0] : null;
     for (let beat = 0; beat < num; beat++) {
       clicks.push({ tick: offset + beat * bt, accent: beat === 0, bar: shown, beat });
       const group = bar.beats[beat];
@@ -95,6 +98,12 @@ export function performance(score, a, b, instrument = score.profileId ?? 'drums'
       for (const leaf of leafTicks(group, den)) {
         const at = offset + beat * bt + leaf.tick;
         for (const note of leaf.leaf.notes) {
+          if (pitchedStaff) {
+            // a pitched note: its own voice, at its frequency, for its written length
+            const freq = frequencyOf(midiOf(note, { clef: pitchedStaff.clef, transpose: profile.transpose }));
+            hits.push({ bar: shown, beat, path: leaf.path, slotId: note.slotId, sound: `voice:${profile.voice}`, freq, length: leaf.length, tick: at, ahead: 0, velocity: velocityOf(note) });
+            continue;
+          }
           const where = { bar: shown, beat, path: leaf.path, slotId: note.slotId, sound: soundFor(note, instrument) };
           const velocity = velocityOf(note);
           if (note.grace === Grace.FLAM) hits.push({ ...where, tick: at, ahead: 0.03, velocity: 0.35, grace: true });

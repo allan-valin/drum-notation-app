@@ -6,8 +6,12 @@
   import { layoutBar, yOf, staffPositionAt, legerLines } from '../core/layout.js';
   import { Glyphs, Metrics } from '../core/glyphs.js';
   import { colourFor } from '../core/colours.js';
-  import { t } from '../app/prefs.svelte.js';
+  import { t, prefs } from '../app/prefs.svelte.js';
+  import { noteName } from '../app/noteName.js';
+  import { STRINGS } from '../app/strings.js';
+  const slotLabel = (id) => noteName(id, 0, prefs.lang, STRINGS[prefs.lang].noteNames);
   import { samePath } from '../core/tree.js';
+  import { CLEFS, keyAccidentals, staffPositionOf } from '../core/pitch.js';
 
   let {
     bar,
@@ -26,16 +30,24 @@
     fixedRange = null,
     /** editor mode: every beat drawn as a card you can tap, the focused one highlighted */
     cards = false,
+    /** key signature in force (fifths): drives accidentals; drawn after the clef when `showKey` */
+    keyFifths = 0,
+    showKey = true,
     /** highlight for a whole bar, e.g. the bar being played */
     playingPath = null,
   } = $props();
 
   const sp = $derived(staffSpacing);
-  const lead = $derived(showClef ? (timeSig ? 5.5 : 3) * sp : 0.5 * sp);
+  const clef = $derived(CLEFS[staff.clef ?? 'percussion']);
+  const keySigns = $derived(staff.pitched && showKey ? keyAccidentals(keyFifths, staff.clef) : []);
+  const keyWidth = $derived(keySigns.length ? keySigns.length * 1.0 + 0.6 : 0);
+  const lead = $derived((showClef ? 3 : 0.5) * sp + keyWidth * sp + (timeSig ? 2.5 * sp : 0));
   const barWidth = $derived(Math.max(width - lead - 0.5 * sp, 10 * sp));
-  const layout = $derived(layoutBar(bar, staff, { width: barWidth, staffSpacing: sp, focusedBeat }));
-  const guideTop = $derived(yOf(staff.slots[staff.slots.length - 1].staffPosition, sp) - 1.5 * sp);
-  const guideBottom = $derived(yOf(staff.slots[0].staffPosition, sp) + 2.5 * sp);
+  const layout = $derived(layoutBar(bar, staff, { width: barWidth, staffSpacing: sp, focusedBeat, key: keyFifths }));
+  // pitched ranges can be wide: guides cover the staff and three ledger lines each side
+  const guideSlots = $derived(staff.pitched ? staff.slots.filter((x) => x.staffPosition >= -6 && x.staffPosition <= 14) : staff.slots);
+  const guideTop = $derived(yOf(guideSlots[guideSlots.length - 1].staffPosition, sp) - 1.5 * sp);
+  const guideBottom = $derived(yOf(guideSlots[0].staffPosition, sp) + 2.5 * sp);
   const top = $derived(fixedRange ? -fixedRange[0] * sp : Math.min(layout.top, showGuides ? guideTop : layout.top) - 0.5 * sp);
   const bottom = $derived(fixedRange ? fixedRange[1] * sp : Math.max(layout.bottom, showGuides ? guideBottom : layout.bottom) + 0.5 * sp);
   const height = $derived(bottom - top);
@@ -91,11 +103,19 @@
 
   {#if showGuides && focusedBeat !== null && layout.beatBounds[focusedBeat]}
     {@const [a, b] = layout.beatBounds[focusedBeat]}
-    {#each staff.slots as slot, i}
+    {#each guideSlots as slot, i}
       {@const y = yOf(slot.staffPosition, sp)}
-      <line class="guide" x1={lead + a} x2={lead + b} y1={y} y2={y} />
-      <!-- two staggered columns so names one half-step apart do not collide -->
-      <text class="guide-label" x={lead + a + 0.2 * sp + (i % 2) * 3.4 * sp} y={y + 0.25 * sp} font-size={0.7 * sp}>{t(`slot.${slot.id}`)}</text>
+      {#if staff.pitched}
+        <!-- pitched: a name on each line (and middle C), the spaces between are the other notes -->
+        {#if slot.staffPosition % 2 === 0}
+          <line class="guide" x1={lead + a} x2={lead + b} y1={y} y2={y} />
+          <text class="guide-label" x={lead + a + 0.2 * sp} y={y - 0.2 * sp} font-size={0.7 * sp}>{slotLabel(slot.id)}</text>
+        {/if}
+      {:else}
+        <line class="guide" x1={lead + a} x2={lead + b} y1={y} y2={y} />
+        <!-- two staggered columns so names one half-step apart do not collide -->
+        <text class="guide-label" x={lead + a + 0.2 * sp + (i % 2) * 3.4 * sp} y={y + 0.25 * sp} font-size={0.7 * sp}>{t(`slot.${slot.id}`)}</text>
+      {/if}
     {/each}
   {/if}
 
@@ -104,11 +124,15 @@
   {/each}
 
   {#if showClef}
-    <text class="smufl ink" x={0.6 * sp} y={2 * sp} font-size={fontSize}>{Glyphs.PERCUSSION_CLEF}</text>
-    {#if timeSig}
-      <text class="smufl ink" x={3.2 * sp} y={sp} font-size={fontSize}>{Glyphs.timeSigDigit(timeSig[0])}</text>
-      <text class="smufl ink" x={3.2 * sp} y={3 * sp} font-size={fontSize}>{Glyphs.timeSigDigit(timeSig[1])}</text>
-    {/if}
+    <text class="smufl ink" x={0.6 * sp} y={yOf(clef.glyphPosition, sp)} font-size={fontSize}>{clef.glyph}</text>
+  {/if}
+  {#each keySigns as k, j}
+    <text class="smufl ink" x={(showClef ? 3.2 : 0.4) * sp + j * 1.0 * sp} y={yOf(staffPositionOf(k.slot, staff.clef), sp)} font-size={fontSize}>{k.alter > 0 ? Glyphs.SHARP : Glyphs.FLAT}</text>
+  {/each}
+  {#if timeSig}
+    {@const tx = (showClef ? 3.2 : 0.4) * sp + keyWidth * sp}
+    {#each String(timeSig[0]).split('') as d, j}<text class="smufl ink" x={tx + j * 1.6 * sp} y={sp} font-size={fontSize}>{Glyphs.timeSigDigit(Number(d))}</text>{/each}
+    {#each String(timeSig[1]).split('') as d, j}<text class="smufl ink" x={tx + j * 1.6 * sp} y={3 * sp} font-size={fontSize}>{Glyphs.timeSigDigit(Number(d))}</text>{/each}
   {/if}
 
   <g transform="translate({lead} 0)">

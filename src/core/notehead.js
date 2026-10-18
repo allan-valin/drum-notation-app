@@ -1,0 +1,5 @@
+/** Notehead shapes. Its own module so glyphs, pitch and profile can all import it without a cycle. */
+export const Notehead = Object.freeze({
+  NORMAL: 'normal', CROSS: 'cross', DIAMOND: 'diamond', TRIANGLE: 'triangle', CIRCLE_X: 'circleX', SLASHED: 'slashed',
+});
+export const NOTEHEADS = Object.freeze(Object.values(Notehead));

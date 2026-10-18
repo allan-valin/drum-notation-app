@@ -1,4 +1,4 @@
-import { Notehead } from './profile.js';
+import { Notehead } from './notehead.js';
 import { NoteValue } from './noteValue.js';
 
 /**
@@ -30,10 +30,32 @@ const MET_NOTE = {
   eighth: cp(0xeca7), sixteenth: cp(0xeca9), thirtySecond: cp(0xecab),
 };
 
+const FLAG_DOWN = { eighth: cp(0xe241), sixteenth: cp(0xe243), thirtySecond: cp(0xe245) };
+
 const FLAG_UP = { eighth: cp(0xe240), sixteenth: cp(0xe242), thirtySecond: cp(0xe244) };
 
 export const Glyphs = Object.freeze({
   STAFF5: cp(0xe014),
+  G_CLEF: cp(0xe050),
+  G_CLEF_8VB: cp(0xe052),
+  F_CLEF: cp(0xe062),
+  F_CLEF_8VB: cp(0xe064),
+  C_CLEF: cp(0xe05c),
+  SHARP: cp(0xe262),
+  FLAT: cp(0xe260),
+  NATURAL: cp(0xe261),
+  DOUBLE_SHARP: cp(0xe263),
+  DOUBLE_FLAT: cp(0xe264),
+  QUARTER_FLAT: cp(0xed33),        // accidentalQuarterToneFlatArabic
+  QUARTER_SHARP: cp(0xed35),       // accidentalQuarterToneSharpArabic
+  THREE_QUARTER_FLAT: cp(0xed31),
+  THREE_QUARTER_SHARP: cp(0xed37),
+  STACCATO: cp(0xe4a2),
+  TENUTO: cp(0xe4a4),
+  MARCATO: cp(0xe4ac),
+  FERMATA: cp(0xe4c0),
+  BREATH: cp(0xe4ce),
+  DOT: cp(0xe1e7),
   BARLINE: cp(0xe030),
   PERCUSSION_CLEF: cp(0xe069),
   ACCENT: cp(0xe4a0),
@@ -68,8 +90,22 @@ export const Glyphs = Object.freeze({
     return MET_NOTE[value.id];
   },
   /** Empty for values that carry no flag. */
-  flag(value) {
-    return FLAG_UP[value.id] ?? '';
+  flag(value, dir = 'up') {
+    return (dir === 'down' ? FLAG_DOWN : FLAG_UP)[value.id] ?? '';
+  },
+  /** Sign for an alteration in semitones (halves are quarter tones); 0 is a natural. */
+  accidental(alter) {
+    return {
+      '-2': cp(0xe264), '-1.5': cp(0xed31), '-1': cp(0xe260), '-0.5': cp(0xed33), 0: cp(0xe261),
+      0.5: cp(0xed35), 1: cp(0xe262), 1.5: cp(0xed37), 2: cp(0xe263),
+    }[String(alter)];
+  },
+  /** Articulation sign, above or below the note. Verified against glyphnames.json 2026-10-18. */
+  artic(name, above) {
+    const t = {
+      accent: [0xe4a0, 0xe4a1], staccato: [0xe4a2, 0xe4a3], tenuto: [0xe4a4, 0xe4a5], marcato: [0xe4ac, 0xe4ad],
+    }[name];
+    return t ? cp(above ? t[0] : t[1]) : '';
   },
   /** tuplet0..tuplet9 are consecutive from U+E880. */
   tupletDigit(n) {

@@ -27,13 +27,14 @@ export function createSampleKit(ctx, { base = '/', fetch: get = globalThis.fetch
   })).then(() => { loaded = true; });
   ready.catch(() => {});
 
-  function play(sound, when, velocity = 0.75) {
+  function play(sound, when, velocity = 0.75, note = {}) {
+    if (sound.startsWith('voice:')) { fallback.play(sound, when, velocity, note); return; }
     const t = Math.max(when, ctx.currentTime);
     const choke = sound === 'crashChoke';
     const key = choke ? 'crash' : sound;
     const accentName = velocity >= 0.95 ? ACCENT_FILES[key] : null;
     const buffer = loaded ? buffers[accentName] ?? buffers[SAMPLE_FILES[key]] : null;
-    if (!buffer) { fallback.play(sound, when, velocity); return; }
+    if (!buffer) { fallback.play(sound, when, velocity, note); return; }
     const src = ctx.createBufferSource();
     src.buffer = buffer;
     const g = ctx.createGain();

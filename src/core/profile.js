@@ -1,7 +1,7 @@
-export const Notehead = Object.freeze({
-  NORMAL: 'normal', CROSS: 'cross', DIAMOND: 'diamond', TRIANGLE: 'triangle', CIRCLE_X: 'circleX', SLASHED: 'slashed',
-});
-export const NOTEHEADS = Object.freeze(Object.values(Notehead));
+import { Notehead, NOTEHEADS } from './notehead.js';
+import { makePitchedStaff } from './pitch.js';
+
+export { Notehead, NOTEHEADS };
 
 /**
  * One instrument's place on the staff. `staffPosition` counts half-steps from the bottom
@@ -89,7 +89,37 @@ export const CONGAS_PROFILE = Object.freeze({
   ]),
 });
 
-export const PROFILES = Object.freeze({ drums: DRUM_PROFILE, congas: CONGAS_PROFILE });
+
+/**
+ * Pitched instruments: the staff is every line and space in the written range. They use
+ * accidentals and articulations; no sticks, so no drum heads, techniques or hands.
+ */
+const PITCHED_PALETTE = ['edit', 'figure', 'tuplet', 'tapMode', 'accidental', 'articulation'];
+const PITCHED_ARTS = ['accent', 'staccato', 'tenuto', 'marcato', 'fermata'];
+const PITCHED_LEGEND = ['sharp', 'flat', 'natural', 'doubleSharp', 'doubleFlat', 'staccato', 'tenuto', 'accent', 'marcato', 'fermata', 'simile', 'repeat'];
+function pitchedProfile(id, family, clef, low, high, voice, extra = {}) {
+  return Object.freeze({
+    id, name: id, family, palette: PITCHED_PALETTE, articulations: PITCHED_ARTS,
+    heads: [], techniques: [], hands: false, legend: PITCHED_LEGEND, voice, transpose: 0,
+    staves: Object.freeze([makePitchedStaff(clef, low, high)]),
+    ...extra,
+  });
+}
+
+/** Rock band. Guitar and bass are written an octave above where they sound (the 8 under the clef). */
+export const ELECTRIC_GUITAR_PROFILE = pitchedProfile('electricGuitar', 'rock', 'treble8vb', 'D3', 'E6', 'guitar');
+export const BASS_GUITAR_PROFILE = pitchedProfile('bassGuitar', 'rock', 'bass8vb', 'C2', 'G4', 'bass');
+export const KEYS_PROFILE = pitchedProfile('keys', 'rock', 'treble', 'F3', 'C7', 'keys');
+export const VOCAL_PROFILE = pitchedProfile('vocal', 'rock', 'treble', 'E3', 'C6', 'voice');
+
+export const PROFILES = Object.freeze({
+  drums: DRUM_PROFILE,
+  congas: CONGAS_PROFILE,
+  electricGuitar: ELECTRIC_GUITAR_PROFILE,
+  bassGuitar: BASS_GUITAR_PROFILE,
+  keys: KEYS_PROFILE,
+  vocal: VOCAL_PROFILE,
+});
 
 /** Instruments offered in the dropdowns, in order. */
 export const INSTRUMENTS = Object.freeze(Object.keys(PROFILES));

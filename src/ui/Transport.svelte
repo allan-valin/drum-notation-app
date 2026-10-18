@@ -50,7 +50,7 @@
     kits = { synth, samples, none: { play() {}, loaded: true } };
     player = createPlayer({
       clock: () => ctx.currentTime,
-      play: (name, when, v) => kits[sound].play(name, when, v),
+      play: (name, when, v, n) => kits[sound].play(name, when, v, n),
       click: (accent, when) => synth.click(accent, when, voice),
       onPlayhead,
       onStop: () => { playing = false; onPlaying(false); onStatus(t('play.stopped')); },

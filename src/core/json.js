@@ -25,6 +25,7 @@ export function encode(score) {
       parts: full.parts.map((p) => ({ id: p.id, instrument: p.instrument, ...(p.muted ? { muted: true } : {}) })),
       bars: full.bars.map((b) => ({
         ...(b.timeSig ? { timeSig: b.timeSig } : {}),
+        ...(b.key !== null && b.key !== undefined ? { key: b.key } : {}),
         ...(b.repeatStart ? { repeatStart: true } : {}),
         ...(b.repeatEnd ? { repeatEnd: true } : {}),
         parts: Object.fromEntries(full.parts.map((p) => {
@@ -48,9 +49,11 @@ function encodeGroup(g) {
 
 function encodeNote(n) {
   const marks = n.marks ?? [];
-  if (n.articulations.length === 0 && !n.sticking && !n.head && marks.length === 0 && !n.roll && !n.grace) return n.slotId;
+  const hasAlter = typeof n.alter === 'number';
+  if (n.articulations.length === 0 && !n.sticking && !n.head && marks.length === 0 && !n.roll && !n.grace && !hasAlter) return n.slotId;
   return {
     slot: n.slotId,
+    ...(hasAlter ? { alter: n.alter } : {}),
     ...(n.articulations.length ? { articulations: n.articulations } : {}),
     ...(n.sticking ? { sticking: n.sticking } : {}),
     ...(n.head ? { head: n.head } : {}),
@@ -83,7 +86,7 @@ export function decodeFull(text) {
     const bars = j.bars.map((b, bi) => {
       const c = b.parts?.[p.id];
       if (!c) throw new Error(`compasso ${bi + 1}: falta a parte "${p.id}"`);
-      return { timeSig: b.timeSig, repeatStart: b.repeatStart, repeatEnd: b.repeatEnd, ...c };
+      return { timeSig: b.timeSig, key: b.key, repeatStart: b.repeatStart, repeatEnd: b.repeatEnd, ...c };
     });
     try {
       return [p.id, decodeOnePart({ ...j, parts: undefined, profileId: p.instrument, bars })];
@@ -123,7 +126,7 @@ function decodeOnePart(j) {
         const tuplet = bt.tuplet ? int(bt.tuplet, `${where}: tuplet`) : null;
         return decodeGroup(bt, cellsPerBeat(division, sig[1], tuplet), staff, where);
       }),
-      { timeSig, simile: b.simile === true && bi > 0, repeatStart: b.repeatStart === true, repeatEnd: b.repeatEnd === true, text: typeof b.text === 'string' ? b.text.slice(0, 80) : '' },
+      { timeSig, key: Number.isInteger(b.key) && Math.abs(b.key) <= 7 ? b.key : null, simile: b.simile === true && bi > 0, repeatStart: b.repeatStart === true, repeatEnd: b.repeatEnd === true, text: typeof b.text === 'string' ? b.text.slice(0, 80) : '' },
     );
   });
 
@@ -178,6 +181,7 @@ function decodeNote(n, staff, where) {
     marks: (n.marks ?? []).map((m) => oneOf(m, Object.values(Mark), 'mark')),
     roll: oneOf(n.roll, Object.values(Roll), 'roll'),
     grace: oneOf(n.grace, Object.values(Grace), 'grace'),
+    alter: n.alter === undefined ? undefined : oneOf(n.alter, [-2, -1.5, -1, -0.5, 0, 0.5, 1, 1.5, 2], 'alter'),
   });
 }
 

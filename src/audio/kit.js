@@ -7,6 +7,8 @@
 /** Metronome sounds, in the order the dropdown lists them. */
 export const METRONOME_VOICES = ['beep', 'woodblock', 'click', 'cowbell', 'sidestick', 'hihat'];
 
+import { createVoices } from './voices.js';
+
 export function createKit(ctx) {
   const out = ctx.createDynamicsCompressor();
   out.threshold.value = -10;
@@ -106,8 +108,12 @@ export function createKit(ctx) {
     congaMuteLow: (t, v) => tone(t, v * 0.6, 0.08, 215, 195, 'sine', 0.02),
   };
 
+  const voices = createVoices(ctx, out);
+
   return {
-    play(sound, when, velocity = 0.75) {
+    /** `note` carries freq and dur (seconds) for pitched sounds ("voice:keys"). */
+    play(sound, when, velocity = 0.75, note = {}) {
+      if (sound.startsWith('voice:')) { voices.play(sound.slice(6), when, note.freq ?? 440, note.dur ?? 0.5, velocity); return; }
       (SOUNDS[sound] ?? SOUNDS.snare)(Math.max(when, ctx.currentTime), velocity);
     },
     /** One metronome tick; `accent` is the first beat of the bar: brighter and louder. */

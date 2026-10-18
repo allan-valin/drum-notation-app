@@ -26,6 +26,7 @@ export function toFull(score) {
     parts: [{ id, instrument: score.profileId ?? 'drums', muted: false }],
     bars: score.bars.map((b) => ({
       timeSig: b.timeSig ?? null,
+      key: b.key ?? null,
       repeatStart: !!b.repeatStart,
       repeatEnd: !!b.repeatEnd,
       parts: { [id]: content(b) },
@@ -40,6 +41,7 @@ export function partView(full, partId) {
     profileId: part.instrument,
     bars: full.bars.map((b) => ({
       timeSig: b.timeSig,
+      key: b.key ?? null,
       repeatStart: b.repeatStart,
       repeatEnd: b.repeatEnd,
       ...b.parts[part.id],
@@ -68,6 +70,7 @@ function zip(full, views) {
     ...pick(lead),
     bars: lead.bars.map((b, i) => ({
       timeSig: b.timeSig ?? null,
+      key: b.key ?? null,
       repeatStart: !!b.repeatStart,
       repeatEnd: !!b.repeatEnd,
       parts: {
@@ -168,6 +171,7 @@ export function fromViews(parts, views) {
     parts: parts.map((p) => ({ id: p.id, instrument: p.instrument, muted: !!p.muted })),
     bars: lead.bars.map((b, i) => ({
       timeSig: b.timeSig ?? null,
+      key: b.key ?? null,
       repeatStart: !!b.repeatStart,
       repeatEnd: !!b.repeatEnd,
       parts: Object.fromEntries(parts.map((p) => [p.id, content(views[p.id].bars[i])])),

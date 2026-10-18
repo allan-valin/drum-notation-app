@@ -3,7 +3,7 @@
   import ScoreSvg from './ScoreSvg.svelte';
   import { profileById } from '../core/profile.js';
   import { paginate } from '../core/pagination.js';
-  import { barTimeSig, showsTimeSig } from '../core/score.js';
+  import { barTimeSig, showsTimeSig, barKey, showsKey } from '../core/score.js';
   import { normaliseColours } from '../core/colours.js';
   import { t } from '../app/prefs.svelte.js';
 
@@ -42,7 +42,7 @@
               {#each views as v (v.id)}
                 <div class="pstaff">
                   {#if many && k === 0}<span class="plabel">{t(`instrument.${v.instrument}`)}</span>{/if}
-                  <ScoreSvg bar={v.view.bars[bi]} staff={v.staff} width={k === 0 ? LINE * 1.25 / line.length : LINE / line.length} staffSpacing={9} showClef={k === 0} timeSig={showsTimeSig(score, bi) ? barTimeSig(score, bi) : null} {colours} fixedRange={many ? [7, 6] : [8, 10]} />
+                  <ScoreSvg bar={v.view.bars[bi]} staff={v.staff} width={k === 0 ? LINE * 1.25 / line.length : LINE / line.length} staffSpacing={9} showClef={k === 0} timeSig={showsTimeSig(score, bi) ? barTimeSig(score, bi) : null} keyFifths={barKey(score, bi)} showKey={k === 0 || showsKey(score, bi)} {colours} fixedRange={many ? [7, 6] : [8, 10]} />
                 </div>
               {/each}
             </div>

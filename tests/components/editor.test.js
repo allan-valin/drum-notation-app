@@ -319,3 +319,26 @@ describe('instruments', () => {
     expect(store.load('a').parts[0].instrument).toBe('congas');
   });
 });
+
+describe('a pitched instrument in the page', () => {
+  it('keyboard: accidentals instead of drum tools, pitch names in the status, key picker', async () => {
+    const store = createStore(memoryStorage());
+    store.save(newScore({ id: 'a', title: 'T' }));
+    const { container, getByText, getByLabelText, queryByLabelText } = render(Editor, { store, id: 'a', onBack: () => {}, onPrint: () => {} });
+    await fireEvent.click(getByText('+ Adicionar instrumento'));
+    await fireEvent.change(getByLabelText('Instrumento 2'), { target: { value: 'keys' } });
+    expect(getByLabelText('Instrumento').selectedOptions[0].textContent).toBe('Teclado');
+    expect(getByLabelText('Sustenido')).toBeTruthy();
+    expect(getByLabelText('Staccato')).toBeTruthy();
+    expect(queryByLabelText('Mão direita')).toBeNull();
+    expect(queryByLabelText('Losango')).toBeNull();
+    await fireEvent.change(getByLabelText('Armadura de clave deste compasso em diante'), { target: { value: '2' } });
+    expect(container.querySelector('.status').textContent).toContain('Ré maior');
+    const sp = spOf(container);
+    const keyW = 2 * 1.0 + 0.6; // two sharps
+    await tapAt(container, (5.5 + keyW) * sp + 20, yOf(1, sp)); // F4 line-space: position 1
+    expect(container.querySelector('.status').textContent).toContain('Fá♯4');
+    const full = store.load('a');
+    expect(partView(full, full.parts[1].id).bars[0].beats[0].cells[0].notes[0]).toMatchObject({ slotId: 'F4', alter: 1 });
+  });
+});

@@ -41,7 +41,7 @@ export function createPlayer({ clock, play, click, setInterval: every = globalTh
       .concat(perf.hits.filter((h) => !h.grace).map((h) => ({ at: h.tick * spt, bar: h.bar, beat: h.beat, path: h.path })))
       .sort((a, b) => a.at - b.at);
     const cycle = perf.totalTicks * spt;
-    run = { events, marks, cycle, t0, loop, index: 0, mark: 0, round: 0, last: null };
+    run = { events, marks, cycle, t0, loop, spt, index: 0, mark: 0, round: 0, last: null };
 
     for (let k = 0; k < countInBeats; k++) click(k === 0, t0 - (countInBeats - k) * countInBeat);
     timer = every(pump, INTERVAL);
@@ -62,7 +62,7 @@ export function createPlayer({ clock, play, click, setInterval: every = globalTh
       const e = run.events[run.index];
       const when = run.t0 + run.round * run.cycle + e.at;
       if (when > horizon) break;
-      if (e.kind === 'hit') play(e.h.sound, when, e.h.velocity);
+      if (e.kind === 'hit') play(e.h.sound, when, e.h.velocity, { freq: e.h.freq, dur: (e.h.length ?? 0) * run.spt });
       else click(e.c.accent, when);
       run.index += 1;
     }

@@ -3,6 +3,10 @@ import { cellsPerBeat, noteValueFor } from './noteValue.js';
 export const Articulation = Object.freeze({
   ACCENT: 'accent',
   GHOST: 'ghost',
+  STACCATO: 'staccato',
+  TENUTO: 'tenuto',
+  MARCATO: 'marcato',
+  FERMATA: 'fermata',
   CRESCENDO: 'crescendo',
   FORTISSIMO: 'ff',
   PIANISSIMO: 'pp',
@@ -20,8 +24,11 @@ export const Grace = Object.freeze({ FLAM: 'flam', DRAG: 'drag' });
  * slot's notehead (diamond for a bell, X on the snare line for cross-stick); `marks` sit above,
  * `roll` on the stem, `grace` before the head.
  */
-export function note(slotId, { articulations = [], sticking = null, head = null, marks = [], roll = null, grace = null } = {}) {
-  return { slotId, articulations: [...articulations], sticking, head, marks: [...marks], roll, grace };
+export function note(slotId, { articulations = [], sticking = null, head = null, marks = [], roll = null, grace = null, alter } = {}) {
+  const n = { slotId, articulations: [...articulations], sticking, head, marks: [...marks], roll, grace };
+  // pitched notes only: semitones from the written letter (halves are quarter tones)
+  if (alter !== undefined && alter !== null) n.alter = alter;
+  return n;
 }
 
 /**
@@ -40,8 +47,8 @@ export function group(division, tuplet, cells) {
 export const cell = leaf;
 export const beat = group;
 
-export function bar(beats, { timeSig = null, simile = false, repeatStart = false, repeatEnd = false, text = '' } = {}) {
-  return { beats: [...beats], timeSig, simile, repeatStart, repeatEnd, text };
+export function bar(beats, { timeSig = null, key = null, simile = false, repeatStart = false, repeatEnd = false, text = '' } = {}) {
+  return { beats: [...beats], timeSig, key, simile, repeatStart, repeatEnd, text };
 }
 
 export function emptyBeat(division, beatUnit, tuplet = null) {
@@ -63,6 +70,21 @@ export function barTimeSig(score, index) {
     if (ts) return ts;
   }
   return [score.timeSigNum, score.timeSigDen];
+}
+
+/** The key signature (fifths: + sharps, − flats) in force at bar `index`; C major before any. */
+export function barKey(score, index) {
+  for (let i = index; i >= 0; i--) {
+    const k = score.bars[i]?.key;
+    if (k !== null && k !== undefined) return k;
+  }
+  return 0;
+}
+
+/** True where the key signature must be printed: the first bar if not C, and wherever it changes. */
+export function showsKey(score, index) {
+  if (index === 0) return barKey(score, 0) !== 0;
+  return barKey(score, index - 1) !== barKey(score, index);
 }
 
 /** True where the printed signature must appear: the first bar, and wherever it changes. */

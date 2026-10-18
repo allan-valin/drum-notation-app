@@ -12,7 +12,10 @@
   import { DEFAULT_COLOURS, INK, normaliseColours, overridesOnly } from '../core/colours.js';
   import { cursor as mkCursor, leafAt, posLabel } from '../core/cursor.js';
   import { NOTE_VALUES } from '../core/noteValue.js';
-  import { newScore, barTimeSig } from '../core/score.js';
+  import { newScore, barTimeSig, barKey } from '../core/score.js';
+  import { noteName, keyNames } from '../app/noteName.js';
+  import { STRINGS } from '../app/strings.js';
+  import { prefs } from '../app/prefs.svelte.js';
   import { t } from '../app/prefs.svelte.js';
   import { partLabelIndex, isEmptyPart } from '../core/parts.js';
 
@@ -48,7 +51,8 @@
   const partList = $derived(st.full.parts.map((p) => ({ id: p.id, instrument: p.instrument, muted: p.muted, label: partName(st.full, p.id) })));
   const shownBar = $derived(playing && playhead ? playhead.bar : st.cursor.bar);
   const bar = $derived(st.score.bars[shownBar]);
-  const slotName = (sid) => t(`slot.${sid}`);
+  /** A drum's name, or a pitch spelled in the reader's language ("Fá♯4"). */
+  const noteLabel = (n) => (staff.pitched ? noteName(n.slotId, n.alter ?? 0, prefs.lang, STRINGS[prefs.lang].noteNames) : t(`slot.${n.slotId}`));
   const pos = () => `${st.cursor.bar + 1}.${posLabel(st.cursor)}`;
 
   function dispatch(action) {
@@ -65,7 +69,7 @@
   }
 
   function describe(a, before, after) {
-    const notes = leafAt(after.score, after.cursor).notes.map((n) => slotName(n.slotId)).join(' + ') || t('status.empty');
+    const notes = leafAt(after.score, after.cursor).notes.map(noteLabel).join(' + ') || t('status.empty');
     const p = pos();
     const n = after.cursor.bar + 1;
     const b = after.score.bars[after.cursor.bar];
@@ -113,6 +117,15 @@
       case 'toggleMute': {
         const p = after.full.parts.find((x) => x.id === a.part);
         return t(p.muted ? 'status.muted' : 'status.unmuted', { name: partName(after.full, a.part) });
+      }
+      case 'setAccidental': {
+        const a = { 1: 'sharp', '-1': 'flat', 0: 'natural', 2: 'doubleSharp', '-2': 'doubleFlat' }[String(after.tool.accidental)];
+        return after.tool.accidental === null ? t('status.accidentalOff') : t('status.accidentalOn', { what: t(`palette.${a}`) });
+      }
+      case 'toggleArt': return after.tool.arts.includes(a.art) ? t('status.artOn', { what: t(`palette.${a.art}`) }) : t('status.artOff', { what: t(`palette.${a.art}`) });
+      case 'setKey': {
+        const [maj] = keyNames(barKey(after.score, after.cursor.bar), prefs.lang, STRINGS[prefs.lang].noteNames);
+        return t('status.keySet', { n, key: `${maj} ${t('bars.major')}` });
       }
       case 'setTitle': return t('status.titleSet');
       case 'setBpm': return t('status.bpmSet', { bpm: after.score.defaultBpm });
@@ -206,6 +219,7 @@
           focusedPath={playing ? (playhead?.path ?? null) : st.cursor.path}
           {colours}
           timeSig={barTimeSig(st.score, shownBar)}
+          keyFifths={barKey(st.score, shownBar)}
           showGuides={true}
           cards={true}
           deleteMode={st.tool.delete}
@@ -225,7 +239,7 @@
         <button onclick={() => dispatch({ type: 'goTo', cursor: mkCursor(st.cursor.bar + 1, 0, 0) })} disabled={st.cursor.bar >= st.score.bars.length - 1} aria-label={t('editor.nextBar')} title={t('editor.nextBar')}>»</button>
       </div>
 
-      <div class="bars-area"><BarRow score={st.score} barIndex={st.cursor.bar} onAction={dispatch} /></div>
+      <div class="bars-area"><BarRow score={st.score} barIndex={st.cursor.bar} onAction={dispatch} pitched={st.full.parts.some((p) => profileById(p.instrument).staves[0].pitched)} /></div>
 
       <div class="transport-area"><Transport full={st.full} parts={partList} onBand={band} currentBar={st.cursor.bar} {range} {store} bind:mode={playMode} bind:selecting onMove={moveBlock}
         onPlayhead={(p) => (playhead = p)} onPlaying={(on) => { playing = on; if (!on) playhead = null; }} onStatus={(m) => (status = m)} /></div>

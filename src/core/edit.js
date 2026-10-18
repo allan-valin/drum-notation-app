@@ -169,6 +169,13 @@ export function moveBars(score, from, to, gap) {
   return { score: touch({ ...score, bars }), range: [at, at + block.length - 1] };
 }
 
+/** Key signature from bar `index` on (fifths, or null to follow the bar before). Notes keep their pitch. */
+export function setKey(score, index, fifths) {
+  const k = fifths === null || fifths === undefined ? null : Math.max(-7, Math.min(7, fifths));
+  if ((score.bars[index].key ?? null) === k) return score;
+  return mapBar(score, index, (b) => ({ ...b, key: k }));
+}
+
 /** `%`: this bar repeats the previous one. The first bar has nothing to repeat. */
 export function toggleSimile(score, index) {
   if (index === 0) return score;

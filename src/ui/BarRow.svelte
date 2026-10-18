@@ -1,11 +1,21 @@
 <script>
   /** Everything that acts on the current bar, labelled, between the big editor and the full score. */
   import { t } from '../app/prefs.svelte.js';
-  import { barTimeSig } from '../core/score.js';
+  import { barTimeSig, barKey } from '../core/score.js';
+  import { prefs } from '../app/prefs.svelte.js';
+  import { keyNames } from '../app/noteName.js';
+  import { STRINGS } from '../app/strings.js';
   import { Glyphs } from '../core/glyphs.js';
   import { leafSpans } from '../core/tree.js';
 
-  let { score, barIndex, onAction } = $props();
+  let { score, barIndex, onAction, pitched = false } = $props();
+  const key = $derived(barKey(score, barIndex));
+  const KEYS = Array.from({ length: 15 }, (_, i) => i - 7);
+  function keyLabel(f) {
+    const [maj, min] = keyNames(f, prefs.lang, STRINGS[prefs.lang].noteNames);
+    const count = f === 0 ? t('bars.keyNone') : f > 0 ? t('bars.keySharps', { n: f }) : t('bars.keyFlats', { n: -f });
+    return `${count} · ${maj} ${t('bars.major')} / ${min} ${t('bars.minor')}`;
+  }
 
   const bar = $derived(score.bars[barIndex]);
   const sig = $derived(barTimeSig(score, barIndex));
@@ -45,6 +55,13 @@
   <button class:on={bar.repeatEnd} aria-pressed={bar.repeatEnd} onclick={() => onAction({ type: 'toggleRepeatEnd' })} aria-label={t('bars.repeatEndLong')} title={t('bars.repeatEndLong')}>
     <span class="smufl mark">{Glyphs.REPEAT_RIGHT}</span> {t('bars.repeatEnd')}
   </button>
+  {#if pitched}
+    <label class="keysel" title={t('bars.keyLong')}>{t('bars.key')}
+      <select aria-label={t('bars.keyLong')} value={key} onchange={(e) => onAction({ type: 'setKey', key: Number(e.target.value) })}>
+        {#each KEYS as f}<option value={f}>{keyLabel(f)}</option>{/each}
+      </select>
+    </label>
+  {/if}
   <label class="text">{t('tech.barText')}
     <input type="text" maxlength="80" value={bar.text ?? ''} placeholder={t('tech.barTextHint')} onchange={(e) => onAction({ type: 'setBarText', text: e.target.value.trim() })} />
   </label>
@@ -68,6 +85,8 @@
 
 <style>
   .barrow { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; padding: 6px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--toolbar); }
+  .keysel { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--muted); }
+  .keysel select { font: inherit; font-size: 14px; min-height: var(--tap); color: var(--ink); background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 0 6px; }
   .text { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--muted); flex: 1; min-width: 200px; }
   .text input { flex: 1; min-width: 0; }
   .which { font-weight: 600; font-size: 14px; padding: 0 6px; }

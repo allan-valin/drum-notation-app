@@ -23,7 +23,7 @@ describe('synth kit', () => {
     const ctx = fakeContext();
     const kit = createKit(ctx);
     const wanted = new Set();
-    for (const profile of Object.values(PROFILES)) {
+    for (const profile of Object.values(PROFILES).filter((p) => !p.staves[0].pitched)) {
       for (const slot of profile.staves[0].slots.map((s) => s.id)) for (const head of [null, ...NOTEHEADS]) for (const marks of [[], [Mark.OPEN], [Mark.CLOSED], [Mark.HALF_OPEN], [Mark.CHOKE]]) {
         wanted.add(soundFor(note(slot, { head, marks }), profile.id));
       }
@@ -50,5 +50,26 @@ describe('metronome voices', () => {
   });
   it('an unknown voice falls back to the beep', () => {
     expect(() => createKit(fakeContext()).click(false, 0.1, 'gong')).not.toThrow();
+  });
+});
+
+import { createVoices, VOICES } from '../src/audio/voices.js';
+
+describe('pitched voices', () => {
+  it('every pitched instrument has a voice that builds', () => {
+    const ctx = fakeContext();
+    ctx.createWaveShaper = () => ({ connect(n) { return n; }, curve: null });
+    const voices = createVoices(ctx, { connect(n) { return n; } });
+    for (const p of Object.values(PROFILES).filter((x) => x.staves[0].pitched)) {
+      expect(VOICES, p.id).toContain(p.voice);
+      expect(() => voices.play(p.voice, 0.1, 220, 0.5, 0.8)).not.toThrow();
+    }
+  });
+  it('the kit routes "voice:" sounds to the voices with frequency and length', () => {
+    const ctx = fakeContext();
+    ctx.createWaveShaper = () => ({ connect(n) { return n; }, curve: null });
+    const before = ctx.made.osc;
+    createKit(ctx).play('voice:keys', 0.1, 0.8, { freq: 440, dur: 0.5 });
+    expect(ctx.made.osc - before).toBe(4);
   });
 });

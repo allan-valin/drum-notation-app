@@ -84,7 +84,7 @@ transposition are just the frequency. A sampled set can follow later like the dr
   load as one drum part. Editor edits a projected one-part view, so editing code is unchanged.
   Palette instrument dropdown; transport band list with + Add instrument, mute, remove; full
   score shows every part; playback mixes parts. Percussion profiles: drum kit, congas.
-- [ ] **I2 Pitch.** Pitched note model, clefs, staff position → pitch, accidentals tool, key
+- [x] **I2 Pitch.** (2026-10-18: done together with the rock-band pitched profiles and their synth voices from I4: electric guitar, bass guitar, keyboard (one staff), vocals. Hit-test 0 stolen clicks for all six palettes, three sizes; a four-part bar played in Chromium.) Pitched note model, clefs, staff position → pitch, accidentals tool, key
   signature per bar, stem direction, ledger lines both ways, legend/help per profile.
 - [ ] **I3 Length.** Notes longer than a beat (beat spans), ties across beats and bars, dots
   drawn for tied pairs that make a dotted value; sustained playback lengths.

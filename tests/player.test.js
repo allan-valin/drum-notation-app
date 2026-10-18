@@ -15,7 +15,7 @@ function rig() {
   let stopped = 0;
   const player = createPlayer({
     clock: () => now,
-    play: (sound, when, velocity) => played.push({ sound, when: +when.toFixed(3), velocity }),
+    play: (sound, when, velocity, extra) => played.push({ sound, when: +when.toFixed(3), velocity, ...(extra?.freq ? { freq: extra.freq, dur: +extra.dur.toFixed(3) } : {}) }),
     click: (accent, when) => clicked.push({ accent, when: +when.toFixed(3) }),
     setInterval: (fn) => { tick = fn; return 1; },
     clearInterval: () => { tick = null; },
@@ -95,5 +95,23 @@ describe('player', () => {
     r.player.start(performance(g, 0, 0), { bpm: 120 });
     r.advance(15);
     expect(+(r.played[1].when - r.played[0].when).toFixed(3)).toBe(0.03);
+  });
+});
+
+describe('pitched notes in the player', () => {
+  it('passes frequency and length in seconds to the instrument', async () => {
+    const { toFull, addPart, partView, zipPart } = await import('../src/core/parts.js');
+    const { placeNote } = await import('../src/core/edit.js');
+    const { cursor } = await import('../src/core/cursor.js');
+    const { performanceAll } = await import('../src/core/schedule.js');
+    let full = addPart(toFull(s), 'keys');
+    const k = full.parts[1].id;
+    full = zipPart(full, k, placeNote(partView(full, k), cursor(0, 0, 0), { ...{ slotId: 'A4', articulations: [], sticking: null, head: null, marks: [], roll: null, grace: null }, alter: 0 }));
+    const r = rig();
+    r.player.start(performanceAll(full, 0, 0), { bpm: 120 });
+    r.advance(15);
+    const keys = r.played.find((p) => p.sound === 'voice:keys');
+    expect(keys.freq).toBeCloseTo(440);
+    expect(keys.dur).toBe(0.5);
   });
 });

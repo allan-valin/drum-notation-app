@@ -2,7 +2,7 @@
   /** The whole score, laid out like the printed page; the current bar framed, a tap opens a bar. */
   import ScoreSvg from './ScoreSvg.svelte';
   import { t } from '../app/prefs.svelte.js';
-  import { barTimeSig, showsTimeSig } from '../core/score.js';
+  import { barTimeSig, showsTimeSig, barKey, showsKey } from '../core/score.js';
   import { createDrag } from '../app/lib/drag.js';
 
   import { partView } from '../core/parts.js';
@@ -99,7 +99,7 @@
           {#each views as v (v.id)}
             <div class="staff" class:active={many && v.id === part} class:mutedpart={v.muted}>
               {#if many && i % perRow === 0}<span class="plabel">{v.label}</span>{/if}
-              <ScoreSvg bar={v.view.bars[i]} staff={v.staff} width={barW - 4} staffSpacing={sp} showClef={i % perRow === 0} timeSig={showsTimeSig(score, i) ? barTimeSig(score, i) : null} {colours} fixedRange={many ? [6.5, 6.5] : [8.5, 6]} />
+              <ScoreSvg bar={v.view.bars[i]} staff={v.staff} width={barW - 4} staffSpacing={sp} showClef={i % perRow === 0} timeSig={showsTimeSig(score, i) ? barTimeSig(score, i) : null} keyFifths={barKey(score, i)} showKey={i % perRow === 0 || showsKey(score, i)} {colours} fixedRange={many ? [6.5, 6.5] : [8.5, 6]} />
             </div>
           {/each}
         </button>

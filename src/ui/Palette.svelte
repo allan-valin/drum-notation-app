@@ -30,6 +30,19 @@
   /** An instrument may name a symbol its own way: an X head on congas is a slap. */
   const label = (id) => t(`tech.${profile.labels?.[id] ?? id}`);
   const tech = (x) => onAction({ type: 'setTech', tech: x });
+  /** Accidentals as alterations in semitones; null follows the key signature. */
+  const ACCIDENTALS = [
+    { alter: 1, glyph: Glyphs.SHARP, key: 'sharp' },
+    { alter: -1, glyph: Glyphs.FLAT, key: 'flat' },
+    { alter: 0, glyph: Glyphs.NATURAL, key: 'natural' },
+    { alter: 2, glyph: Glyphs.DOUBLE_SHARP, key: 'doubleSharp' },
+    { alter: -2, glyph: Glyphs.DOUBLE_FLAT, key: 'doubleFlat' },
+  ];
+  const EXTRA_ARTS = [
+    { id: 'staccato', glyph: Glyphs.STACCATO }, { id: 'tenuto', glyph: Glyphs.TENUTO },
+    { id: 'marcato', glyph: Glyphs.MARCATO }, { id: 'fermata', glyph: Glyphs.FERMATA },
+  ];
+  const extraArts = $derived(EXTRA_ARTS.filter((a) => profile.articulations.includes(a.id)));
   const TUPLETS = [3, 5, 6, 7];
 </script>
 
@@ -89,6 +102,22 @@
   </section>
   {/if}
 
+  {#if has('accidental')}
+  <section>
+    <h3>{t('palette.accidental')}</h3>
+    <div class="grid">
+      <button class:on={tool.accidental === null} aria-label={t('palette.byKey')} title={t('palette.byKeyHint')} onclick={() => tool.accidental !== null && onAction({ type: 'setAccidental', alter: tool.accidental })}>
+        <span class="glyph text small-text">♮?</span><span class="label">{t('palette.byKey')}</span>
+      </button>
+      {#each ACCIDENTALS as a}
+        <button class:on={tool.accidental === a.alter} aria-label={t(`palette.${a.key}`)} onclick={() => onAction({ type: 'setAccidental', alter: a.alter })}>
+          <span class="smufl glyph acc">{a.glyph}</span><span class="label">{t(`palette.${a.key}`)}</span>
+        </button>
+      {/each}
+    </div>
+  </section>
+  {/if}
+
   <div class="symbols">
   <section>
     <h3>{t('tech.tapDoes')}</h3>
@@ -112,6 +141,12 @@
         <span class="label">{t('palette.accent')}</span>
       </button>
       {/if}
+      {#each extraArts as a}
+      <button class:on={tool.arts.includes(a.id)} aria-label={t(`palette.${a.id}`)} onclick={() => onAction({ type: 'toggleArt', art: a.id })}>
+        <span class="smufl glyph art">{a.glyph}</span>
+        <span class="label">{t(`palette.${a.id}`)}</span>
+      </button>
+      {/each}
       {#if profile.articulations.includes('ghost')}
       <button class:on={tool.ghost} aria-label={t('palette.ghostLong')} onclick={() => onAction({ type: 'toggleGhost' })}>
         <span class="smufl glyph">{Glyphs.PAREN_LEFT}{Glyphs.notehead(Notehead.NORMAL, NoteValue.QUARTER)}{Glyphs.PAREN_RIGHT}</span>
@@ -174,6 +209,8 @@
   .aux .label { font-size: 13px; font-weight: 600; }
   .small-text { font-size: 18px; height: auto; }
   .glyph.mark { font-size: 36px; align-items: center; padding-top: 14px; }
+  .glyph.acc { font-size: 34px; align-items: center; height: 34px; }
+  .glyph.art { font-size: 34px; align-items: center; padding-top: 6px; }
   .glyph.head { font-size: 44px; align-items: center; height: 30px; }
   .symbols { display: flex; flex-direction: column; gap: 8px; border-left: 3px solid var(--accent); padding-left: 6px; margin-left: -2px; }
   .mode button + button { border-left: 1px solid var(--line); }
