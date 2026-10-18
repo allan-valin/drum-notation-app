@@ -51,8 +51,24 @@ export function makePitchedStaff(clef, low, high) {
 const SHARP_ORDER = [3, 0, 4, 1, 5, 2, 6]; // F C G D A E B
 const FLAT_ORDER = [6, 2, 5, 1, 4, 0, 3];  // B E A D G C F
 
-/** The alteration a key signature (in fifths: +sharps, −flats) gives a step. */
+/**
+ * Maqam key signatures as Arabic editions print them, on the usual tonic: half-flats (−0.5)
+ * where the scale has quarter tones. Other alterations of a maqam (Saba's G♭, Nahawand's B♮
+ * going up) are written as accidentals, as in those editions.
+ */
+export const MAQAMAT = Object.freeze({
+  rast: { tonic: 'C', signs: [['B', -0.5], ['E', -0.5]] },
+  bayati: { tonic: 'D', signs: [['B', -1], ['E', -0.5]] },
+  saba: { tonic: 'D', signs: [['B', -1], ['E', -0.5]] },
+  hijaz: { tonic: 'D', signs: [['B', -1], ['E', -1], ['F', 1]] },
+  nahawand: { tonic: 'C', signs: [['B', -1], ['E', -1], ['A', -1]] },
+  kurd: { tonic: 'D', signs: [['B', -1], ['E', -1]] },
+  sikah: { tonic: 'E', signs: [['B', -0.5], ['E', -0.5]] },
+});
+
+/** The alteration a key signature gives a step: fifths (+sharps, −flats) or a maqam name. */
 export function keyAlter(fifths, step) {
+  if (typeof fifths === 'string') return MAQAMAT[fifths]?.signs.find(([l]) => l === STEPS[step])?.[1] ?? 0;
   if (fifths > 0) return SHARP_ORDER.slice(0, fifths).includes(step) ? 1 : 0;
   if (fifths < 0) return FLAT_ORDER.slice(0, -fifths).includes(step) ? -1 : 0;
   return 0;
@@ -74,6 +90,13 @@ KEY_PLACES.bass8vb = KEY_PLACES.bass;
 export function keyAccidentals(fifths, clef) {
   const places = KEY_PLACES[clef];
   if (!places || !fifths) return [];
+  if (typeof fifths === 'string') {
+    // each sign at the place its letter has in the flat (or sharp) order for this clef
+    return (MAQAMAT[fifths]?.signs ?? []).map(([letter, alter]) => ({
+      slot: (alter > 0 ? places.sharp : places.flat).find((x) => x[0] === letter),
+      alter,
+    }));
+  }
   return fifths > 0
     ? places.sharp.slice(0, fifths).map((slot) => ({ slot, alter: 1 }))
     : places.flat.slice(0, -fifths).map((slot) => ({ slot, alter: -1 }));
@@ -94,6 +117,7 @@ export function frequencyOf(midi) {
  * reads two sharps more), wrapped to the enharmonic key with at most seven signs.
  */
 export function partKey(concertFifths, profile) {
+  if (typeof concertFifths === 'string') return concertFifths; // maqam keys are not transposed
   let f = concertFifths + (profile?.keyShift ?? 0);
   while (f > 7) f -= 12;
   while (f < -7) f += 12;

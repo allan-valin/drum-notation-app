@@ -199,6 +199,32 @@ export const GLOCKENSPIEL_PROFILE = pitchedProfile('glockenspiel', 'orchestra', 
 export const XYLOPHONE_PROFILE = pitchedProfile('xylophone', 'orchestra', 'treble', 'F3', 'C7', 'xylo', { ...MALLET_EXTRA, transpose: 12 });
 export const MARIMBA_PROFILE = pitchedProfile('marimba', 'orchestra', 'treble', 'C3', 'C7', 'marimba', MALLET_EXTRA);
 
+/**
+ * Arabic music on a Western staff: quarter tones and maqam key signatures. Oud is written an
+ * octave above where it sounds. Darbuka, riq and daf: dum (low, centre of the skin) below,
+ * tak (rim) above, ka (the other hand's tak) higher with an X head.
+ */
+const ARABIC_EXTRA = { palette: [...PITCHED_PALETTE, 'phrasing'], articulations: [...PITCHED_ARTS, 'breath'], legend: [...PITCHED_LEGEND, 'quarterFlat', 'quarterSharp', 'slur'], quarterTones: true };
+export const OUD_PROFILE = pitchedProfile('oud', 'arabic', 'treble8vb', 'C3', 'G6', 'oud', ARABIC_EXTRA);
+export const QANUN_PROFILE = pitchedProfile('qanun', 'arabic', 'treble', 'G3', 'F6', 'qanun', ARABIC_EXTRA);
+export const NEY_PROFILE = pitchedProfile('ney', 'arabic', 'treble', 'C4', 'D7', 'ney', ARABIC_EXTRA);
+function frameDrum(id) {
+  return Object.freeze({
+    id, name: id, family: 'arabic',
+    palette: ['edit', 'figure', 'tuplet', 'tapMode', 'articulation', 'dynamics', 'hand'],
+    articulations: ['accent', 'ghost'], heads: [], techniques: [], hands: true,
+    legend: ['dumTak', 'ghost', 'accent', 'dynamics', 'wedges', 'simile', 'repeat'],
+    staves: Object.freeze([Object.freeze({ lineCount: 5, slots: Object.freeze([
+      slot('dum', 'Dum', 2, Notehead.NORMAL),
+      slot('tak', 'Tak', 6, Notehead.NORMAL),
+      slot('ka', 'Ka', 8, Notehead.CROSS),
+    ]) })]),
+  });
+}
+export const DARBUKA_PROFILE = frameDrum('darbuka');
+export const RIQ_PROFILE = frameDrum('riq');
+export const DAF_PROFILE = frameDrum('daf');
+
 /** Instruments made of several linked parts, by the name offered in the dropdowns. */
 export const GROUPS = Object.freeze({ piano: ['pianoRH', 'pianoLH'], harp: ['harpRH', 'harpLH'] });
 
@@ -237,6 +263,12 @@ export const PROFILES = Object.freeze({
   glockenspiel: GLOCKENSPIEL_PROFILE,
   xylophone: XYLOPHONE_PROFILE,
   marimba: MARIMBA_PROFILE,
+  oud: OUD_PROFILE,
+  qanun: QANUN_PROFILE,
+  ney: NEY_PROFILE,
+  darbuka: DARBUKA_PROFILE,
+  riq: RIQ_PROFILE,
+  daf: DAF_PROFILE,
 });
 
 /** Instruments offered in the dropdowns, in order: hands of a grand staff come as their instrument. */

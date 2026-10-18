@@ -96,6 +96,16 @@ export function createKit(ctx) {
     highTom: (t, v) => tone(t, v, 0.35, 260, 180, 'sine', 0.2),
     midTom: (t, v) => tone(t, v, 0.4, 190, 135, 'sine', 0.22),
     floorTom: (t, v) => tone(t, v, 0.5, 125, 85, 'sine', 0.25),
+    // frame drums: dum is the deep centre, tak the bright rim, ka the other hand's lighter tak
+    darbukaDum: (t, v) => { tone(t, v * 1.1, 0.35, 140, 90, 'sine', 0.08); noiseHit(t, v * 0.1, 0.03, [['lowpass', 800]]); },
+    darbukaTak: (t, v) => { noiseHit(t, v * 0.8, 0.06, [['bandpass', 3500, 1.5]]); tone(t, v * 0.35, 0.05, 700, 650, 'triangle'); },
+    darbukaKa: (t, v) => { noiseHit(t, v * 0.5, 0.05, [['bandpass', 3000, 1.5]]); tone(t, v * 0.2, 0.04, 650, 600, 'triangle'); },
+    riqDum: (t, v) => { tone(t, v * 0.9, 0.25, 180, 140, 'sine', 0.05); metal(t, v * 0.12, 0.25, 7000, 1.3); },
+    riqTak: (t, v) => { noiseHit(t, v * 0.6, 0.05, [['bandpass', 3000, 1.2]]); metal(t, v * 0.25, 0.3, 8000, 1.3); },
+    riqKa: (t, v) => { metal(t, v * 0.3, 0.25, 8500, 1.3); },
+    dafDum: (t, v) => { tone(t, v * 1.1, 0.45, 100, 70, 'sine', 0.1); noiseHit(t, v * 0.12, 0.05, [['lowpass', 600]]); },
+    dafTak: (t, v) => { noiseHit(t, v * 0.6, 0.08, [['bandpass', 2000, 1.2]]); tone(t, v * 0.3, 0.06, 400, 360, 'triangle'); },
+    dafKa: (t, v) => { noiseHit(t, v * 0.4, 0.06, [['bandpass', 1800, 1.2]]); },
     // congas: open tones are short pitched skins; a slap is a sharp crack; a muted tone is short and dull
     congaHigh: (t, v) => { tone(t, v * 0.9, 0.22, 420, 380, 'sine', 0.05); noiseHit(t, v * 0.15, 0.02, [['bandpass', 2500, 1]]); },
     congaMid: (t, v) => { tone(t, v * 0.9, 0.26, 320, 290, 'sine', 0.05); noiseHit(t, v * 0.15, 0.02, [['bandpass', 2000, 1]]); },

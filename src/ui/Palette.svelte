@@ -48,6 +48,14 @@
     { alter: 2, glyph: Glyphs.DOUBLE_SHARP, key: 'doubleSharp' },
     { alter: -2, glyph: Glyphs.DOUBLE_FLAT, key: 'doubleFlat' },
   ];
+  /** Quarter tones, for instruments that play them (Arabic music). */
+  const QUARTERS = [
+    { alter: -0.5, glyph: Glyphs.QUARTER_FLAT, key: 'quarterFlat' },
+    { alter: 0.5, glyph: Glyphs.QUARTER_SHARP, key: 'quarterSharp' },
+    { alter: -1.5, glyph: Glyphs.THREE_QUARTER_FLAT, key: 'threeQuarterFlat' },
+    { alter: 1.5, glyph: Glyphs.THREE_QUARTER_SHARP, key: 'threeQuarterSharp' },
+  ];
+  const accidentals = $derived(profile.quarterTones ? [...ACCIDENTALS, ...QUARTERS] : ACCIDENTALS);
   const EXTRA_ARTS = [
     { id: 'staccato', glyph: Glyphs.STACCATO }, { id: 'tenuto', glyph: Glyphs.TENUTO },
     { id: 'marcato', glyph: Glyphs.MARCATO }, { id: 'fermata', glyph: Glyphs.FERMATA },
@@ -132,7 +140,7 @@
       <button class:on={tool.accidental === null} aria-label={t('palette.byKey')} title={t('palette.byKeyHint')} onclick={() => tool.accidental !== null && onAction({ type: 'setAccidental', alter: tool.accidental })}>
         <span class="glyph text small-text">♮?</span><span class="label">{t('palette.byKey')}</span>
       </button>
-      {#each ACCIDENTALS as a}
+      {#each accidentals as a}
         <button class:on={tool.accidental === a.alter} aria-label={t(`palette.${a.key}`)} onclick={() => onAction({ type: 'setAccidental', alter: a.alter })}>
           <span class="smufl glyph acc">{a.glyph}</span><span class="label">{t(`palette.${a.key}`)}</span>
         </button>

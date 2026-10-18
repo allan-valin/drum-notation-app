@@ -21,7 +21,7 @@ describe('sample kit', () => {
   it('has a file for every sound the synth kit knows', () => {
     const synthSounds = createKit(fakeContext()).sounds;
     // the recorded kit has no congas: those stay synthesized (the fallback)
-    for (const s of synthSounds) if (s !== 'crashChoke' && !s.startsWith('conga')) expect(Object.keys(SAMPLE_FILES), s).toContain(s);
+    for (const s of synthSounds) if (s !== 'crashChoke' && !/^(conga|darbuka|riq|daf)/.test(s)) expect(Object.keys(SAMPLE_FILES), s).toContain(s);
   });
   it('plays the synth until the samples arrive, then the samples', async () => {
     const ctx = fakeContext();

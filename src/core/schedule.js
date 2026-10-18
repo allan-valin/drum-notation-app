@@ -84,6 +84,9 @@ export function playOrder(score, a, b) {
 
 /** The sound a note makes on a given instrument, changed by its head and technique marks. */
 export function soundFor(note, instrument = 'drums') {
+  if (['darbuka', 'riq', 'daf'].includes(instrument)) {
+    return `${instrument}${{ dum: 'Dum', tak: 'Tak', ka: 'Ka' }[note.slotId] ?? 'Tak'}`;
+  }
   if (instrument === 'congas') {
     const base = { quinto: 'congaHigh', conga: 'congaMid', tumba: 'congaLow' }[note.slotId] ?? 'congaMid';
     if (note.head === Notehead.CROSS) return base.replace('conga', 'congaSlap');

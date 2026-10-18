@@ -39,6 +39,7 @@
     ['scoop', Glyphs.SCOOP + head(Notehead.NORMAL)], ['plop', Glyphs.PLOP + head(Notehead.NORMAL)],
     ['pizz', 'pizz.'], ['downBow', Glyphs.DOWN_BOW], ['upBow', Glyphs.UP_BOW], ['harmonic', Glyphs.HARMONIC],
     ['stringTremolo', Glyphs.TREMOLO3], ['trill', Glyphs.TRILL],
+    ['quarterFlat', Glyphs.QUARTER_FLAT], ['quarterSharp', Glyphs.QUARTER_SHARP], ['dumTak', head(Notehead.NORMAL) + '  ' + head(Notehead.CROSS)],
     ['congaSlap', head(Notehead.CROSS)],
     ['congaMute', Glyphs.CLOSED],
   ];

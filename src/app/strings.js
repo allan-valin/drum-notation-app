@@ -17,8 +17,10 @@ export function format(s, params = {}) {
 
 export const STRINGS = {
   pt: {
+    maqam: { rast: 'Rast (Dó)', bayati: 'Bayati (Ré)', saba: 'Saba (Ré)', hijaz: 'Hijaz (Ré)', nahawand: 'Nahawand (Dó)', kurd: 'Kurd (Ré)', sikah: 'Sikah (Mi meio bemol)' },
     noteNames: { C: 'Dó', D: 'Ré', E: 'Mi', F: 'Fá', G: 'Sol', A: 'Lá', B: 'Si' },
     instrument: {
+      oud: 'Alaúde árabe (oud)', qanun: 'Qanun', ney: 'Ney', darbuka: 'Darbuka', riq: 'Riq', daf: 'Daf',
       piano: 'Piano', harp: 'Harpa', pianoRH: 'Piano (mão direita)', pianoLH: 'Piano (mão esquerda)', harpRH: 'Harpa (mão direita)', harpLH: 'Harpa (mão esquerda)', violin: 'Violino', viola: 'Viola', cello: 'Violoncelo', contrabass: 'Contrabaixo (orquestra)', flute: 'Flauta', oboe: 'Oboé', clarinet: 'Clarinete (Si♭)', bassoon: 'Fagote', horn: 'Trompa (Fá)', tuba: 'Tuba', timpani: 'Tímpanos', glockenspiel: 'Glockenspiel', xylophone: 'Xilofone', marimba: 'Marimba',
       trumpet: 'Trompete (Si♭)', altoSax: 'Sax alto (Mi♭)', tenorSax: 'Sax tenor (Si♭)', trombone: 'Trombone', doubleBass: 'Contrabaixo', vibraphone: 'Vibrafone',
       soprano: 'Soprano', alto: 'Contralto', tenor: 'Tenor', bass: 'Baixo (voz)',
@@ -55,6 +57,9 @@ export const STRINGS = {
       open: 'Legenda', title: 'Legenda dos símbolos', close: 'Fechar', symbol: 'Símbolo', meaning: 'Neste app', also: 'Outros autores usam para',
       note: 'Cada método escreve bateria um pouco diferente. O app segue a convenção da Percussive Arts Society (Norman Weinberg); a coluna da direita lista o que outros livros usam para o mesmo símbolo. Se o seu livro usa outro sentido, escreva o símbolo como está no livro.',
       rows: {
+        quarterFlat: { meaning: 'Meio bemol: um quarto de tom abaixo (música árabe)', also: 'Bemol cortado em outras tradições' },
+        quarterSharp: { meaning: 'Meio sustenido: um quarto de tom acima', also: '—' },
+        dumTak: { meaning: 'Dum (grave, no centro) embaixo, tak (agudo, na borda) em cima, ka (tak da outra mão) com X', also: 'Alguns escrevem D/T/K sobre uma só linha' },
         pizz: { meaning: 'pizz. / arco: beliscar a corda / voltar ao arco', also: '—' },
         downBow: { meaning: 'Arcada para baixo (talão para a ponta)', also: '—' },
         upBow: { meaning: 'Arcada para cima (ponta para o talão)', also: '—' },
@@ -126,6 +131,7 @@ export const STRINGS = {
       s6: 'Tudo é salvo neste navegador a cada mudança. "PDF" abre a página de impressão. No arquivo, "JSON" exporta uma cópia. Para importar de uma foto, use o link "Como importar de uma foto".',
     },
     bars: {
+      maqam: 'Maqam (música árabe)',
       key: 'Armadura', keyLong: 'Armadura de clave deste compasso em diante', keyNone: 'Sem acidentes', keySharps: '{n} ♯', keyFlats: '{n} ♭', major: 'maior', minor: 'menor',
       heading: 'Compasso {n}', add: 'Compasso', addLong: 'Adicionar compasso no fim', remove: 'Compasso', removeLong: 'Remover este compasso',
       timeSig: 'Fórmula {sig}', timeSigLong: 'Mudar a fórmula de compasso deste compasso', timeSigTitle: 'Fórmula de compasso do compasso {n}',
@@ -161,11 +167,13 @@ export const STRINGS = {
       eighth: 'colcheias', sixteenth: 'semicolcheias', thirtySecond: 'fusas',
     },
     slot: {
+      dum: 'Dum', tak: 'Tak', ka: 'Ka',
       tumba: 'Tumba', conga: 'Conga', quinto: 'Quinto',
       hihatPedal: 'Chimbal (pé)', kick: 'Bumbo', floorTom: 'Surdo', snare: 'Caixa',
       midTom: 'Tom médio', highTom: 'Tom agudo', hihat: 'Chimbal', ride: 'Ride', crash: 'Crash',
     },
     palette: {
+      quarterFlat: 'Meio bemol', quarterSharp: 'Meio sustenido', threeQuarterFlat: 'Bemol e meio', threeQuarterSharp: 'Sustenido e meio',
       chords: 'Cifra', chordHint: 'ex.: C7, Bbmaj7, F#m7b5', chordApply: 'Escrever a cifra e ir para o próximo tempo', chordHelp: 'Enter escreve no tempo selecionado e vai para o próximo. Vazio apaga.',
       phrasing: 'Fraseado', slurStart: 'Início da ligadura', slurEnd: 'Fim da ligadura', slurHint: 'Marca a célula selecionada como início ou fim da ligadura de expressão', breath: 'Respiração', lyrics: 'Letra', lyricHint: 'sílaba (ex.: Glo-)', lyricApply: 'Escrever a sílaba e ir para a próxima nota', lyricHelp: 'Enter escreve na nota selecionada e vai para a próxima. Termine com - para o hífen.',
       dynamics: 'Dinâmica', dynHint: 'Volume a partir desta nota', pp: 'pianissimo', p: 'piano', mp: 'mezzo-piano', mf: 'mezzo-forte', f: 'forte', ff: 'fortissimo', fp: 'forte-piano', sfz: 'sforzando', cresc: 'crescendo', dim: 'diminuendo',
@@ -238,8 +246,10 @@ export const STRINGS = {
   },
 
   en: {
+    maqam: { rast: 'Rast (C)', bayati: 'Bayati (D)', saba: 'Saba (D)', hijaz: 'Hijaz (D)', nahawand: 'Nahawand (C)', kurd: 'Kurd (D)', sikah: 'Sikah (E half-flat)' },
     noteNames: { C: 'C', D: 'D', E: 'E', F: 'F', G: 'G', A: 'A', B: 'B' },
     instrument: {
+      oud: 'Oud', qanun: 'Qanun', ney: 'Ney', darbuka: 'Darbuka', riq: 'Riq', daf: 'Daf',
       piano: 'Piano', harp: 'Harp', pianoRH: 'Piano (right hand)', pianoLH: 'Piano (left hand)', harpRH: 'Harp (right hand)', harpLH: 'Harp (left hand)', violin: 'Violin', viola: 'Viola', cello: 'Cello', contrabass: 'Double bass (orchestra)', flute: 'Flute', oboe: 'Oboe', clarinet: 'Clarinet (B♭)', bassoon: 'Bassoon', horn: 'Horn (F)', tuba: 'Tuba', timpani: 'Timpani', glockenspiel: 'Glockenspiel', xylophone: 'Xylophone', marimba: 'Marimba',
       trumpet: 'Trumpet (B♭)', altoSax: 'Alto sax (E♭)', tenorSax: 'Tenor sax (B♭)', trombone: 'Trombone', doubleBass: 'Double bass', vibraphone: 'Vibraphone',
       soprano: 'Soprano', alto: 'Alto', tenor: 'Tenor', bass: 'Bass (voice)',
@@ -276,6 +286,9 @@ export const STRINGS = {
       open: 'Legend', title: 'Symbol legend', close: 'Close', symbol: 'Symbol', meaning: 'In this app', also: 'Other authors use it for',
       note: 'Every method book notates drums a little differently. The app follows the Percussive Arts Society convention (Norman Weinberg); the right column lists what other books use the same symbol for. If your book means something else, write the symbol as it is in the book.',
       rows: {
+        quarterFlat: { meaning: 'Half flat: a quarter tone lower (Arabic music)', also: 'A slashed flat in other traditions' },
+        quarterSharp: { meaning: 'Half sharp: a quarter tone higher', also: '—' },
+        dumTak: { meaning: 'Dum (low, centre) below, tak (high, rim) above, ka (the other hand\'s tak) with an X', also: 'Some write D/T/K on a single line' },
         pizz: { meaning: 'pizz. / arco: pluck the string / back to the bow', also: '—' },
         downBow: { meaning: 'Down-bow (frog to tip)', also: '—' },
         upBow: { meaning: 'Up-bow (tip to frog)', also: '—' },
@@ -347,6 +360,7 @@ export const STRINGS = {
       s6: 'Every change is saved in this browser. "PDF" opens the print page. In the library, "JSON" exports a copy. To import from a photo, follow "How to import from a photo".',
     },
     bars: {
+      maqam: 'Maqam (Arabic music)',
       key: 'Key', keyLong: 'Key signature from this bar on', keyNone: 'No sharps or flats', keySharps: '{n} ♯', keyFlats: '{n} ♭', major: 'major', minor: 'minor',
       heading: 'Bar {n}', add: 'Bar', addLong: 'Add a bar at the end', remove: 'Bar', removeLong: 'Remove this bar',
       timeSig: 'Time {sig}', timeSigLong: 'Change this bar\'s time signature', timeSigTitle: 'Time signature of bar {n}',
@@ -382,11 +396,13 @@ export const STRINGS = {
       eighth: 'eighth notes', sixteenth: 'sixteenth notes', thirtySecond: '32nd notes',
     },
     slot: {
+      dum: 'Dum', tak: 'Tak', ka: 'Ka',
       tumba: 'Tumba', conga: 'Conga', quinto: 'Quinto',
       hihatPedal: 'Hi-hat (foot)', kick: 'Bass drum', floorTom: 'Floor tom', snare: 'Snare',
       midTom: 'Mid tom', highTom: 'High tom', hihat: 'Hi-hat', ride: 'Ride', crash: 'Crash',
     },
     palette: {
+      quarterFlat: 'Half flat', quarterSharp: 'Half sharp', threeQuarterFlat: 'Flat and a half', threeQuarterSharp: 'Sharp and a half',
       chords: 'Chord symbol', chordHint: 'e.g. C7, Bbmaj7, F#m7b5', chordApply: 'Write the chord and go to the next beat', chordHelp: 'Enter writes on the selected beat and moves to the next. Empty removes it.',
       phrasing: 'Phrasing', slurStart: 'Slur start', slurEnd: 'Slur end', slurHint: 'Marks the selected cell as where the slur starts or ends', breath: 'Breath', lyrics: 'Lyrics', lyricHint: 'syllable (e.g. Glo-)', lyricApply: 'Write the syllable and go to the next note', lyricHelp: 'Enter writes on the selected note and moves to the next. End with - for a hyphen.',
       dynamics: 'Dynamics', dynHint: 'Loudness from this note on', pp: 'pianissimo', p: 'piano', mp: 'mezzo-piano', mf: 'mezzo-forte', f: 'forte', ff: 'fortissimo', fp: 'forte-piano', sfz: 'sforzando', cresc: 'crescendo', dim: 'diminuendo',
@@ -459,8 +475,10 @@ export const STRINGS = {
   },
 
   de: {
+    maqam: { rast: 'Rast (C)', bayati: 'Bayati (D)', saba: 'Saba (D)', hijaz: 'Hijaz (D)', nahawand: 'Nahawand (C)', kurd: 'Kurd (D)', sikah: 'Sikah (E-Halb-Be)' },
     noteNames: { C: 'C', D: 'D', E: 'E', F: 'F', G: 'G', A: 'A', B: 'H' },
     instrument: {
+      oud: 'Oud', qanun: 'Qanun', ney: 'Ney', darbuka: 'Darbuka', riq: 'Riq', daf: 'Daf',
       piano: 'Klavier', harp: 'Harfe', pianoRH: 'Klavier (rechte Hand)', pianoLH: 'Klavier (linke Hand)', harpRH: 'Harfe (rechte Hand)', harpLH: 'Harfe (linke Hand)', violin: 'Violine', viola: 'Bratsche', cello: 'Violoncello', contrabass: 'Kontrabass (Orchester)', flute: 'Flöte', oboe: 'Oboe', clarinet: 'Klarinette (B)', bassoon: 'Fagott', horn: 'Horn (F)', tuba: 'Tuba', timpani: 'Pauken', glockenspiel: 'Glockenspiel', xylophone: 'Xylophon', marimba: 'Marimba',
       trumpet: 'Trompete (B)', altoSax: 'Altsaxophon (Es)', tenorSax: 'Tenorsaxophon (B)', trombone: 'Posaune', doubleBass: 'Kontrabass', vibraphone: 'Vibraphon',
       soprano: 'Sopran', alto: 'Alt', tenor: 'Tenor', bass: 'Bass (Stimme)',
@@ -497,6 +515,9 @@ export const STRINGS = {
       open: 'Legende', title: 'Zeichenlegende', close: 'Schließen', symbol: 'Zeichen', meaning: 'In dieser App', also: 'Andere Autoren nutzen es für',
       note: 'Jede Schule notiert Schlagzeug etwas anders. Die App folgt der Konvention der Percussive Arts Society (Norman Weinberg); die rechte Spalte nennt, wofür andere Bücher dasselbe Zeichen verwenden. Meint dein Buch etwas anderes, schreib das Zeichen so wie im Buch.',
       rows: {
+        quarterFlat: { meaning: 'Viertelton-Be: einen Viertelton tiefer (arabische Musik)', also: 'In anderen Traditionen ein durchgestrichenes Be' },
+        quarterSharp: { meaning: 'Viertelton-Kreuz: einen Viertelton höher', also: '—' },
+        dumTak: { meaning: 'Dum (tief, Mitte) unten, Tak (hoch, Rand) oben, Ka (Tak der anderen Hand) mit X', also: 'Manche schreiben D/T/K auf eine einzige Linie' },
         pizz: { meaning: 'pizz. / arco: Saite zupfen / wieder mit Bogen', also: '—' },
         downBow: { meaning: 'Abstrich (Frosch zur Spitze)', also: '—' },
         upBow: { meaning: 'Aufstrich (Spitze zum Frosch)', also: '—' },
@@ -568,6 +589,7 @@ export const STRINGS = {
       s6: 'Jede Änderung wird in diesem Browser gespeichert. "PDF" öffnet die Druckseite. In der Bibliothek exportiert "JSON" eine Kopie. Zum Import aus einem Foto dem Link "Aus einem Foto importieren" folgen.',
     },
     bars: {
+      maqam: 'Maqam (arabische Musik)',
       key: 'Tonart', keyLong: 'Tonart ab diesem Takt', keyNone: 'Ohne Vorzeichen', keySharps: '{n} ♯', keyFlats: '{n} ♭', major: 'Dur', minor: 'Moll',
       heading: 'Takt {n}', add: 'Takt', addLong: 'Takt am Ende hinzufügen', remove: 'Takt', removeLong: 'Diesen Takt entfernen',
       timeSig: 'Taktart {sig}', timeSigLong: 'Taktart dieses Takts ändern', timeSigTitle: 'Taktart von Takt {n}',
@@ -603,11 +625,13 @@ export const STRINGS = {
       eighth: 'Achtel', sixteenth: 'Sechzehntel', thirtySecond: '32tel',
     },
     slot: {
+      dum: 'Dum', tak: 'Tak', ka: 'Ka',
       tumba: 'Tumba', conga: 'Conga', quinto: 'Quinto',
       hihatPedal: 'Hi-Hat (Fuß)', kick: 'Bassdrum', floorTom: 'Standtom', snare: 'Snare',
       midTom: 'Mitteltom', highTom: 'Hochtom', hihat: 'Hi-Hat', ride: 'Ride', crash: 'Crash',
     },
     palette: {
+      quarterFlat: 'Viertelton-Be', quarterSharp: 'Viertelton-Kreuz', threeQuarterFlat: 'Dreiviertelton-Be', threeQuarterSharp: 'Dreiviertelton-Kreuz',
       chords: 'Akkord', chordHint: 'z. B. C7, Bbmaj7, F#m7b5', chordApply: 'Akkord schreiben und zum nächsten Schlag', chordHelp: 'Enter schreibt auf den gewählten Schlag und geht zum nächsten. Leer löscht.',
       phrasing: 'Phrasierung', slurStart: 'Bogen Anfang', slurEnd: 'Bogen Ende', slurHint: 'Markiert die gewählte Zelle als Anfang oder Ende des Bogens', breath: 'Atmen', lyrics: 'Text', lyricHint: 'Silbe (z. B. Glo-)', lyricApply: 'Silbe schreiben und zur nächsten Note', lyricHelp: 'Enter schreibt auf die gewählte Note und geht zur nächsten. Mit - enden für den Trennstrich.',
       dynamics: 'Dynamik', dynHint: 'Lautstärke ab dieser Note', pp: 'pianissimo', p: 'piano', mp: 'mezzo-piano', mf: 'mezzo-forte', f: 'forte', ff: 'fortissimo', fp: 'forte-piano', sfz: 'sforzando', cresc: 'crescendo', dim: 'diminuendo',

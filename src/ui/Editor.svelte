@@ -130,7 +130,9 @@
       }
       case 'toggleArt': return after.tool.arts.includes(a.art) ? t('status.artOn', { what: t(`palette.${a.art}`) }) : t('status.artOff', { what: t(`palette.${a.art}`) });
       case 'setKey': {
-        const [maj] = keyNames(barKey(after.score, after.cursor.bar), prefs.lang, STRINGS[prefs.lang].noteNames);
+        const k = barKey(after.score, after.cursor.bar);
+        if (typeof k === 'string') return t('status.keySet', { n, key: t(`maqam.${k}`) });
+        const [maj] = keyNames(k, prefs.lang, STRINGS[prefs.lang].noteNames);
         return t('status.keySet', { n, key: `${maj} ${t('bars.major')}` });
       }
       case 'setDyn': return after.tool.dyn ? t('status.dynOn', { what: after.tool.dyn }) : t('status.dynOff');

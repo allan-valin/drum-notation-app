@@ -135,7 +135,7 @@
     <text class="smufl ink" x={0.6 * sp} y={yOf(clef.glyphPosition, sp)} font-size={fontSize}>{clef.glyph}</text>
   {/if}
   {#each keySigns as k, j}
-    <text class="smufl ink" x={(showClef ? 3.2 : 0.4) * sp + j * 1.0 * sp} y={yOf(staffPositionOf(k.slot, staff.clef), sp)} font-size={fontSize}>{k.alter > 0 ? Glyphs.SHARP : Glyphs.FLAT}</text>
+    <text class="smufl ink" x={(showClef ? 3.2 : 0.4) * sp + j * 1.0 * sp} y={yOf(staffPositionOf(k.slot, staff.clef), sp)} font-size={fontSize}>{Glyphs.accidental(k.alter)}</text>
   {/each}
   {#if timeSig}
     {@const tx = (showClef ? 3.2 : 0.4) * sp + keyWidth * sp}

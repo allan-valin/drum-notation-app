@@ -1,6 +1,7 @@
 import { cellsPerBeat, noteValueFor, NOTE_VALUES } from './noteValue.js';
 import { PPQ, beatTicks, leafTicks } from './ticks.js';
 import { parseChord } from './chords.js';
+import { MAQAMAT } from './pitch.js';
 import { leaf, group, emptyBar, emptyBeat, barTimeSig } from './score.js';
 import { isGroup, getAt, parentOf, replaceAt, firstNotes, samePath } from './tree.js';
 
@@ -244,7 +245,9 @@ export function moveBars(score, from, to, gap) {
 
 /** Key signature from bar `index` on (fifths, or null to follow the bar before). Notes keep their pitch. */
 export function setKey(score, index, fifths) {
-  const k = fifths === null || fifths === undefined ? null : Math.max(-7, Math.min(7, fifths));
+  const k = fifths === null || fifths === undefined ? null
+    : typeof fifths === 'string' ? (MAQAMAT[fifths] ? fifths : null)
+    : Math.max(-7, Math.min(7, fifths));
   if ((score.bars[index].key ?? null) === k) return score;
   return mapBar(score, index, (b) => ({ ...b, key: k }));
 }

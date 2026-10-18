@@ -6,6 +6,7 @@ import { Mark, Roll, Grace } from './score.js';
 import { toFull, partView, fromViews, isFull } from './parts.js';
 import { DYNAMICS } from './edit.js';
 import { parseChord } from './chords.js';
+import { MAQAMAT } from './pitch.js';
 import { PROFILES } from './profile.js';
 
 /** Bump when the shape changes. docs/SCORE_IMPORT_PROMPT.md targets this schema. */
@@ -134,7 +135,7 @@ function decodeOnePart(j) {
         const tuplet = bt.tuplet ? int(bt.tuplet, `${where}: tuplet`) : null;
         return decodeGroup(bt, cellsPerBeat(division, sig[1], tuplet), staff, where);
       }),
-      { timeSig, key: Number.isInteger(b.key) && Math.abs(b.key) <= 7 ? b.key : null, simile: b.simile === true && bi > 0, repeatStart: b.repeatStart === true, repeatEnd: b.repeatEnd === true, text: typeof b.text === 'string' ? b.text.slice(0, 80) : '' },
+      { timeSig, key: (Number.isInteger(b.key) && Math.abs(b.key) <= 7) || MAQAMAT[b.key] ? b.key : null, simile: b.simile === true && bi > 0, repeatStart: b.repeatStart === true, repeatEnd: b.repeatEnd === true, text: typeof b.text === 'string' ? b.text.slice(0, 80) : '' },
     );
   });
 

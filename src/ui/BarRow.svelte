@@ -4,6 +4,7 @@
   import { barTimeSig, barKey } from '../core/score.js';
   import { prefs } from '../app/prefs.svelte.js';
   import { keyNames } from '../app/noteName.js';
+  import { MAQAMAT } from '../core/pitch.js';
   import { STRINGS } from '../app/strings.js';
   import { Glyphs } from '../core/glyphs.js';
   import { leafSpans } from '../core/tree.js';
@@ -57,8 +58,11 @@
   </button>
   {#if pitched}
     <label class="keysel" title={t('bars.keyLong')}>{t('bars.key')}
-      <select aria-label={t('bars.keyLong')} value={key} onchange={(e) => onAction({ type: 'setKey', key: Number(e.target.value) })}>
-        {#each KEYS as f}<option value={f}>{keyLabel(f)}</option>{/each}
+      <select aria-label={t('bars.keyLong')} value={String(key)} onchange={(e) => { const v = e.target.value; onAction({ type: 'setKey', key: MAQAMAT[v] ? v : Number(v) }); }}>
+        {#each KEYS as f}<option value={String(f)}>{keyLabel(f)}</option>{/each}
+        <optgroup label={t('bars.maqam')}>
+          {#each Object.keys(MAQAMAT) as m}<option value={m}>{t(`maqam.${m}`)}</option>{/each}
+        </optgroup>
       </select>
     </label>
   {/if}
