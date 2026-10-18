@@ -49,3 +49,13 @@ describe('glyph table', () => {
     expect(code(Glyphs.flag(NoteValue.SIXTEENTH))).toBe(0xe242);
   });
 });
+
+describe('palette note symbols', () => {
+  it('has a metronome-note glyph for every value, in the private use area', () => {
+    for (const v of Object.values(NoteValue)) {
+      const c = Glyphs.metNote(v).codePointAt(0);
+      expect(c).toBeGreaterThanOrEqual(0xe000);
+    }
+    expect(Glyphs.metNote(NoteValue.EIGHTH).codePointAt(0)).toBe(0xeca7);
+  });
+});

@@ -20,6 +20,12 @@ const REST = {
   eighth: cp(0xe4e6), sixteenth: cp(0xe4e7), thirtySecond: cp(0xe4e8),
 };
 
+/** Whole note symbols with stem and flag, for the palette (metNote* in SMuFL, verified 2026-10-18). */
+const MET_NOTE = {
+  whole: cp(0xeca2), half: cp(0xeca3), quarter: cp(0xeca5),
+  eighth: cp(0xeca7), sixteenth: cp(0xeca9), thirtySecond: cp(0xecab),
+};
+
 const FLAG_UP = { eighth: cp(0xe240), sixteenth: cp(0xe242), thirtySecond: cp(0xe244) };
 
 export const Glyphs = Object.freeze({
@@ -41,6 +47,10 @@ export const Glyphs = Object.freeze({
   },
   rest(value) {
     return REST[value.id];
+  },
+  /** A complete note symbol (head, stem, flags) for buttons and labels. */
+  metNote(value) {
+    return MET_NOTE[value.id];
   },
   /** Empty for values that carry no flag. */
   flag(value) {

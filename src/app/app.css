@@ -1,0 +1,75 @@
+@font-face {
+  font-family: 'Bravura';
+  src: url('/fonts/Bravura.woff2') format('woff2');
+  font-display: block;
+}
+
+:root {
+  --bg: #f6f5f2;
+  --panel: #ffffff;
+  --ink: #1c1c1e;
+  --muted: #6b6b70;
+  --line: #d8d6d0;
+  --accent: #1d5fd6;
+  --accent-ink: #ffffff;
+  --danger: #c62828;
+  --focus: #fff3c4;
+  --focus-ring: #e0a800;
+  --dim: 0.38;
+  --radius: 10px;
+  --tap: 44px;
+  color-scheme: light dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --bg: #141416;
+    --panel: #1e1e21;
+    --ink: #ececec;
+    --muted: #9a9aa2;
+    --line: #35353a;
+    --accent: #5b8def;
+    --focus: #3a3410;
+    --focus-ring: #e0a800;
+  }
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; }
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font: 16px/1.4 system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  -webkit-text-size-adjust: 100%;
+  overscroll-behavior: none;
+}
+#app { min-height: 100%; }
+
+button {
+  font: inherit;
+  color: var(--ink);
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  min-height: var(--tap);
+  min-width: var(--tap);
+  padding: 0 12px;
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+button:active { filter: brightness(0.92); }
+button.on { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+button.danger.on { background: var(--danger); border-color: var(--danger); color: #fff; }
+button:disabled { opacity: 0.4; cursor: default; }
+input[type='text'], input[type='number'], textarea {
+  font: inherit; color: var(--ink); background: var(--panel);
+  border: 1px solid var(--line); border-radius: var(--radius); padding: 8px 10px; min-height: var(--tap);
+}
+textarea { min-height: 160px; width: 100%; font-family: ui-monospace, monospace; font-size: 13px; }
+.smufl { font-family: 'Bravura'; }
+
+@media print {
+  body { background: #fff; color: #000; }
+  .no-print { display: none !important; }
+}
