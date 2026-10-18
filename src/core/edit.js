@@ -1,5 +1,6 @@
 import { cellsPerBeat, noteValueFor, NOTE_VALUES } from './noteValue.js';
 import { PPQ, beatTicks, leafTicks } from './ticks.js';
+import { parseChord } from './chords.js';
 import { leaf, group, emptyBar, emptyBeat, barTimeSig } from './score.js';
 import { isGroup, getAt, parentOf, replaceAt, firstNotes, samePath } from './tree.js';
 
@@ -20,7 +21,7 @@ function withNotes(l, notes) {
 /** What belongs to the cell rather than its notes: dynamics, cresc./dim., lyric, slur ends. */
 export function cellMarksOf(l) {
   const out = {};
-  for (const k of ['dyn', 'wedge', 'lyric', 'slur']) if (l[k]) out[k] = l[k];
+  for (const k of ['dyn', 'wedge', 'lyric', 'slur', 'chord']) if (l[k]) out[k] = l[k];
   return out;
 }
 
@@ -31,6 +32,17 @@ export function setLyric(score, c, text) {
     const { lyric: had, ...rest } = l;
     if (!clean) return had === undefined ? l : rest;
     return had === clean ? l : { ...rest, lyric: clean };
+  });
+}
+
+/** A chord symbol on the cell ("C7", "Bbmaj7"); empty removes it, unreadable text is refused. */
+export function setChord(score, c, text) {
+  const clean = String(text ?? '').trim();
+  if (clean && !parseChord(clean)) return { refused: 'badChord' };
+  return mapLeaf(score, c, (l) => {
+    const { chord: had, ...rest } = l;
+    if (!clean) return had === undefined ? l : rest;
+    return had === clean ? l : { ...rest, chord: clean };
   });
 }
 

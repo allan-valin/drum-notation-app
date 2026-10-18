@@ -9,7 +9,7 @@
   import { createSampleKit } from '../audio/samples.js';
 
   let {
-    full, parts = [], onBand = () => {}, currentBar, range = null, store = null,
+    full, parts = [], onBand = () => {}, onSwing = () => {}, currentBar, range = null, store = null,
     mode = $bindable('bar'),
     selecting = $bindable(false),
     onMove = () => {},
@@ -118,6 +118,7 @@
         {#each METRONOME_VOICES as v}<option value={v}>{t(`play.voice_${v}`)}</option>{/each}
       </select>
     </label>
+    <button class:on={full.swing} aria-pressed={!!full.swing} title={t('play.swingHint')} disabled={playing} onclick={() => onSwing(!full.swing)}>{t('play.swing')}</button>
     <button class:on={countIn} aria-pressed={countIn} disabled={playing} onclick={() => (countIn = !countIn)}>{t('play.countIn')}</button>
     <span class="sound" role="radiogroup" aria-label={t('play.sound')}>
       <span class="lbl">{t('play.sound')}</span>

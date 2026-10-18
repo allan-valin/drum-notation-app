@@ -11,6 +11,7 @@
   import { STRINGS } from '../app/strings.js';
   const slotLabel = (id) => noteName(id, 0, prefs.lang, STRINGS[prefs.lang].noteNames);
   import { samePath } from '../core/tree.js';
+  import { prettyChord } from '../core/chords.js';
   import { CLEFS, keyAccidentals, staffPositionOf } from '../core/pitch.js';
 
   let {
@@ -182,7 +183,9 @@
       <path class="slur" d="M {sl.x1} {sl.y1} Q {mx} {my} {sl.x2} {sl.y2} Q {mx} {my - (sl.below ? 0.22 : -0.22) * sp} {sl.x1} {sl.y1} Z" />
     {/each}
     {#each layout.texts as tx}
-      {#if tx.kind === 'lyric' || tx.kind === 'hyphen'}
+      {#if tx.kind === 'chord'}
+        <text class="chord" x={tx.x} y={tx.y} font-size={1.5 * sp}>{prettyChord(tx.text)}</text>
+      {:else if tx.kind === 'lyric' || tx.kind === 'hyphen'}
         <text class="lyric" x={tx.x} y={tx.y} font-size={1.25 * sp} text-anchor="middle">{tx.text}</text>
       {:else if tx.kind === 'wedge'}
         <text class="wedge" x={tx.x} y={tx.y} font-size={1.1 * sp}>{tx.text}</text>
@@ -209,6 +212,7 @@
   .guide { stroke: var(--focus-ring); stroke-opacity: 0.35; stroke-dasharray: 2 3; }
   .guide-label { fill: var(--muted); font-family: system-ui, sans-serif; pointer-events: none; }
   .ink { fill: var(--ink); }
+  .chord { fill: var(--ink); font-family: system-ui, sans-serif; font-weight: 700; }
   .slur { fill: var(--ink); stroke: var(--ink); stroke-width: 0.6; }
   .lyric { fill: var(--ink); font-family: system-ui, sans-serif; }
   .wedge { fill: var(--ink); font-family: Georgia, 'Times New Roman', serif; font-style: italic; }

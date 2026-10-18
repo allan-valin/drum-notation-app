@@ -34,6 +34,9 @@
     ['dynamics', Glyphs.dynamic('p') + ' ' + Glyphs.dynamic('mf') + ' ' + Glyphs.dynamic('ff')],
     ['wedges', 'cresc.'],
     ['breath', Glyphs.BREATH], ['slur', '⌒'], ['lyric', 'Glo-ri-a'],
+    ['chord', 'C7  B♭maj7'], ['slashHead', head(Notehead.SLASH)],
+    ['fall', head(Notehead.NORMAL) + Glyphs.FALL], ['doit', head(Notehead.NORMAL) + Glyphs.DOIT],
+    ['scoop', Glyphs.SCOOP + head(Notehead.NORMAL)], ['plop', Glyphs.PLOP + head(Notehead.NORMAL)],
     ['congaSlap', head(Notehead.CROSS)],
     ['congaMute', Glyphs.CLOSED],
   ];

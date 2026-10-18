@@ -62,7 +62,7 @@ export function createPlayer({ clock, play, click, setInterval: every = globalTh
       const e = run.events[run.index];
       const when = run.t0 + run.round * run.cycle + e.at;
       if (when > horizon) break;
-      if (e.kind === 'hit') play(e.h.sound, when, e.h.velocity, { freq: e.h.freq, dur: (e.h.length ?? 0) * run.spt });
+      if (e.kind === 'hit') play(e.h.sound, when, e.h.velocity, { freq: e.h.freq, dur: (e.h.length ?? 0) * run.spt, bend: e.h.bend ?? null });
       else click(e.c.accent, when);
       run.index += 1;
     }

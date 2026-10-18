@@ -1,11 +1,11 @@
 import { NoteValue, NOTE_VALUES } from './noteValue.js';
 import { note, Articulation, Mark, Roll, Grace, barKey, barTimeSig } from './score.js';
-import { parseSlot, keyAlter } from './pitch.js';
+import { parseSlot, keyAlter, partKey } from './pitch.js';
 import { cursor as mkCursor, next, prev, leafAt, clamp } from './cursor.js';
 import { parentOf, leafPaths, getAt } from './tree.js';
 import {
   placeNote, deleteNote, clearLeaf, splitBeat, splitCell, resizeCell, mergeCell, addBar, removeBar,
-  setTimeSig, toggleSimile, toggleRepeatStart, toggleRepeatEnd, setBarText, moveBars, setKey, setLength, toggleTie, setDynamic, setWedge, setLyric, setSlur,
+  setTimeSig, toggleSimile, toggleRepeatStart, toggleRepeatEnd, setBarText, moveBars, setKey, setLength, toggleTie, setDynamic, setWedge, setLyric, setSlur, setChord,
 } from './edit.js';
 import { barLeaves } from './edit.js';
 import { profileById, slotNearest } from './profile.js';
@@ -142,6 +142,22 @@ function reduceView(state, action) {
     case 'toggleDot': return tool(st, { dot: !st.tool.dot });
     case 'setDyn': return tool(st, { dyn: st.tool.dyn === action.dyn ? null : action.dyn });
     case 'setSlur': return edit(st, (s) => setSlur(s, st.cursor, action.kind));
+    case 'setSwing': return edit(st, (s) => (!!s.swing === !!action.on ? s : { ...s, swing: !!action.on }));
+    case 'setChord': {
+      const s = setChord(st.score, st.cursor, action.text);
+      if (s.refused) return { ...st, refused: s.refused };
+      const out = s === st.score ? st : { ...push(st), score: s };
+      if (!action.advance) return out;
+      // chord symbols go by beat: Enter moves to the first cell of the next beat
+      let c = out.cursor;
+      for (let guard = 0; guard < 512; guard++) {
+        const n = next(out.score, c);
+        if (n === c) break;
+        c = n;
+        if (c.beat !== out.cursor.beat || c.bar !== out.cursor.bar) return syncTool({ ...out, cursor: c });
+      }
+      return out;
+    }
     case 'setLyric': {
       // the one place the cursor may move on its own: typing lyrics, Enter goes to the next note
       const out = edit(st, (s) => setLyric(s, st.cursor, action.text));
@@ -200,8 +216,13 @@ function reduceView(state, action) {
 }
 
 function tap(st, staffPosition) {
-  const staff = profileById(st.score.profileId).staves[0];
-  const slot = slotNearest(staff, staffPosition);
+  const profile = profileById(st.score.profileId);
+  const staff = profile.staves[0];
+  // a rhythm slash sits on the middle line, wherever the tap was
+  const slot = staff.pitched && st.tool.head === 'slash' && st.tool.withNote
+    ? staff.slots.find((x) => x.staffPosition === 4) ?? slotNearest(staff, 4)
+    : slotNearest(staff, staffPosition);
+  const writtenKey = partKey(barKey(st.score, st.cursor.bar), profile);
   if (st.score.bars[st.cursor.bar].simile) return { ...st, refused: 'simileBar' };
   if (st.tool.delete) return edit(st, (s) => deleteNote(s, st.cursor, slot.id));
   const { head, tech, sticking, accent, ghost } = st.tool;
@@ -224,7 +245,7 @@ function tap(st, staffPosition) {
   articulations.push(...st.tool.arts);
   // pitched: the chosen accidental, else what the key signature gives that letter
   const alter = staff.pitched
-    ? st.tool.accidental ?? keyAlter(barKey(st.score, st.cursor.bar), parseSlot(slot.id).step)
+    ? (head === 'slash' ? 0 : st.tool.accidental ?? keyAlter(writtenKey, parseSlot(slot.id).step))
     : undefined;
   const placed = edit(st, (s) => placeNote(s, st.cursor, note(slot.id, { articulations, sticking, head, ...techFields, alter })));
   return cellMarks(placed, placed !== st);
@@ -261,7 +282,7 @@ function applySymbols(st, staffPosition, techFields) {
       marks: techFields.marks.length ? [] : existing.marks,
       roll: techFields.roll ? null : existing.roll,
       grace: techFields.grace ? null : existing.grace,
-      ...(accidental !== null ? { alter: keyAlter(barKey(st.score, st.cursor.bar), parseSlot(existing.slotId).step) } : {}),
+      ...(accidental !== null ? { alter: keyAlter(partKey(barKey(st.score, st.cursor.bar), profileById(st.score.profileId)), parseSlot(existing.slotId).step) } : {}),
     }
     : {
       ...existing,

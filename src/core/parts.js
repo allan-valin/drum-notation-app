@@ -11,7 +11,7 @@ import { profileById } from './profile.js';
  * (add, remove, move, signature) run on every part's view with `applyAll`, which keeps the
  * parts aligned because the same operation shapes every part the same way.
  */
-const HEADER = ['id', 'title', 'timeSigNum', 'timeSigDen', 'defaultBpm', 'createdAt', 'updatedAt'];
+const HEADER = ['id', 'title', 'timeSigNum', 'timeSigDen', 'defaultBpm', 'swing', 'createdAt', 'updatedAt'];
 
 export function isFull(score) {
   return Array.isArray(score?.parts);
@@ -156,7 +156,7 @@ export function content(b) {
 }
 
 function pick(score) {
-  return Object.fromEntries(HEADER.map((k) => [k, score[k]]));
+  return Object.fromEntries(HEADER.map((k) => [k, k === 'swing' ? !!score[k] : score[k]]));
 }
 
 function touch(full) {

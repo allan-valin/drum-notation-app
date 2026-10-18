@@ -63,6 +63,7 @@ describe('pitched voices', () => {
     for (const p of Object.values(PROFILES).filter((x) => x.staves[0].pitched)) {
       expect(VOICES, p.id).toContain(p.voice);
       expect(() => voices.play(p.voice, 0.1, 220, 0.5, 0.8)).not.toThrow();
+      for (const b of ['fall', 'doit', 'scoop', 'plop']) expect(() => voices.play(p.voice, 0.1, 220, 0.5, 0.8, b)).not.toThrow();
     }
   });
   it('the kit routes "voice:" sounds to the voices with frequency and length', () => {

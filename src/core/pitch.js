@@ -88,3 +88,14 @@ export function midiOf(note, { clef, transpose = 0 }) {
 export function frequencyOf(midi) {
   return 440 * 2 ** ((midi - 69) / 12);
 }
+
+/**
+ * The written key of a part: concert key (fifths) plus the instrument's shift (a B♭ trumpet
+ * reads two sharps more), wrapped to the enharmonic key with at most seven signs.
+ */
+export function partKey(concertFifths, profile) {
+  let f = concertFifths + (profile?.keyShift ?? 0);
+  while (f > 7) f -= 12;
+  while (f < -7) f += 12;
+  return f;
+}

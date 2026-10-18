@@ -91,7 +91,7 @@ transposition are just the frequency. A sampled set can follow later like the dr
 - [x] **I4 Rock band sounds and profiles.** (2026-10-18: profiles and voices landed with I2; this step added dynamics pp…ff, fp, sfz and cresc./dim. for every instrument, drawn under the staff and shaping playback loudness. Keys stay on one staff until I7's grand staff. Hit-test 0 for all six palettes after the new group.) Guitar, bass, keys (single staff first), vocal;
   synth recipes; dynamics, staccato/tenuto/marcato; per-profile hit-test.
 - [x] **I5 Choir.** (2026-10-18: soprano, alto, tenor (treble 8vb), bass; lyrics one line per bar with hyphens, Enter writes and moves to the next note; breath marks; slurs across bar lines; dynamics above voice staves. Lead vocal got the same. Hit-test 0 for the choir palettes.) SATB profiles, lyrics, breath marks, slurs, voice synth.
-- [ ] **I6 Jazz.** Chord symbols, slash rhythm, swing, transposing instruments (written vs
+- [x] **I6 Jazz.** (2026-10-18: trumpet B♭, alto sax E♭, tenor sax B♭ written transposed with shifted key signatures, trombone, double bass, vibraphone; chord symbols (parser, one line per bar, Enter to next beat); rhythm slashes play the chord in force; swing; fall/doit/scoop/plop drawn and bent in playback; new brass, sax, upright and vibes voices; import guide documents the v3 format in pt/en/de. Written-pitch view only, no concert-pitch toggle.) Chord symbols, slash rhythm, swing, transposing instruments (written vs
   concert pitch), falls/doits/scoops, jazz instruments and sounds.
 - [ ] **I7 Orchestra.** Alto/tenor clefs in use, grand staff (piano, harp), string techniques,
   hairpins, fermata, trills, orchestral instruments and sounds, timpani and mallets.

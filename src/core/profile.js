@@ -106,10 +106,39 @@ function pitchedProfile(id, family, clef, low, high, voice, extra = {}) {
   });
 }
 
+/**
+ * Rhythm section (keys, guitar, bass, vibes): chord symbols, and for keys and guitar the rhythm
+ * slash ("comp the chord in this rhythm"). Horns: falls, doits, scoops and plops, slurs and breaths.
+ */
+const RHYTHM_EXTRA = {
+  palette: [...PITCHED_PALETTE, 'chords', 'head'],
+  heads: ['slash'],
+  legend: [...PITCHED_LEGEND, 'chord', 'slashHead'],
+};
+const BASS_EXTRA = { palette: [...PITCHED_PALETTE, 'chords'], legend: [...PITCHED_LEGEND, 'chord'] };
+const HORN_EXTRA = {
+  palette: [...PITCHED_PALETTE, 'phrasing', 'technique'],
+  articulations: [...PITCHED_ARTS, 'breath'],
+  techniques: ['fall', 'doit', 'scoop', 'plop'],
+  legend: [...PITCHED_LEGEND, 'breath', 'slur', 'fall', 'doit', 'scoop', 'plop'],
+};
+
 /** Rock band. Guitar and bass are written an octave above where they sound (the 8 under the clef). */
-export const ELECTRIC_GUITAR_PROFILE = pitchedProfile('electricGuitar', 'rock', 'treble8vb', 'D3', 'E6', 'guitar');
-export const BASS_GUITAR_PROFILE = pitchedProfile('bassGuitar', 'rock', 'bass8vb', 'C2', 'G4', 'bass');
-export const KEYS_PROFILE = pitchedProfile('keys', 'rock', 'treble', 'F3', 'C7', 'keys');
+export const ELECTRIC_GUITAR_PROFILE = pitchedProfile('electricGuitar', 'rock', 'treble8vb', 'D3', 'E6', 'guitar', RHYTHM_EXTRA);
+export const BASS_GUITAR_PROFILE = pitchedProfile('bassGuitar', 'rock', 'bass8vb', 'C2', 'G4', 'bass', BASS_EXTRA);
+export const KEYS_PROFILE = pitchedProfile('keys', 'rock', 'treble', 'F3', 'C7', 'keys', RHYTHM_EXTRA);
+
+/**
+ * Jazz. Transposing horns are written where the player reads: B♭ trumpet a tone above concert
+ * pitch, E♭ alto sax a major sixth above, B♭ tenor sax a major ninth above; `transpose` takes
+ * the written note to concert pitch and `keyShift` gives the written key signature.
+ */
+export const TRUMPET_PROFILE = pitchedProfile('trumpet', 'jazz', 'treble', 'F3', 'D6', 'brass', { ...HORN_EXTRA, transpose: -2, keyShift: 2 });
+export const ALTO_SAX_PROFILE = pitchedProfile('altoSax', 'jazz', 'treble', 'A3', 'F6', 'sax', { ...HORN_EXTRA, transpose: -9, keyShift: 3 });
+export const TENOR_SAX_PROFILE = pitchedProfile('tenorSax', 'jazz', 'treble', 'A3', 'F6', 'sax', { ...HORN_EXTRA, transpose: -14, keyShift: 2 });
+export const TROMBONE_PROFILE = pitchedProfile('trombone', 'jazz', 'bass', 'E2', 'F4', 'brass', HORN_EXTRA);
+export const DOUBLE_BASS_PROFILE = pitchedProfile('doubleBass', 'jazz', 'bass8vb', 'E2', 'G4', 'upright', BASS_EXTRA);
+export const VIBRAPHONE_PROFILE = pitchedProfile('vibraphone', 'jazz', 'treble', 'F3', 'F6', 'vibes', { palette: [...PITCHED_PALETTE, 'chords'], legend: [...PITCHED_LEGEND, 'chord'] });
 /**
  * Voices: lyrics, breath marks and slurs; dynamics above the staff so lyrics have the space
  * below (the choral convention). Tenor is written in treble clef, sounding an octave lower.
@@ -137,6 +166,12 @@ export const PROFILES = Object.freeze({
   alto: ALTO_PROFILE,
   tenor: TENOR_PROFILE,
   bass: BASS_PROFILE,
+  trumpet: TRUMPET_PROFILE,
+  altoSax: ALTO_SAX_PROFILE,
+  tenorSax: TENOR_SAX_PROFILE,
+  trombone: TROMBONE_PROFILE,
+  doubleBass: DOUBLE_BASS_PROFILE,
+  vibraphone: VIBRAPHONE_PROFILE,
 });
 
 /** Instruments offered in the dropdowns, in order. */

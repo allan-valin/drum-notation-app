@@ -2,6 +2,7 @@ import { PPQ, beatTicks, leafTicks } from './ticks.js';
 import { barTimeSig, Articulation, Mark, Roll, Grace } from './score.js';
 import { Notehead, profileById } from './profile.js';
 import { midiOf, frequencyOf } from './pitch.js';
+import { parseChord, chordMidis } from './chords.js';
 import { partView } from './parts.js';
 
 /** Seconds per tick at a tempo in quarter notes per minute. */
@@ -13,6 +14,23 @@ export function secondsPerTick(bpm) {
  * The bars of `a..b` in the order they are played. `||: … :||` plays twice; an end repeat
  * with no start goes back to the start of the range. A repeat cut by the range plays once.
  */
+/**
+ * Swing: an eighth on the off-beat moves to the last third of the beat (triplet feel), and the
+ * on-beat eighth before it lengthens to match. Quarter-note beats only.
+ */
+function swingIt(hits) {
+  const half = PPQ / 2;
+  for (const h of hits) {
+    const inBeat = h.tick % PPQ;
+    if (inBeat === half) {
+      h.tick += PPQ / 6;
+      if (h.length === half) h.length = PPQ / 3;
+    } else if (inBeat === 0 && h.length === half) {
+      h.length = (2 * PPQ) / 3;
+    }
+  }
+}
+
 const LEVEL = { pp: 0.35, p: 0.48, mp: 0.62, mf: 0.75, f: 0.88, ff: 1, fp: 0.48, sfz: null };
 
 /**
@@ -116,6 +134,7 @@ export function performance(score, a, b, instrument = score.profileId ?? 'drums'
   let offset = 0;
   let open = []; // pitched notes still sounding, lengthened by continuation cells
   const marks = []; // { tick, dyn?, wedge? } in played order, for loudness
+  let chord = null; // the chord symbol in force, for rhythm slashes
   for (const shown of playOrder(score, a, b)) {
     let src = shown;
     while (src > 0 && score.bars[src].simile) src -= 1;
@@ -131,15 +150,28 @@ export function performance(score, a, b, instrument = score.profileId ?? 'drums'
       for (const leaf of leafTicks(group, den)) {
         const at = offset + beat * bt + leaf.tick;
         if (leaf.leaf.dyn || leaf.leaf.wedge) marks.push({ tick: at, dyn: leaf.leaf.dyn, wedge: leaf.leaf.wedge });
+        if (leaf.leaf.chord) chord = parseChord(leaf.leaf.chord);
         if (pitchedStaff) {
           if (leaf.leaf.cont) { open.forEach((h) => { h.length += leaf.length; }); continue; }
           open = [];
         }
         for (const note of leaf.leaf.notes) {
+          if (pitchedStaff && note.head === 'slash') {
+            // a rhythm slash: the chord symbol in force, voiced for the instrument, in this rhythm
+            if (!chord) continue;
+            const midis = chordMidis(chord, { centre: profile.voice === 'guitar' ? 57 : 60, bassOnly: profile.voice === 'bass' || profile.voice === 'upright' });
+            for (const m of midis) {
+              const hit = { bar: shown, beat, path: leaf.path, slotId: note.slotId, sound: `voice:${profile.voice}`, freq: frequencyOf(m), length: leaf.length, tick: at, ahead: 0, velocity: velocityOf(note) * 0.8 };
+              hits.push(hit);
+              open.push(hit);
+            }
+            continue;
+          }
           if (pitchedStaff) {
             // a pitched note: its own voice, at its frequency, for its written length
             const freq = frequencyOf(midiOf(note, { clef: pitchedStaff.clef, transpose: profile.transpose }));
-            const hit = { bar: shown, beat, path: leaf.path, slotId: note.slotId, sound: `voice:${profile.voice}`, freq, length: leaf.length, tick: at, ahead: 0, velocity: velocityOf(note) };
+            const bend = (note.marks ?? []).find((m) => ['fall', 'doit', 'scoop', 'plop'].includes(m)) ?? null;
+            const hit = { bar: shown, beat, path: leaf.path, slotId: note.slotId, sound: `voice:${profile.voice}`, freq, length: leaf.length, tick: at, ahead: 0, velocity: velocityOf(note), ...(bend ? { bend } : {}) };
             hits.push(hit);
             open.push(hit);
             continue;
@@ -165,6 +197,7 @@ export function performance(score, a, b, instrument = score.profileId ?? 'drums'
     }
     offset += num * bt;
   }
+  if (score.swing) swingIt(hits);
   hits.sort((x, y) => x.tick - y.tick || y.ahead - x.ahead);
   applyDynamics(hits, marks, offset);
   return { hits, clicks, totalTicks: offset, firstBarBeats: barTimeSig(score, a)[0], firstBarUnit: barTimeSig(score, a)[1] };

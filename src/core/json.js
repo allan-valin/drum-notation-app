@@ -5,6 +5,7 @@ import { profileById, NOTEHEADS } from './profile.js';
 import { Mark, Roll, Grace } from './score.js';
 import { toFull, partView, fromViews, isFull } from './parts.js';
 import { DYNAMICS } from './edit.js';
+import { parseChord } from './chords.js';
 import { PROFILES } from './profile.js';
 
 /** Bump when the shape changes. docs/SCORE_IMPORT_PROMPT.md targets this schema. */
@@ -21,6 +22,7 @@ export function encode(score) {
       timeSigNum: full.timeSigNum,
       timeSigDen: full.timeSigDen,
       defaultBpm: full.defaultBpm,
+      ...(full.swing ? { swing: true } : {}),
       createdAt: full.createdAt,
       updatedAt: full.updatedAt,
       parts: full.parts.map((p) => ({ id: p.id, instrument: p.instrument, ...(p.muted ? { muted: true } : {}) })),
@@ -46,7 +48,7 @@ function encodeGroup(g) {
     ...(g.tuplet ? { tuplet: g.tuplet } : {}),
     cells: g.cells.map((c) => {
       if (isGroup(c)) return encodeGroup(c);
-      const marks = { ...(c.dyn ? { dyn: c.dyn } : {}), ...(c.wedge ? { wedge: c.wedge } : {}), ...(c.lyric ? { lyric: c.lyric } : {}), ...(c.slur ? { slur: c.slur } : {}) };
+      const marks = { ...(c.dyn ? { dyn: c.dyn } : {}), ...(c.wedge ? { wedge: c.wedge } : {}), ...(c.lyric ? { lyric: c.lyric } : {}), ...(c.slur ? { slur: c.slur } : {}), ...(c.chord ? { chord: c.chord } : {}) };
       if (c.cont) return { cont: true, ...marks };
       return Object.keys(marks).length ? { notes: c.notes.map(encodeNote), ...marks } : c.notes.map(encodeNote);
     }),
@@ -143,6 +145,7 @@ function decodeOnePart(j) {
     timeSigNum,
     timeSigDen,
     defaultBpm: int(j.defaultBpm ?? 80, 'defaultBpm'),
+    swing: j.swing === true,
     bars,
     createdAt: typeof j.createdAt === 'number' ? j.createdAt : undefined,
     updatedAt: typeof j.updatedAt === 'number' ? j.updatedAt : undefined,
@@ -171,6 +174,10 @@ function decodeGroup(g, expected, staff, where) {
         marks.dyn = c.dyn;
       }
       if (typeof c.lyric === 'string' && c.lyric.trim()) marks.lyric = c.lyric.trim().slice(0, 24);
+      if (c.chord !== undefined) {
+        if (!parseChord(c.chord)) throw new Error(`${here}: cifra que o app não lê "${c.chord}" (ex.: C7, Bbmaj7, F#m7b5, C/E)`);
+        marks.chord = String(c.chord).trim();
+      }
       if (c.slur !== undefined) {
         if (!['start', 'end'].includes(c.slur)) throw new Error(`${here}: slur desconhecido "${c.slur}" (válidos: start, end)`);
         marks.slur = c.slur;

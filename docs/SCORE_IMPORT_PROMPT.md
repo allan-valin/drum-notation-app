@@ -74,6 +74,72 @@ nos tempos 1 e 3):
 }
 ```
 
+
+### Vários instrumentos (`schema_version` 3)
+
+Para uma partitura com mais de um instrumento use `"schema_version": 3`:
+
+- `parts` lista os instrumentos: `{ "id": "p1", "instrument": "drums" }`. Instrumentos: `drums`, `congas`, `electricGuitar`, `bassGuitar`, `keys`, `vocal`, `soprano`, `alto`, `tenor`, `bass`, `trumpet`, `altoSax`, `tenorSax`, `trombone`, `doubleBass`, `vibraphone`.
+- Cada compasso tem as marcas comuns (`timeSig`, `key`, `repeatStart`, `repeatEnd`) e, em
+  `parts`, o conteúdo de cada instrumento pelo `id`: `{ "beats": [...] }` (opcionais
+  `simile` e `text`).
+- `key` é a armadura em quintas: `2` = dois sustenidos (Ré maior), `-3` = três bemóis. Escreva a
+  armadura de concerto; trompete, saxofones etc. são mostrados transpostos pelo app.
+- Notas de instrumentos de altura: `{ "slot": "E4", "alter": 1 }`. `slot` é a nota escrita na
+  linha/espaço (letra + oitava, sem acidente; para guitarra, baixo e tenor a nota escrita, que
+  soa uma oitava abaixo; para trompete e saxofones a nota escrita transposta). `alter` em
+  semitons: `1` sustenido, `-1` bemol, `0` natural, `±2` dobrados, `±0.5` quartos de tom.
+- Nota longa: a célula seguinte `{ "cont": true }` continua a nota anterior (mínima = semínima
+  + tempo seguinte `cont`; ligadura também atravessa a barra de compasso).
+- Marcas da célula, na forma de objeto `{ "notes": [...], ... }`: `dyn` (`pp p mp mf f ff fp sfz`),
+  `wedge` (`cresc`/`dim`), `lyric` (uma sílaba; termine com `-` para hífen), `slur`
+  (`start`/`end`), `chord` (cifra: `C7`, `Bbmaj7`, `F#m7b5`, `C/E`).
+- `"swing": true` no topo toca as colcheias suingadas.
+- Base rítmica: cabeça `"head": "slash"` no meio da pauta = toque o acorde da cifra nesse ritmo.
+  Metais e saxofones: `"marks": ["fall"]` (também `doit`, `scoop`, `plop`).
+
+Exemplo, um compasso de bateria, baixo e voz em Ré maior:
+
+```json
+{
+  "schema_version": 3,
+  "title": "Rock em Ré",
+  "timeSigNum": 4,
+  "timeSigDen": 4,
+  "defaultBpm": 100,
+  "parts": [
+    { "id": "p1", "instrument": "drums" },
+    { "id": "p2", "instrument": "bassGuitar" },
+    { "id": "p3", "instrument": "vocal" }
+  ],
+  "bars": [
+    {
+      "key": 2,
+      "parts": {
+        "p1": { "beats": [
+          { "division": "eighth", "cells": [["kick", "hihat"], ["hihat"]] },
+          { "division": "eighth", "cells": [["snare", "hihat"], ["hihat"]] },
+          { "division": "eighth", "cells": [["kick", "hihat"], ["hihat"]] },
+          { "division": "eighth", "cells": [["snare", "hihat"], ["hihat"]] }
+        ] },
+        "p2": { "beats": [
+          { "division": "quarter", "cells": [{ "notes": [{ "slot": "D3", "alter": 0 }], "chord": "D", "dyn": "mf" }] },
+          { "division": "quarter", "cells": [{ "cont": true }] },
+          { "division": "quarter", "cells": [[{ "slot": "A2", "alter": 0 }]] },
+          { "division": "quarter", "cells": [[{ "slot": "F2", "alter": 1 }]] }
+        ] },
+        "p3": { "beats": [
+          { "division": "quarter", "cells": [{ "notes": [{ "slot": "A4", "alter": 0 }], "lyric": "Can-", "slur": "start" }] },
+          { "division": "quarter", "cells": [{ "notes": [{ "slot": "F4", "alter": 1 }], "lyric": "ção", "slur": "end" }] },
+          { "division": "quarter", "cells": [{ "notes": [{ "slot": "D4", "alter": 0 }], "lyric": "de" }] },
+          { "division": "quarter", "cells": [{ "notes": [{ "slot": "E4", "alter": 0 }], "lyric": "rock" }] }
+        ] }
+      }
+    }
+  ]
+}
+```
+
 ---
 
 ## Verificar

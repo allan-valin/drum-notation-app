@@ -19,6 +19,7 @@ export const STRINGS = {
   pt: {
     noteNames: { C: 'Dó', D: 'Ré', E: 'Mi', F: 'Fá', G: 'Sol', A: 'Lá', B: 'Si' },
     instrument: {
+      trumpet: 'Trompete (Si♭)', altoSax: 'Sax alto (Mi♭)', tenorSax: 'Sax tenor (Si♭)', trombone: 'Trombone', doubleBass: 'Contrabaixo', vibraphone: 'Vibrafone',
       soprano: 'Soprano', alto: 'Contralto', tenor: 'Tenor', bass: 'Baixo (voz)',
       electricGuitar: 'Guitarra elétrica', bassGuitar: 'Baixo elétrico', keys: 'Teclado', vocal: 'Voz',
       label: 'Instrumento', editing: 'Editando', drums: 'Bateria', congas: 'Congas',
@@ -26,6 +27,7 @@ export const STRINGS = {
       confirmChange: 'Trocar o instrumento apaga as notas já escritas nesta parte (dá para desfazer). Continuar?', confirmRemove: 'Remover {name} e as notas dele? (dá para desfazer)',
     },
     play: {
+      swing: 'Swing', swingHint: 'Colcheias suingadas (tercina) na reprodução',
       metronomeSound: 'Som do metrônomo', voice_beep: 'Bipe', voice_woodblock: 'Bloco de madeira', voice_click: 'Clique', voice_cowbell: 'Cowbell', voice_sidestick: 'Aro (cross-stick)', voice_hihat: 'Chimbal fechado', voiceSet: 'Metrônomo: {voice}',
       selectBars: 'Selecionar compassos', moveLeft: 'Mover a seleção um compasso para a esquerda', moveRight: 'Mover a seleção um compasso para a direita', dragHint: 'Toque nos compassos para selecionar. Arraste um compasso (ou a seleção) e solte onde aparecer a barra |.', moved: 'Compassos movidos: agora {from}–{to}', cantMove: 'A seleção já está na ponta',
       sound: 'Som', samples: 'Gravado', synth: 'Sintético', none: 'Sem som', noneHint: 'Sem som: a bateria fica muda, os destaques andam e o metrônomo toca se estiver ligado', loading: 'Carregando os sons gravados… (o sintético toca enquanto isso)', loadFailed: 'Os sons gravados não carregaram; tocando o sintético',
@@ -38,6 +40,7 @@ export const STRINGS = {
       editLocked: 'Tocando: pare para editar',
     },
     tech: {
+      slash: 'Barra rítmica', fall: 'Fall', doit: 'Doit', scoop: 'Scoop', plop: 'Plop',
       slap: 'Slap', mute: 'Abafado',
       tapDoes: 'Ao tocar na pauta', withNote: 'Nota + símbolo', symbolOnly: 'Só símbolo', withNoteHint: 'Cada toque escreve uma nota com os símbolos escolhidos abaixo', symbolOnlyHint: 'Um toque em qualquer ponto da célula põe (ou tira) os símbolos na nota dela; com várias notas, na mais próxima do toque',
       head: 'Cabeça', technique: 'Técnica', headDefault: 'Padrão', headDefaultHint: 'A cabeça normal do instrumento',
@@ -50,6 +53,12 @@ export const STRINGS = {
       open: 'Legenda', title: 'Legenda dos símbolos', close: 'Fechar', symbol: 'Símbolo', meaning: 'Neste app', also: 'Outros autores usam para',
       note: 'Cada método escreve bateria um pouco diferente. O app segue a convenção da Percussive Arts Society (Norman Weinberg); a coluna da direita lista o que outros livros usam para o mesmo símbolo. Se o seu livro usa outro sentido, escreva o símbolo como está no livro.',
       rows: {
+        chord: { meaning: 'Cifra: o acorde para acompanhar (C7 = Dó com sétima)', also: 'Notação de jazz/pop; alguns usam Δ para maj7 e ø para m7♭5' },
+        slashHead: { meaning: 'Barra rítmica: toque o acorde da cifra neste ritmo', also: 'Barras sem haste: improvise o acompanhamento' },
+        fall: { meaning: 'Fall: deixe a nota cair no fim', also: 'Longo ou curto conforme o desenho' },
+        doit: { meaning: 'Doit: suba a nota no fim', also: '—' },
+        scoop: { meaning: 'Scoop: entre por baixo da nota', also: '—' },
+        plop: { meaning: 'Plop: caia na nota vindo de cima', also: '—' },
         breath: { meaning: 'Respiração: respire aqui', also: 'Pequena pausa em sopros e cordas' },
         slur: { meaning: 'Ligadura de expressão: cante/toque as notas ligadas, sem separar', also: 'Em cordas: na mesma arcada' },
         lyric: { meaning: 'Letra: uma sílaba por nota; o hífen liga sílabas da mesma palavra', also: 'Linha depois da sílaba: melisma' },
@@ -123,6 +132,7 @@ export const STRINGS = {
       continue: 'Continuar: {title}', or: 'ou escolha uma partitura',
     },
     refused: {
+      badChord: 'O app não lê essa cifra (ex.: C7, Bbmaj7, F#m7b5, C/E)',
       doesNotFit: 'Essa duração não cabe aqui (passa do compasso ou não divide a célula)', tieNeedsEmpty: 'A ligadura vai numa célula vazia, logo depois da nota', nothingToTie: 'Não há nota antes desta célula para ligar',
       lastPart: 'A partitura precisa de pelo menos um instrumento',
       noNoteThere: 'Esta célula não tem nota para receber o símbolo', nothingToApply: 'Escolha antes um símbolo (acento, mão, cabeça ou técnica)',
@@ -148,6 +158,7 @@ export const STRINGS = {
       midTom: 'Tom médio', highTom: 'Tom agudo', hihat: 'Chimbal', ride: 'Ride', crash: 'Crash',
     },
     palette: {
+      chords: 'Cifra', chordHint: 'ex.: C7, Bbmaj7, F#m7b5', chordApply: 'Escrever a cifra e ir para o próximo tempo', chordHelp: 'Enter escreve no tempo selecionado e vai para o próximo. Vazio apaga.',
       phrasing: 'Fraseado', slurStart: 'Início da ligadura', slurEnd: 'Fim da ligadura', slurHint: 'Marca a célula selecionada como início ou fim da ligadura de expressão', breath: 'Respiração', lyrics: 'Letra', lyricHint: 'sílaba (ex.: Glo-)', lyricApply: 'Escrever a sílaba e ir para a próxima nota', lyricHelp: 'Enter escreve na nota selecionada e vai para a próxima. Termine com - para o hífen.',
       dynamics: 'Dinâmica', dynHint: 'Volume a partir desta nota', pp: 'pianissimo', p: 'piano', mp: 'mezzo-piano', mf: 'mezzo-forte', f: 'forte', ff: 'fortissimo', fp: 'forte-piano', sfz: 'sforzando', cresc: 'crescendo', dim: 'diminuendo',
       dot: 'Ponto', dotHint: 'A próxima figura escolhida vale uma vez e meia (semínima pontuada…)', tie: 'Ligadura', tieHint: 'A célula selecionada (vazia) continua a nota anterior',
@@ -169,6 +180,7 @@ export const STRINGS = {
       colourReset: 'Padrão', landscapeHint: 'Na horizontal o tempo em foco fica maior.', ok: 'ok', barAria: 'Compasso',
     },
     status: {
+      chordSet: 'Cifra {text} em {pos}', chordCleared: 'Cifra removida', swingOn: 'Swing ligado: colcheias suingadas', swingOff: 'Colcheias retas',
       lyricSet: '“{text}” em {pos}', lyricCleared: 'Letra removida', slur_start: 'Ligadura começa em {pos}', slur_end: 'Ligadura termina em {pos}', slurRemoved: 'Marca de ligadura removida em {pos}',
       dynOn: 'Próximas notas: {what}', dynOff: 'Sem dinâmica nas próximas notas',
       dotOn: 'Ponto ligado: a próxima figura é pontuada', dotOff: 'Ponto desligado', tieOn: 'Ligadura: {pos} continua a nota anterior', tieOff: 'Ligadura removida em {pos}',
@@ -220,6 +232,7 @@ export const STRINGS = {
   en: {
     noteNames: { C: 'C', D: 'D', E: 'E', F: 'F', G: 'G', A: 'A', B: 'B' },
     instrument: {
+      trumpet: 'Trumpet (B♭)', altoSax: 'Alto sax (E♭)', tenorSax: 'Tenor sax (B♭)', trombone: 'Trombone', doubleBass: 'Double bass', vibraphone: 'Vibraphone',
       soprano: 'Soprano', alto: 'Alto', tenor: 'Tenor', bass: 'Bass (voice)',
       electricGuitar: 'Electric guitar', bassGuitar: 'Bass guitar', keys: 'Keyboard', vocal: 'Vocals',
       label: 'Instrument', editing: 'Editing', drums: 'Drum kit', congas: 'Congas',
@@ -227,6 +240,7 @@ export const STRINGS = {
       confirmChange: 'Changing the instrument deletes the notes already in this part (undo brings them back). Continue?', confirmRemove: 'Remove {name} and its notes? (undo brings them back)',
     },
     play: {
+      swing: 'Swing', swingHint: 'Eighths played swung (triplet feel)',
       metronomeSound: 'Metronome sound', voice_beep: 'Beep', voice_woodblock: 'Wood block', voice_click: 'Click', voice_cowbell: 'Cowbell', voice_sidestick: 'Side stick', voice_hihat: 'Closed hi-hat', voiceSet: 'Metronome: {voice}',
       selectBars: 'Select bars', moveLeft: 'Move the selection one bar left', moveRight: 'Move the selection one bar right', dragHint: 'Tap bars to select them. Drag a bar (or the selection) and drop it where the | appears.', moved: 'Bars moved: now {from}–{to}', cantMove: 'The selection is already at the end',
       sound: 'Sound', samples: 'Recorded', synth: 'Synthesized', none: 'Silent', noneHint: 'Silent: the drums are muted, the highlights move and the metronome clicks if it is on', loading: 'Loading the recorded sounds… (the synth plays meanwhile)', loadFailed: 'The recorded sounds did not load; playing the synth',
@@ -239,6 +253,7 @@ export const STRINGS = {
       editLocked: 'Playing: stop to edit',
     },
     tech: {
+      slash: 'Rhythm slash', fall: 'Fall', doit: 'Doit', scoop: 'Scoop', plop: 'Plop',
       slap: 'Slap', mute: 'Muted',
       tapDoes: 'Tapping the staff', withNote: 'Note + symbol', symbolOnly: 'Symbol only', withNoteHint: 'Each tap writes a note carrying the symbols chosen below', symbolOnlyHint: 'A tap anywhere in the cell puts (or takes) the symbols on its note; with several notes, on the one nearest the tap',
       head: 'Notehead', technique: 'Technique', headDefault: 'Default', headDefaultHint: 'The instrument\'s normal head',
@@ -251,6 +266,12 @@ export const STRINGS = {
       open: 'Legend', title: 'Symbol legend', close: 'Close', symbol: 'Symbol', meaning: 'In this app', also: 'Other authors use it for',
       note: 'Every method book notates drums a little differently. The app follows the Percussive Arts Society convention (Norman Weinberg); the right column lists what other books use the same symbol for. If your book means something else, write the symbol as it is in the book.',
       rows: {
+        chord: { meaning: 'Chord symbol: the chord to comp (C7 = C seventh)', also: 'Jazz/pop charts; some write Δ for maj7 and ø for m7♭5' },
+        slashHead: { meaning: 'Rhythm slash: play the chord symbol in this rhythm', also: 'Stemless slashes: comp freely' },
+        fall: { meaning: 'Fall: let the note drop off at the end', also: 'Long or short by the drawing' },
+        doit: { meaning: 'Doit: bend the note up at the end', also: '—' },
+        scoop: { meaning: 'Scoop: slide into the note from below', also: '—' },
+        plop: { meaning: 'Plop: drop into the note from above', also: '—' },
         breath: { meaning: 'Breath: breathe here', also: 'A short break in winds and strings' },
         slur: { meaning: 'Slur: sing/play the notes joined, without separating them', also: 'Strings: in one bow' },
         lyric: { meaning: 'Lyrics: one syllable per note; a hyphen joins syllables of one word', also: 'A line after a syllable: melisma' },
@@ -324,6 +345,7 @@ export const STRINGS = {
       continue: 'Continue: {title}', or: 'or pick a score',
     },
     refused: {
+      badChord: 'The app cannot read that chord (e.g. C7, Bbmaj7, F#m7b5, C/E)',
       doesNotFit: 'That length does not fit here (it runs past the bar or does not divide the cell)', tieNeedsEmpty: 'A tie goes on an empty cell right after the note', nothingToTie: 'There is no note before this cell to tie',
       lastPart: 'A score needs at least one instrument',
       noNoteThere: 'This cell has no note to take the symbol', nothingToApply: 'Choose a symbol first (accent, hand, head or technique)',
@@ -349,6 +371,7 @@ export const STRINGS = {
       midTom: 'Mid tom', highTom: 'High tom', hihat: 'Hi-hat', ride: 'Ride', crash: 'Crash',
     },
     palette: {
+      chords: 'Chord symbol', chordHint: 'e.g. C7, Bbmaj7, F#m7b5', chordApply: 'Write the chord and go to the next beat', chordHelp: 'Enter writes on the selected beat and moves to the next. Empty removes it.',
       phrasing: 'Phrasing', slurStart: 'Slur start', slurEnd: 'Slur end', slurHint: 'Marks the selected cell as where the slur starts or ends', breath: 'Breath', lyrics: 'Lyrics', lyricHint: 'syllable (e.g. Glo-)', lyricApply: 'Write the syllable and go to the next note', lyricHelp: 'Enter writes on the selected note and moves to the next. End with - for a hyphen.',
       dynamics: 'Dynamics', dynHint: 'Loudness from this note on', pp: 'pianissimo', p: 'piano', mp: 'mezzo-piano', mf: 'mezzo-forte', f: 'forte', ff: 'fortissimo', fp: 'forte-piano', sfz: 'sforzando', cresc: 'crescendo', dim: 'diminuendo',
       dot: 'Dot', dotHint: 'The next value chosen lasts one and a half times (dotted quarter…)', tie: 'Tie', tieHint: 'The selected (empty) cell continues the note before it',
@@ -370,6 +393,7 @@ export const STRINGS = {
       colourReset: 'Default', landscapeHint: 'Turn the phone sideways for a bigger beat.', ok: 'ok', barAria: 'Bar',
     },
     status: {
+      chordSet: 'Chord {text} at {pos}', chordCleared: 'Chord removed', swingOn: 'Swing on: eighths swung', swingOff: 'Straight eighths',
       lyricSet: '“{text}” at {pos}', lyricCleared: 'Lyric removed', slur_start: 'Slur starts at {pos}', slur_end: 'Slur ends at {pos}', slurRemoved: 'Slur mark removed at {pos}',
       dynOn: 'Next notes: {what}', dynOff: 'No dynamic on the next notes',
       dotOn: 'Dot on: the next value is dotted', dotOff: 'Dot off', tieOn: 'Tie: {pos} continues the note before', tieOff: 'Tie removed at {pos}',
@@ -421,6 +445,7 @@ export const STRINGS = {
   de: {
     noteNames: { C: 'C', D: 'D', E: 'E', F: 'F', G: 'G', A: 'A', B: 'H' },
     instrument: {
+      trumpet: 'Trompete (B)', altoSax: 'Altsaxophon (Es)', tenorSax: 'Tenorsaxophon (B)', trombone: 'Posaune', doubleBass: 'Kontrabass', vibraphone: 'Vibraphon',
       soprano: 'Sopran', alto: 'Alt', tenor: 'Tenor', bass: 'Bass (Stimme)',
       electricGuitar: 'E-Gitarre', bassGuitar: 'E-Bass', keys: 'Keyboard', vocal: 'Gesang',
       label: 'Instrument', editing: 'Bearbeitet', drums: 'Schlagzeug', congas: 'Congas',
@@ -428,6 +453,7 @@ export const STRINGS = {
       confirmChange: 'Ein anderes Instrument löscht die Noten dieser Stimme (Rückgängig holt sie zurück). Weiter?', confirmRemove: '{name} und seine Noten entfernen? (Rückgängig holt sie zurück)',
     },
     play: {
+      swing: 'Swing', swingHint: 'Achtel geswingt abspielen (Triolengefühl)',
       metronomeSound: 'Metronomklang', voice_beep: 'Piep', voice_woodblock: 'Holzblock', voice_click: 'Klick', voice_cowbell: 'Cowbell', voice_sidestick: 'Side Stick', voice_hihat: 'Geschlossene Hi-Hat', voiceSet: 'Metronom: {voice}',
       selectBars: 'Takte auswählen', moveLeft: 'Auswahl einen Takt nach links', moveRight: 'Auswahl einen Takt nach rechts', dragHint: 'Takte antippen, um sie auszuwählen. Einen Takt (oder die Auswahl) ziehen und dort loslassen, wo der Strich | erscheint.', moved: 'Takte verschoben: jetzt {from}–{to}', cantMove: 'Die Auswahl ist schon am Rand',
       sound: 'Klang', samples: 'Aufgenommen', synth: 'Synthetisch', none: 'Stumm', noneHint: 'Stumm: das Schlagzeug schweigt, die Markierungen laufen mit und das Metronom klickt, wenn es an ist', loading: 'Aufgenommene Klänge werden geladen… (solange spielt der Synth)', loadFailed: 'Aufgenommene Klänge nicht geladen; Synth spielt',
@@ -440,6 +466,7 @@ export const STRINGS = {
       editLocked: 'Wiedergabe läuft: zum Bearbeiten stoppen',
     },
     tech: {
+      slash: 'Rhythmusstrich', fall: 'Fall', doit: 'Doit', scoop: 'Scoop', plop: 'Plop',
       slap: 'Slap', mute: 'Gedämpft',
       tapDoes: 'Tippen ins System', withNote: 'Note + Zeichen', symbolOnly: 'Nur Zeichen', withNoteHint: 'Jedes Tippen schreibt eine Note mit den unten gewählten Zeichen', symbolOnlyHint: 'Ein Tippen irgendwo in der Zelle setzt (oder entfernt) die Zeichen an ihrer Note; bei mehreren an der nächstgelegenen',
       head: 'Notenkopf', technique: 'Technik', headDefault: 'Standard', headDefaultHint: 'Der normale Kopf des Instruments',
@@ -452,6 +479,12 @@ export const STRINGS = {
       open: 'Legende', title: 'Zeichenlegende', close: 'Schließen', symbol: 'Zeichen', meaning: 'In dieser App', also: 'Andere Autoren nutzen es für',
       note: 'Jede Schule notiert Schlagzeug etwas anders. Die App folgt der Konvention der Percussive Arts Society (Norman Weinberg); die rechte Spalte nennt, wofür andere Bücher dasselbe Zeichen verwenden. Meint dein Buch etwas anderes, schreib das Zeichen so wie im Buch.',
       rows: {
+        chord: { meaning: 'Akkordsymbol: der Akkord zum Begleiten (C7 = C-Septakkord)', also: 'Jazz/Pop; manche schreiben Δ für maj7 und ø für m7♭5' },
+        slashHead: { meaning: 'Rhythmusstrich: das Akkordsymbol in diesem Rhythmus spielen', also: 'Striche ohne Hals: frei begleiten' },
+        fall: { meaning: 'Fall: die Note am Ende abfallen lassen', also: 'Lang oder kurz je nach Zeichnung' },
+        doit: { meaning: 'Doit: die Note am Ende hochziehen', also: '—' },
+        scoop: { meaning: 'Scoop: von unten in die Note gleiten', also: '—' },
+        plop: { meaning: 'Plop: von oben in die Note fallen', also: '—' },
         breath: { meaning: 'Atemzeichen: hier atmen', also: 'Kleine Zäsur bei Bläsern und Streichern' },
         slur: { meaning: 'Bogen: Noten gebunden singen/spielen', also: 'Streicher: auf einem Bogenstrich' },
         lyric: { meaning: 'Text: eine Silbe pro Note; der Trennstrich verbindet Silben eines Worts', also: 'Linie nach der Silbe: Melisma' },
@@ -525,6 +558,7 @@ export const STRINGS = {
       continue: 'Weiter: {title}', or: 'oder eine Partitur wählen',
     },
     refused: {
+      badChord: 'Diesen Akkord kann die App nicht lesen (z. B. C7, Bbmaj7, F#m7b5, C/E)',
       doesNotFit: 'Diese Länge passt hier nicht (über den Takt hinaus oder teilt die Zelle nicht)', tieNeedsEmpty: 'Ein Haltebogen gehört in eine leere Zelle direkt nach der Note', nothingToTie: 'Vor dieser Zelle steht keine Note zum Binden',
       lastPart: 'Eine Partitur braucht mindestens ein Instrument',
       noNoteThere: 'Diese Zelle hat keine Note für das Zeichen', nothingToApply: 'Erst ein Zeichen wählen (Akzent, Hand, Kopf oder Technik)',
@@ -550,6 +584,7 @@ export const STRINGS = {
       midTom: 'Mitteltom', highTom: 'Hochtom', hihat: 'Hi-Hat', ride: 'Ride', crash: 'Crash',
     },
     palette: {
+      chords: 'Akkord', chordHint: 'z. B. C7, Bbmaj7, F#m7b5', chordApply: 'Akkord schreiben und zum nächsten Schlag', chordHelp: 'Enter schreibt auf den gewählten Schlag und geht zum nächsten. Leer löscht.',
       phrasing: 'Phrasierung', slurStart: 'Bogen Anfang', slurEnd: 'Bogen Ende', slurHint: 'Markiert die gewählte Zelle als Anfang oder Ende des Bogens', breath: 'Atmen', lyrics: 'Text', lyricHint: 'Silbe (z. B. Glo-)', lyricApply: 'Silbe schreiben und zur nächsten Note', lyricHelp: 'Enter schreibt auf die gewählte Note und geht zur nächsten. Mit - enden für den Trennstrich.',
       dynamics: 'Dynamik', dynHint: 'Lautstärke ab dieser Note', pp: 'pianissimo', p: 'piano', mp: 'mezzo-piano', mf: 'mezzo-forte', f: 'forte', ff: 'fortissimo', fp: 'forte-piano', sfz: 'sforzando', cresc: 'crescendo', dim: 'diminuendo',
       dot: 'Punkt', dotHint: 'Der nächste gewählte Wert gilt anderthalbfach (punktierte Viertel…)', tie: 'Haltebogen', tieHint: 'Die gewählte (leere) Zelle setzt die Note davor fort',
@@ -571,6 +606,7 @@ export const STRINGS = {
       colourReset: 'Standard', landscapeHint: 'Im Querformat wird der Schlag größer.', ok: 'ok', barAria: 'Takt',
     },
     status: {
+      chordSet: 'Akkord {text} bei {pos}', chordCleared: 'Akkord entfernt', swingOn: 'Swing an: Achtel geswingt', swingOff: 'Gerade Achtel',
       lyricSet: '„{text}“ bei {pos}', lyricCleared: 'Text entfernt', slur_start: 'Bogen beginnt bei {pos}', slur_end: 'Bogen endet bei {pos}', slurRemoved: 'Bogenmarke bei {pos} entfernt',
       dynOn: 'Nächste Noten: {what}', dynOff: 'Keine Dynamik für die nächsten Noten',
       dotOn: 'Punkt an: der nächste Wert ist punktiert', dotOff: 'Punkt aus', tieOn: 'Haltebogen: {pos} setzt die Note davor fort', tieOff: 'Haltebogen bei {pos} entfernt',

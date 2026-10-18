@@ -113,7 +113,7 @@ export function createKit(ctx) {
   return {
     /** `note` carries freq and dur (seconds) for pitched sounds ("voice:keys"). */
     play(sound, when, velocity = 0.75, note = {}) {
-      if (sound.startsWith('voice:')) { voices.play(sound.slice(6), when, note.freq ?? 440, note.dur ?? 0.5, velocity); return; }
+      if (sound.startsWith('voice:')) { voices.play(sound.slice(6), when, note.freq ?? 440, note.dur ?? 0.5, velocity, note.bend ?? null); return; }
       (SOUNDS[sound] ?? SOUNDS.snare)(Math.max(when, ctx.currentTime), velocity);
     },
     /** One metronome tick; `accent` is the first beat of the bar: brighter and louder. */

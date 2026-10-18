@@ -17,6 +17,7 @@ const NOTEHEAD = {
   [Notehead.TRIANGLE]: { whole: cp(0xe0bb), half: cp(0xe0bc), black: cp(0xe0be) },
   [Notehead.CIRCLE_X]: { whole: cp(0xe0b1), half: cp(0xe0b2), black: cp(0xe0b3) },
   [Notehead.SLASHED]: { whole: cp(0xe0d3), half: cp(0xe0d1), black: cp(0xe0cf) },
+  [Notehead.SLASH]: { whole: cp(0xe102), half: cp(0xe103), black: cp(0xe101) },
 };
 
 const REST = {
@@ -56,6 +57,10 @@ export const Glyphs = Object.freeze({
   FERMATA: cp(0xe4c0),
   BREATH: cp(0xe4ce),
   DOT: cp(0xe1e7),
+  FALL: cp(0xe5d7),   // brassFallLipShort
+  DOIT: cp(0xe5d4),   // brassDoitShort
+  SCOOP: cp(0xe5d0),  // brassScoop
+  PLOP: cp(0xe5e0),   // brassPlop
   BARLINE: cp(0xe030),
   PERCUSSION_CLEF: cp(0xe069),
   ACCENT: cp(0xe4a0),

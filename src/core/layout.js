@@ -68,7 +68,10 @@ export function layoutBar(bar, staff, config) {
     }));
 
     const centreX = (i) => x + (spans[i].start + spans[i].size / 2) * beatWidth;
-    const headX = (i) => centreX(i) - headW / 2;
+    // rhythm slashes are about twice as wide as a notehead
+    const isSlash = (i) => spans[i].leaf.notes.some((n) => n.head === 'slash');
+    const wOf = (i) => (isSlash(i) ? 2.12 * sp : headW);
+    const headX = (i) => centreX(i) - wOf(i) / 2;
     const valueOf = (i) => spans[i].parent.division;
     const posOf = (n) => slotById(staff, n.slotId).staffPosition;
     const topOf = (i) => Math.min(...spans[i].leaf.notes.map((n) => yOf(posOf(n), sp)));
@@ -91,7 +94,7 @@ export function layoutBar(bar, staff, config) {
     };
     const stemX = (i) => (dirOf(i) === 'down'
       ? headX(i) + (Metrics.stemThickness * sp) / 2
-      : headX(i) + Metrics.stemUpSE.x * sp - (Metrics.stemThickness * sp) / 2);
+      : headX(i) + wOf(i) - (Metrics.stemThickness * sp) / 2);
     const beamY = new Map();
     hosts.forEach((h) => {
       const down = dirOf(h.from) === 'down';
@@ -109,6 +112,11 @@ export function layoutBar(bar, staff, config) {
       const base = { beat: beatIndex, cell: span.unit.idx, path: span.path, value };
       // dynamics and cresc./dim. belong to the cell, drawn below the staff whatever is in it
       const lf = span.unit.cell ?? {};
+      if (pitched && lf.chord) {
+        // chord symbols above the staff, clear of up-stems, over notes and rests alike
+        const high = notes.length ? Math.min(...notes.map((n) => yOf(posOf(n), sp))) : 0;
+        texts.push({ kind: 'chord', text: lf.chord, x: headX(i) - 0.2 * sp, y: Math.min(-2.4 * sp, high - 4.8 * sp), beat: beatIndex, cell: span.unit.idx });
+      }
       if (lf.dyn || lf.wedge) {
         const low = notes.length ? Math.max(...notes.map((n) => yOf(posOf(n), sp))) : 4 * sp;
         const high = notes.length ? Math.min(...notes.map((n) => yOf(posOf(n), sp))) : 0;
@@ -134,7 +142,7 @@ export function layoutBar(bar, staff, config) {
       }
       let accidentalColumn = 0;
       [...order].reverse().forEach((n) => {
-        if (!pitched || span.unit.tiedIn) return; // a tied note keeps the accidental it had
+        if (!pitched || span.unit.tiedIn || n.head === 'slash') return; // a tied note keeps its accidental; slashes have none
         const { step } = parseSlot(n.slotId);
         const sounding = n.alter ?? keyAlter(key, step);
         const before = inForce.has(n.slotId) ? inForce.get(n.slotId) : keyAlter(key, step);
@@ -221,7 +229,15 @@ export function layoutBar(bar, staff, config) {
         markY -= 1.3 * sp;
       }
       const MARK_GLYPH = { [Mark.OPEN]: Glyphs.OPEN, [Mark.CLOSED]: Glyphs.CLOSED, [Mark.HALF_OPEN]: Glyphs.HALF_OPEN, [Mark.CHOKE]: Glyphs.CHOKE };
-      for (const m of new Set(notes.flatMap((n) => n.marks ?? []))) {
+      // horn effects: a fall or doit after the head, a scoop or plop before it
+      const HORN = { [Mark.FALL]: [Glyphs.FALL, 1], [Mark.DOIT]: [Glyphs.DOIT, 1], [Mark.SCOOP]: [Glyphs.SCOOP, -1], [Mark.PLOP]: [Glyphs.PLOP, -1] };
+      for (const n of notes) for (const m of n.marks ?? []) {
+        if (!HORN[m]) continue;
+        const [g, side] = HORN[m];
+        const y = yOf(posOf(n), sp);
+        glyphs.push({ ...base, kind: 'horn', glyph: g, x: side > 0 ? headX(i) + wOf(i) + 0.3 * sp : headX(i) - 1.6 * sp, y });
+      }
+      for (const m of new Set(notes.flatMap((n) => n.marks ?? []).filter((m) => MARK_GLYPH[m]))) {
         glyphs.push({ ...base, kind: 'mark', glyph: MARK_GLYPH[m], x: centreX(i) - 0.6 * sp, y: markY });
         markY -= 1.5 * sp;
       }
@@ -269,6 +285,10 @@ export function layoutBar(bar, staff, config) {
 
   // a slur still open at the bar line runs to it
   if (slurFrom && slurFrom.y !== null) slurs.push({ x1: slurFrom.x, y1: slurFrom.y, x2: config.width - 0.5 * sp, y2: slurFrom.y, below: slurFrom.below });
+  // chord symbols, like lyrics, read along one line: the highest any of them needs
+  const chordTexts = texts.filter((x) => x.kind === 'chord');
+  const chordY = Math.min(0, ...chordTexts.map((x) => x.y));
+  chordTexts.forEach((x) => { x.y = chordY; });
   // one verse is one line: every syllable of the bar on the lowest baseline any of them needs
   const lyricY = Math.max(0, ...lyrics.map((w) => w.y));
   lyrics.forEach((w, k) => {

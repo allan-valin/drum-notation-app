@@ -9,10 +9,10 @@
 
   let {
     tool, onAction, canUndo = false, canMerge = false, onLegend = () => {}, onHelp = () => {},
-    profile = DRUM_PROFILE, parts = [], part = null, lyric = '',
+    profile = DRUM_PROFILE, parts = [], part = null, lyric = '', chord = '',
   } = $props();
   const q = NoteValue.QUARTER;
-  const HEADS = [Notehead.CROSS, Notehead.DIAMOND, Notehead.TRIANGLE, Notehead.CIRCLE_X, Notehead.SLASHED];
+  const HEADS = [Notehead.CROSS, Notehead.DIAMOND, Notehead.TRIANGLE, Notehead.CIRCLE_X, Notehead.SLASHED, Notehead.SLASH];
   /** Every technique the app knows; a profile shows the ones its instrument uses. */
   const TECHS = [
     { id: Mark.OPEN, glyph: Glyphs.OPEN, cls: 'mark' },
@@ -23,6 +23,10 @@
     { id: Roll.TREMOLO, glyph: Glyphs.TREMOLO3, cls: 'small' },
     { id: Grace.FLAM, glyph: Glyphs.GRACE_SLASH + Glyphs.notehead(Notehead.NORMAL, q), cls: 'small' },
     { id: Grace.DRAG, glyph: Glyphs.GRACE + Glyphs.GRACE + Glyphs.notehead(Notehead.NORMAL, q), cls: 'small' },
+    { id: Mark.FALL, glyph: Glyphs.notehead(Notehead.NORMAL, q) + Glyphs.FALL, cls: 'small' },
+    { id: Mark.DOIT, glyph: Glyphs.notehead(Notehead.NORMAL, q) + Glyphs.DOIT, cls: 'small' },
+    { id: Mark.SCOOP, glyph: Glyphs.SCOOP + Glyphs.notehead(Notehead.NORMAL, q), cls: 'small' },
+    { id: Mark.PLOP, glyph: Glyphs.PLOP + Glyphs.notehead(Notehead.NORMAL, q), cls: 'small' },
   ];
   const has = (group) => profile.palette.includes(group);
   const heads = $derived(HEADS.filter((h) => profile.heads.includes(h)));
@@ -183,6 +187,17 @@
         <span class="smufl glyph art">{Glyphs.BREATH}</span><span class="label">{t('palette.breath')}</span>
       </button>
     </div>
+  </section>
+  {/if}
+
+  {#if has('chords')}
+  <section class="lyrics">
+    <h3>{t('palette.chords')}</h3>
+    <form onsubmit={(e) => { e.preventDefault(); const f = e.currentTarget.elements.chord; onAction({ type: 'setChord', text: f.value, advance: true }); f.value = ''; f.focus(); }}>
+      <input name="chord" type="text" maxlength="16" value={chord} placeholder={t('palette.chordHint')} aria-label={t('palette.chords')} autocomplete="off" autocapitalize="characters" />
+      <button type="submit" aria-label={t('palette.chordApply')}>↵</button>
+    </form>
+    <p class="hint">{t('palette.chordHelp')}</p>
   </section>
   {/if}
 

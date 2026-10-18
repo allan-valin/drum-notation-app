@@ -16,7 +16,11 @@ export const Articulation = Object.freeze({
 export const Sticking = Object.freeze({ R: 'R', L: 'L' });
 
 /** Technique marks drawn above the note. */
-export const Mark = Object.freeze({ OPEN: 'open', CLOSED: 'closed', HALF_OPEN: 'halfOpen', CHOKE: 'choke' });
+export const Mark = Object.freeze({
+  OPEN: 'open', CLOSED: 'closed', HALF_OPEN: 'halfOpen', CHOKE: 'choke',
+  // jazz horn effects
+  FALL: 'fall', DOIT: 'doit', SCOOP: 'scoop', PLOP: 'plop',
+});
 export const Roll = Object.freeze({ BUZZ: 'buzz', TREMOLO: 'tremolo' });
 export const Grace = Object.freeze({ FLAM: 'flam', DRAG: 'drag' });
 
@@ -109,6 +113,7 @@ export function newScore({
   timeSigNum = 4,
   timeSigDen = 4,
   defaultBpm = 80,
+  swing = false,
   bars = null,
   createdAt = Date.now(),
   updatedAt = createdAt,
@@ -120,6 +125,7 @@ export function newScore({
     timeSigNum,
     timeSigDen,
     defaultBpm,
+    swing,
     bars: bars ?? [emptyBar(timeSigNum, timeSigDen)],
     createdAt,
     updatedAt,

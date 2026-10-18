@@ -14,6 +14,8 @@
   import { NOTE_VALUES } from '../core/noteValue.js';
   import { newScore, barTimeSig, barKey } from '../core/score.js';
   import { noteName, keyNames } from '../app/noteName.js';
+  import { partKey } from '../core/pitch.js';
+  import { prettyChord } from '../core/chords.js';
   import { STRINGS } from '../app/strings.js';
   import { prefs } from '../app/prefs.svelte.js';
   import { t } from '../app/prefs.svelte.js';
@@ -130,6 +132,8 @@
       }
       case 'setDyn': return after.tool.dyn ? t('status.dynOn', { what: after.tool.dyn }) : t('status.dynOff');
       case 'setWedge': return after.tool.wedge ? t('status.dynOn', { what: after.tool.wedge === 'cresc' ? 'cresc.' : 'dim.' }) : t('status.dynOff');
+      case 'setChord': return a.text ? t('status.chordSet', { text: prettyChord(a.text), pos: `${before.cursor.bar + 1}.${posLabel(before.cursor)}` }) : t('status.chordCleared');
+      case 'setSwing': return after.score.swing ? t('status.swingOn') : t('status.swingOff');
       case 'setLyric': return a.text ? t('status.lyricSet', { text: a.text, pos: `${before.cursor.bar + 1}.${posLabel(before.cursor)}` }) : t('status.lyricCleared');
       case 'setSlur': return leafAt(after.score, after.cursor).slur ? t(`status.slur_${a.kind}`, { pos: p }) : t('status.slurRemoved', { pos: p });
       case 'toggleDot': return after.tool.dot ? t('status.dotOn') : t('status.dotOff');
@@ -213,7 +217,7 @@
 
   <div class="body">
     <aside class="palette-area no-print" class:locked={playing} inert={playing}>
-      <Palette tool={st.tool} canUndo={st.history.length > 0} canMerge={st.cursor.path.length > 1} onAction={dispatch} onLegend={() => (overlay = 'legend')} onHelp={() => (overlay = 'help')} {profile} parts={partList} part={st.part} lyric={leafAt(st.score, st.cursor).lyric ?? ''} />
+      <Palette tool={st.tool} canUndo={st.history.length > 0} canMerge={st.cursor.path.length > 1} onAction={dispatch} onLegend={() => (overlay = 'legend')} onHelp={() => (overlay = 'help')} {profile} parts={partList} part={st.part} lyric={leafAt(st.score, st.cursor).lyric ?? ''} chord={leafAt(st.score, st.cursor).chord ?? ''} />
     </aside>
 
       <div class="stage">
@@ -226,7 +230,7 @@
           focusedPath={playing ? (playhead?.path ?? null) : st.cursor.path}
           {colours}
           timeSig={barTimeSig(st.score, shownBar)}
-          keyFifths={barKey(st.score, shownBar)}
+          keyFifths={partKey(barKey(st.score, shownBar), profile)}
           den={barTimeSig(st.score, shownBar)[1]}
           carry={carryInto(st.score, shownBar)}
           tieOut={tiesOut(st.score, shownBar)}
@@ -253,7 +257,7 @@
 
       <div class="bars-area"><BarRow score={st.score} barIndex={st.cursor.bar} onAction={dispatch} pitched={st.full.parts.some((p) => profileById(p.instrument).staves[0].pitched)} /></div>
 
-      <div class="transport-area"><Transport full={st.full} parts={partList} onBand={band} currentBar={st.cursor.bar} {range} {store} bind:mode={playMode} bind:selecting onMove={moveBlock}
+      <div class="transport-area"><Transport full={st.full} parts={partList} onBand={band} onSwing={(on) => dispatch({ type: 'setSwing', on })} currentBar={st.cursor.bar} {range} {store} bind:mode={playMode} bind:selecting onMove={moveBlock}
         onPlayhead={(p) => (playhead = p)} onPlaying={(on) => { playing = on; if (!on) playhead = null; }} onStatus={(m) => (status = m)} /></div>
 
       <div class="full-area"><FullScore full={st.full} parts={partList} part={st.part} range={selecting || playMode === 'selection' ? range : null} {selecting} onDrop={dropBlock} playingBar={playing ? playhead?.bar : null} {colours} current={st.cursor.bar} onOpen={openBar} /></div>
