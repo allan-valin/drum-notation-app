@@ -133,6 +133,7 @@ export const STRINGS = {
       colourReset: 'Padrão', landscapeHint: 'Na horizontal o tempo em foco fica maior.', ok: 'ok', barAria: 'Compasso',
     },
     status: {
+      techOnSymbol: 'Próximo toque numa nota põe: {what}',
       symbolsAdded: 'Símbolos postos em {pos}: {notes}', symbolsRemoved: 'Símbolos tirados em {pos}: {notes}',
       selected: 'Posição {pos} selecionada. Toque de novo para escrever.', merged2: 'Célula {pos} agora é {value}',
       techOn: 'Próximas notas: {what}', techOff: '{what} desligado', barTextSet: 'Texto do compasso {n}: {text}', barTextCleared: 'Texto do compasso {n} removido',
@@ -292,6 +293,7 @@ export const STRINGS = {
       colourReset: 'Default', landscapeHint: 'Turn the phone sideways for a bigger beat.', ok: 'ok', barAria: 'Bar',
     },
     status: {
+      techOnSymbol: 'Next tap on a note adds: {what}',
       symbolsAdded: 'Symbols added at {pos}: {notes}', symbolsRemoved: 'Symbols removed at {pos}: {notes}',
       selected: 'Position {pos} selected. Tap again to write.', merged2: 'Cell {pos} is now {value}',
       techOn: 'Next notes: {what}', techOff: '{what} off', barTextSet: 'Bar {n} text: {text}', barTextCleared: 'Bar {n} text removed',
@@ -451,6 +453,7 @@ export const STRINGS = {
       colourReset: 'Standard', landscapeHint: 'Im Querformat wird der Schlag größer.', ok: 'ok', barAria: 'Takt',
     },
     status: {
+      techOnSymbol: 'Nächstes Tippen auf eine Note setzt: {what}',
       symbolsAdded: 'Zeichen gesetzt bei {pos}: {notes}', symbolsRemoved: 'Zeichen entfernt bei {pos}: {notes}',
       selected: 'Position {pos} gewählt. Nochmals tippen zum Schreiben.', merged2: 'Zelle {pos} ist jetzt {value}',
       techOn: 'Nächste Noten: {what}', techOff: '{what} aus', barTextSet: 'Text von Takt {n}: {text}', barTextCleared: 'Text von Takt {n} entfernt',

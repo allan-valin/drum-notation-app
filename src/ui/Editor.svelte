@@ -79,8 +79,8 @@
       case 'goTo':
         return after.cursor.bar !== before.cursor.bar ? t('status.barOpened', { n }) : t('status.position', { pos: p, notes });
       case 'toggleDelete': return after.tool.delete ? t('status.deleteOn') : t('status.deleteOff');
-      case 'toggleAccent': return after.tool.accent ? t('status.accentOn') : t('status.accentOff');
-      case 'toggleGhost': return after.tool.ghost ? t('status.ghostOn') : t('status.ghostOff');
+      case 'toggleAccent': return after.tool.accent ? (after.tool.withNote ? t('status.accentOn') : t('status.techOnSymbol', { what: t('palette.accent') })) : t('status.accentOff');
+      case 'toggleGhost': return after.tool.ghost ? (after.tool.withNote ? t('status.ghostOn') : t('status.techOnSymbol', { what: t('palette.ghost') })) : t('status.ghostOff');
       case 'setSticking': return after.tool.sticking ? t('status.hand', { hand: after.tool.sticking }) : t('status.noHand');
       case 'addBar': return t('status.barAdded', { n: after.score.bars.length });
       case 'removeBar': return t('status.barRemoved', { n: after.score.bars.length });
@@ -92,8 +92,8 @@
       case 'toggleRepeatStart': return b.repeatStart ? t('status.repeatStartOn', { n }) : t('status.repeatStartOff', { n });
       case 'toggleRepeatEnd': return b.repeatEnd ? t('status.repeatEndOn', { n }) : t('status.repeatEndOff', { n });
       case 'undo': return after.score === before.score ? t('status.nothingToUndo') : t('status.undone');
-      case 'setHead': return after.tool.head ? t('status.techOn', { what: t(`tech.${after.tool.head}`) }) : t('status.techOff', { what: t(`tech.${before.tool.head}`) });
-      case 'setTech': return after.tool.tech ? t('status.techOn', { what: t(`tech.${after.tool.tech}`) }) : t('status.techOff', { what: t(`tech.${before.tool.tech}`) });
+      case 'setHead': return after.tool.head ? t(after.tool.withNote ? 'status.techOn' : 'status.techOnSymbol', { what: t(`tech.${after.tool.head}`) }) : t('status.techOff', { what: t(`tech.${before.tool.head}`) });
+      case 'setTech': return after.tool.tech ? t(after.tool.withNote ? 'status.techOn' : 'status.techOnSymbol', { what: t(`tech.${after.tool.tech}`) }) : t('status.techOff', { what: t(`tech.${before.tool.tech}`) });
       case 'setWithNote': return after.tool.withNote ? t('tech.withNoteHint') : t('tech.symbolOnlyHint');
       case 'setBarText': return b.text ? t('status.barTextSet', { n, text: b.text }) : t('status.barTextCleared', { n });
       case 'setTitle': return t('status.titleSet');

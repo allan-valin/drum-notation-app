@@ -33,4 +33,9 @@ Moving bars keeps each bar's shape: the moved bars and the bar after the gap the
 their effective time signature written explicitly first; a `%` bar moved to the front loses
 its `%`.
 
-### D5 — real-browser pass (palette hit-test at every button centre, both orientations), docs, memory — [ ]
+### D5 — real-browser pass (palette hit-test at every button centre, both orientations), docs, memory — [x] 2026-10-18
+
+Hit-test 0 stolen clicks at 1280×800, 800×360, 390×844. Driven in both phone orientations:
+first tap selects / second writes, Célula split then merge back to flat, symbol-only puts the
+open mark on the existing hi-hat. Live site rechecked after deploy. Still open: Allan on the
+Redmi (touch drag uses the 220 ms hold from casus, untested on a real finger).
