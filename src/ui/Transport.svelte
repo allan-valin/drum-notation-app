@@ -20,7 +20,8 @@
   let metronome = $state(false);
   let countIn = $state(false);
   let playing = $state(false);
-  let sound = $state(store?.loadSettings().sound === 'synth' ? 'synth' : 'samples');
+  const SOUNDS = ['samples', 'synth', 'none'];
+  let sound = $state(SOUNDS.includes(store?.loadSettings().sound) ? store.loadSettings().sound : 'samples');
   let kits = null;
   let ctx = null;
   let player = null;
@@ -43,7 +44,8 @@
     const synth = createKit(ctx);
     const samples = createSampleKit(ctx, { base: import.meta.env.BASE_URL, fallback: synth });
     samples.ready.catch(() => { if (sound === 'samples') onStatus(t('play.loadFailed')); });
-    kits = { synth, samples };
+    // 'none': drums muted for practice; the playhead still moves and the metronome still clicks
+    kits = { synth, samples, none: { play() {}, loaded: true } };
     player = createPlayer({
       clock: () => ctx.currentTime,
       play: (name, when, v) => kits[sound].play(name, when, v),
@@ -63,6 +65,7 @@
     playing = true;
     onPlaying(true);
     onStatus(t(loop ? 'play.looping' : 'play.playing', { from: from + 1, to: to + 1, bpm })
+      + (sound === 'none' ? ` · ${t('play.none')}` : '')
       + (sound === 'samples' && !kits.samples.loaded ? ` · ${t('play.loading')}` : ''));
   }
 
@@ -97,8 +100,8 @@
     <button class:on={countIn} aria-pressed={countIn} disabled={playing} onclick={() => (countIn = !countIn)}>{t('play.countIn')}</button>
     <span class="sound" role="radiogroup" aria-label={t('play.sound')}>
       <span class="lbl">{t('play.sound')}</span>
-      {#each ['samples', 'synth'] as k}
-        <button role="radio" aria-checked={sound === k} class:on={sound === k} onclick={() => { sound = k; store?.saveSettings({ ...store.loadSettings(), sound: k }); }}>{t(`play.${k}`)}</button>
+      {#each SOUNDS as k}
+        <button role="radio" aria-checked={sound === k} class:on={sound === k} onclick={() => { sound = k; store?.saveSettings({ ...store.loadSettings(), sound: k }); if (k === 'none') onStatus(t('play.noneHint')); }}>{t(`play.${k}`)}</button>
       {/each}
     </span>
     <span class="bpm">

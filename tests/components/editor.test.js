@@ -230,3 +230,30 @@ describe('moving bars', () => {
     expect(container.querySelectorAll('.full .frame.inrange').length).toBe(1);
   });
 });
+
+describe('silent practice', () => {
+  it('Sem som mutes the drums but keeps the metronome and the playhead', async () => {
+    const made = { osc: 0, src: 0 };
+    const param = () => ({ value: 0, setValueAtTime() {}, exponentialRampToValueAtTime() {}, linearRampToValueAtTime() {} });
+    const node = () => ({ connect(n) { return n; }, start() {}, stop() {}, frequency: param(), Q: param(), gain: param(), playbackRate: param(), threshold: param(), ratio: param() });
+    window.AudioContext = class { constructor() { this.currentTime = 0; this.sampleRate = 8000; this.destination = node(); }
+      createGain() { return node(); } createDynamicsCompressor() { return node(); } createBiquadFilter() { return node(); }
+      createOscillator() { made.osc++; return node(); } createBufferSource() { made.src++; return node(); }
+      createBuffer(c, len) { return { getChannelData: () => new Float32Array(len) }; } decodeAudioData() { return Promise.reject(new Error('no')); } resume() {} close() {} };
+    globalThis.fetch ??= async () => ({ ok: false, status: 404 });
+    const store = createStore(memoryStorage());
+    store.save(newScore({ id: 'a', title: 'T' }));
+    const { container, getByLabelText, getByRole, getByText } = render(Editor, { store, id: 'a', onBack: () => {}, onPrint: () => {} });
+    const sp = spOf(container);
+    await tapAt(container, 5.5 * sp + 20, yOf(-2, sp)); // a kick on beat 1, sounding right at the start
+    await fireEvent.click(getByRole('radio', { name: 'Sem som' }));
+    expect(store.loadSettings().sound).toBe('none');
+    await fireEvent.click(getByText('Metrônomo'));
+    await fireEvent.click(getByLabelText('Tocar'));
+    expect(container.querySelector('.status').textContent).toContain('Sem som');
+    expect(made.osc).toBeGreaterThan(0); // the metronome click
+    expect(made.src).toBe(0);            // no drum noise, no sample
+    await fireEvent.click(getByLabelText('Parar'));
+    delete window.AudioContext;
+  });
+});
