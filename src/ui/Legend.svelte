@@ -31,6 +31,8 @@
     ['sharp', Glyphs.SHARP], ['flat', Glyphs.FLAT], ['natural', Glyphs.NATURAL],
     ['doubleSharp', Glyphs.DOUBLE_SHARP], ['doubleFlat', Glyphs.DOUBLE_FLAT],
     ['staccato', Glyphs.STACCATO], ['tenuto', Glyphs.TENUTO], ['marcato', Glyphs.MARCATO], ['fermata', Glyphs.FERMATA],
+    ['dynamics', Glyphs.dynamic('p') + ' ' + Glyphs.dynamic('mf') + ' ' + Glyphs.dynamic('ff')],
+    ['wedges', 'cresc.'],
     ['congaSlap', head(Notehead.CROSS)],
     ['congaMute', Glyphs.CLOSED],
   ];

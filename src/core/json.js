@@ -4,6 +4,7 @@ import { noteValueById, cellsPerBeat } from './noteValue.js';
 import { profileById, NOTEHEADS } from './profile.js';
 import { Mark, Roll, Grace } from './score.js';
 import { toFull, partView, fromViews, isFull } from './parts.js';
+import { DYNAMICS } from './edit.js';
 import { PROFILES } from './profile.js';
 
 /** Bump when the shape changes. docs/SCORE_IMPORT_PROMPT.md targets this schema. */
@@ -43,7 +44,12 @@ function encodeGroup(g) {
   return {
     division: g.division.id,
     ...(g.tuplet ? { tuplet: g.tuplet } : {}),
-    cells: g.cells.map((c) => (isGroup(c) ? encodeGroup(c) : c.cont ? { cont: true } : c.notes.map(encodeNote))),
+    cells: g.cells.map((c) => {
+      if (isGroup(c)) return encodeGroup(c);
+      const marks = { ...(c.dyn ? { dyn: c.dyn } : {}), ...(c.wedge ? { wedge: c.wedge } : {}) };
+      if (c.cont) return { cont: true, ...marks };
+      return Object.keys(marks).length ? { notes: c.notes.map(encodeNote), ...marks } : c.notes.map(encodeNote);
+    }),
   };
 }
 
@@ -158,9 +164,20 @@ function decodeGroup(g, expected, staff, where) {
       if (!Number.isInteger(count) || count < 2) throw new Error(`${here}: ${inner.id} não cabe dentro de ${division.id}`);
       return decodeGroup(c, count, staff, here);
     }
-    if (c && !Array.isArray(c) && c.cont === true) return leaf([], { cont: true });
+    const marks = {};
+    if (c && !Array.isArray(c)) {
+      if (c.dyn !== undefined) {
+        if (!DYNAMICS.includes(c.dyn)) throw new Error(`${here}: dinâmica desconhecida "${c.dyn}" (válidas: ${DYNAMICS.join(', ')})`);
+        marks.dyn = c.dyn;
+      }
+      if (c.wedge !== undefined) {
+        if (!['cresc', 'dim'].includes(c.wedge)) throw new Error(`${here}: wedge desconhecido "${c.wedge}" (válidos: cresc, dim)`);
+        marks.wedge = c.wedge;
+      }
+    }
+    if (c && !Array.isArray(c) && c.cont === true) return { ...leaf([], { cont: true }), ...marks };
     const notes = Array.isArray(c) ? c : (c?.notes ?? []);
-    return leaf(notes.map((n) => decodeNote(n, staff, here)));
+    return { ...leaf(notes.map((n) => decodeNote(n, staff, here))), ...marks };
   }));
 }
 

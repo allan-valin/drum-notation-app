@@ -88,7 +88,7 @@ transposition are just the frequency. A sampled set can follow later like the dr
   signature per bar, stem direction, ledger lines both ways, legend/help per profile.
 - [x] **I3 Length.** (2026-10-18: a continuation flag on cells is the tie; runs that add up to a written value draw as one note (half, whole, dotted), others as ties, also across bar lines; playback holds them. Drums untouched.) Notes longer than a beat (beat spans), ties across beats and bars, dots
   drawn for tied pairs that make a dotted value; sustained playback lengths.
-- [ ] **I4 Rock band sounds and profiles.** Guitar, bass, keys (single staff first), vocal;
+- [x] **I4 Rock band sounds and profiles.** (2026-10-18: profiles and voices landed with I2; this step added dynamics pp…ff, fp, sfz and cresc./dim. for every instrument, drawn under the staff and shaping playback loudness. Keys stay on one staff until I7's grand staff. Hit-test 0 for all six palettes after the new group.) Guitar, bass, keys (single staff first), vocal;
   synth recipes; dynamics, staccato/tenuto/marcato; per-profile hit-test.
 - [ ] **I5 Choir.** SATB profiles, lyrics, breath marks, slurs, voice synth.
 - [ ] **I6 Jazz.** Chord symbols, slash rhythm, swing, transposing instruments (written vs

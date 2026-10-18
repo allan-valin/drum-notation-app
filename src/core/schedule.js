@@ -13,6 +13,37 @@ export function secondsPerTick(bpm) {
  * The bars of `a..b` in the order they are played. `||: … :||` plays twice; an end repeat
  * with no start goes back to the start of the range. A repeat cut by the range plays once.
  */
+const LEVEL = { pp: 0.35, p: 0.48, mp: 0.62, mf: 0.75, f: 0.88, ff: 1, fp: 0.48, sfz: null };
+
+/**
+ * Loudness from the marks: a level holds from one dynamic to the next (mf before any); cresc.
+ * and dim. ramp toward the next dynamic (or a step up/down if none follows); sfz and fp make
+ * the hits at their moment loud. Each hit's own weight (accent, ghost, roll, grace) scales.
+ */
+function applyDynamics(hits, marks, end) {
+  if (!marks.length) return;
+  const levelAt = (tick) => {
+    let level = LEVEL.mf;
+    let ramp = null;
+    for (let k = 0; k < marks.length && marks[k].tick <= tick; k++) {
+      const m = marks[k];
+      if (m.dyn && LEVEL[m.dyn] !== null) level = LEVEL[m.dyn];
+      if (m.wedge) {
+        const next = marks.slice(k + 1).find((x) => x.dyn && LEVEL[x.dyn] !== null);
+        const target = next ? LEVEL[next.dyn] : Math.max(0.3, Math.min(1, level + (m.wedge === 'cresc' ? 0.25 : -0.25)));
+        ramp = { from: m.tick, to: next ? next.tick : end, a: level, b: target };
+      } else if (m.dyn) ramp = null;
+    }
+    if (ramp && tick < ramp.to) return ramp.a + (ramp.b - ramp.a) * ((tick - ramp.from) / (ramp.to - ramp.from || 1));
+    return ramp ? ramp.b : level;
+  };
+  const accentAt = new Set(marks.filter((m) => m.dyn === 'sfz' || m.dyn === 'fp').map((m) => m.tick));
+  for (const h of hits) {
+    if (accentAt.has(h.tick) && !h.grace) { h.velocity = 1; continue; }
+    h.velocity = Math.min(1, h.velocity * (levelAt(h.tick) / LEVEL.mf));
+  }
+}
+
 export function playOrder(score, a, b) {
   const order = [];
   const done = new Set();
@@ -84,6 +115,7 @@ export function performance(score, a, b, instrument = score.profileId ?? 'drums'
   const clicks = [];
   let offset = 0;
   let open = []; // pitched notes still sounding, lengthened by continuation cells
+  const marks = []; // { tick, dyn?, wedge? } in played order, for loudness
   for (const shown of playOrder(score, a, b)) {
     let src = shown;
     while (src > 0 && score.bars[src].simile) src -= 1;
@@ -98,6 +130,7 @@ export function performance(score, a, b, instrument = score.profileId ?? 'drums'
       if (!group) continue;
       for (const leaf of leafTicks(group, den)) {
         const at = offset + beat * bt + leaf.tick;
+        if (leaf.leaf.dyn || leaf.leaf.wedge) marks.push({ tick: at, dyn: leaf.leaf.dyn, wedge: leaf.leaf.wedge });
         if (pitchedStaff) {
           if (leaf.leaf.cont) { open.forEach((h) => { h.length += leaf.length; }); continue; }
           open = [];
@@ -133,6 +166,7 @@ export function performance(score, a, b, instrument = score.profileId ?? 'drums'
     offset += num * bt;
   }
   hits.sort((x, y) => x.tick - y.tick || y.ahead - x.ahead);
+  applyDynamics(hits, marks, offset);
   return { hits, clicks, totalTicks: offset, firstBarBeats: barTimeSig(score, a)[0], firstBarUnit: barTimeSig(score, a)[1] };
 }
 

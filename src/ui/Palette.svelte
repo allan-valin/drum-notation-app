@@ -169,6 +169,26 @@
     </div>
   </section>
 
+  {#if has('dynamics')}
+  <section>
+    <h3>{t('palette.dynamics')}</h3>
+    <div class="grid four">
+      {#each ['pp', 'p', 'mp', 'mf', 'f', 'ff', 'fp', 'sfz'] as d}
+        <button class:on={tool.dyn === d} aria-label={t(`palette.${d}`)} title={t('palette.dynHint')} onclick={() => onAction({ type: 'setDyn', dyn: d })}>
+          <span class="smufl glyph dyn">{Glyphs.dynamic(d)}</span><span class="label">{t(`palette.${d}`)}</span>
+        </button>
+      {/each}
+    </div>
+    <div class="grid two">
+      {#each ['cresc', 'dim'] as w}
+        <button class:on={tool.wedge === w} aria-label={t(`palette.${w}`)} onclick={() => onAction({ type: 'setWedge', wedge: w })}>
+          <span class="glyph text small-text wedge">{w === 'cresc' ? 'cresc.' : 'dim.'}</span><span class="label">{t(`palette.${w}`)}</span>
+        </button>
+      {/each}
+    </div>
+  </section>
+  {/if}
+
   {#if profile.hands}
   <section>
     <h3>{t('palette.hand')}</h3>
@@ -224,6 +244,9 @@
   .glyph.mark { font-size: 36px; align-items: center; padding-top: 14px; }
   .glyph.acc { font-size: 34px; align-items: center; height: 34px; }
   .glyph.art { font-size: 34px; align-items: center; padding-top: 6px; }
+  .glyph.dyn { font-size: 30px; align-items: center; height: 32px; }
+  .wedge { font-style: italic; font-size: 15px; }
+  .grid + .grid { margin-top: 5px; }
   .glyph.head { font-size: 44px; align-items: center; height: 30px; }
   .symbols { display: flex; flex-direction: column; gap: 8px; border-left: 3px solid var(--accent); padding-left: 6px; margin-left: -2px; }
   .mode button + button { border-left: 1px solid var(--line); }

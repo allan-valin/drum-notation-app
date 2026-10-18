@@ -104,6 +104,14 @@ export function layoutBar(bar, staff, config) {
       const value = valueOf(i);
       const notes = span.leaf.notes;
       const base = { beat: beatIndex, cell: span.unit.idx, path: span.path, value };
+      // dynamics and cresc./dim. belong to the cell, drawn below the staff whatever is in it
+      const lf = span.unit.cell ?? {};
+      if (lf.dyn || lf.wedge) {
+        const low = notes.length ? Math.max(...notes.map((n) => yOf(posOf(n), sp))) : 4 * sp;
+        const dy = Math.max(6.9 * sp, low + 2.4 * sp);
+        if (lf.dyn) glyphs.push({ ...base, kind: 'dynamic', glyph: Glyphs.dynamic(lf.dyn), x: centreX(i) - 1.3 * sp, y: dy });
+        if (lf.wedge) texts.push({ kind: 'wedge', text: lf.wedge === 'cresc' ? 'cresc.' : 'dim.', x: centreX(i) + (lf.dyn ? 2.2 * sp : -1 * sp), y: dy, beat: beatIndex, cell: span.unit.idx });
+      }
       if (notes.length === 0) {
         const restY = value === NoteValue.WHOLE ? sp : 2 * sp;
         glyphs.push({ ...base, kind: 'rest', glyph: Glyphs.rest(value), x: centreX(i) - 0.5 * sp, y: restY });

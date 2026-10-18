@@ -128,6 +128,8 @@
         const [maj] = keyNames(barKey(after.score, after.cursor.bar), prefs.lang, STRINGS[prefs.lang].noteNames);
         return t('status.keySet', { n, key: `${maj} ${t('bars.major')}` });
       }
+      case 'setDyn': return after.tool.dyn ? t('status.dynOn', { what: after.tool.dyn }) : t('status.dynOff');
+      case 'setWedge': return after.tool.wedge ? t('status.dynOn', { what: after.tool.wedge === 'cresc' ? 'cresc.' : 'dim.' }) : t('status.dynOff');
       case 'toggleDot': return after.tool.dot ? t('status.dotOn') : t('status.dotOff');
       case 'toggleTie': return leafAt(after.score, after.cursor).cont ? t('status.tieOn', { pos: p }) : t('status.tieOff', { pos: p });
       case 'setTitle': return t('status.titleSet');

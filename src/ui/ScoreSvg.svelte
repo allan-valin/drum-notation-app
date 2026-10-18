@@ -172,7 +172,9 @@
       <path class="tie" d="M {tie.x1} {tie.y + off} Q {(tie.x1 + tie.x2) / 2} {tie.y + off + bow} {tie.x2} {tie.y + off}" stroke-width={0.16 * sp} />
     {/each}
     {#each layout.texts as tx}
-      {#if tx.kind === 'barText'}
+      {#if tx.kind === 'wedge'}
+        <text class="wedge" x={tx.x} y={tx.y} font-size={1.1 * sp}>{tx.text}</text>
+      {:else if tx.kind === 'barText'}
         <text class="bartext" x={tx.x} y={tx.y} font-size={1.2 * sp}>{tx.text}</text>
       {:else}
         <text class="sticking" x={tx.x} y={tx.y} font-size={1.1 * sp} text-anchor="middle" opacity={dim(tx.beat)}>{tx.text}</text>
@@ -195,6 +197,7 @@
   .guide { stroke: var(--focus-ring); stroke-opacity: 0.35; stroke-dasharray: 2 3; }
   .guide-label { fill: var(--muted); font-family: system-ui, sans-serif; pointer-events: none; }
   .ink { fill: var(--ink); }
+  .wedge { fill: var(--ink); font-family: Georgia, 'Times New Roman', serif; font-style: italic; }
   .bartext { fill: var(--ink); font-family: system-ui, sans-serif; font-style: italic; }
   .sticking { fill: var(--ink); font-family: system-ui, sans-serif; font-weight: 600; }
   text { pointer-events: none; }

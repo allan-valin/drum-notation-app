@@ -49,6 +49,8 @@ export const STRINGS = {
       open: 'Legenda', title: 'Legenda dos símbolos', close: 'Fechar', symbol: 'Símbolo', meaning: 'Neste app', also: 'Outros autores usam para',
       note: 'Cada método escreve bateria um pouco diferente. O app segue a convenção da Percussive Arts Society (Norman Weinberg); a coluna da direita lista o que outros livros usam para o mesmo símbolo. Se o seu livro usa outro sentido, escreva o símbolo como está no livro.',
       rows: {
+        dynamics: { meaning: 'Dinâmica: pp (muito suave) … ff (muito forte); fp forte e logo suave; sfz um ataque forte', also: 'ppp e fff em algumas partituras' },
+        wedges: { meaning: 'cresc. / dim.: crescendo ou diminuendo até a próxima dinâmica', also: 'Também escritos como abertura < e fechamento >' },
         sharp: { meaning: 'Sustenido: meio tom acima', also: '—' },
         flat: { meaning: 'Bemol: meio tom abaixo', also: '—' },
         natural: { meaning: 'Bequadro: cancela o sustenido ou bemol', also: '—' },
@@ -142,6 +144,7 @@ export const STRINGS = {
       midTom: 'Tom médio', highTom: 'Tom agudo', hihat: 'Chimbal', ride: 'Ride', crash: 'Crash',
     },
     palette: {
+      dynamics: 'Dinâmica', dynHint: 'Volume a partir desta nota', pp: 'pianissimo', p: 'piano', mp: 'mezzo-piano', mf: 'mezzo-forte', f: 'forte', ff: 'fortissimo', fp: 'forte-piano', sfz: 'sforzando', cresc: 'crescendo', dim: 'diminuendo',
       dot: 'Ponto', dotHint: 'A próxima figura escolhida vale uma vez e meia (semínima pontuada…)', tie: 'Ligadura', tieHint: 'A célula selecionada (vazia) continua a nota anterior',
       accidental: 'Acidente', byKey: 'Pela armadura', byKeyHint: 'Sem acidente: a nota segue a armadura', sharp: 'Sustenido', flat: 'Bemol', natural: 'Bequadro', doubleSharp: 'Dobrado sustenido', doubleFlat: 'Dobrado bemol', staccato: 'Staccato', tenuto: 'Tenuto', marcato: 'Marcato', fermata: 'Fermata',
       figure: 'Figura', tuplet: 'Quiáltera', articulation: 'Articulação', hand: 'Mão', edit: 'Edição',
@@ -161,6 +164,7 @@ export const STRINGS = {
       colourReset: 'Padrão', landscapeHint: 'Na horizontal o tempo em foco fica maior.', ok: 'ok', barAria: 'Compasso',
     },
     status: {
+      dynOn: 'Próximas notas: {what}', dynOff: 'Sem dinâmica nas próximas notas',
       dotOn: 'Ponto ligado: a próxima figura é pontuada', dotOff: 'Ponto desligado', tieOn: 'Ligadura: {pos} continua a nota anterior', tieOff: 'Ligadura removida em {pos}',
       accidentalOn: 'Próximas notas: {what}', accidentalOff: 'Notas seguem a armadura', keySet: 'Armadura a partir do compasso {n}: {key}', artOn: 'Próximas notas: {what}', artOff: '{what} desligado',
       partSwitched: 'Editando: {name}', partAdded: '{name} adicionado. Escreva no editor; a lista ao lado do BPM controla o som.', partRemoved: '{name} removido', instrumentSet: 'Parte agora é {name}', muted: '{name} sem som', unmuted: '{name} com som',
@@ -240,6 +244,8 @@ export const STRINGS = {
       open: 'Legend', title: 'Symbol legend', close: 'Close', symbol: 'Symbol', meaning: 'In this app', also: 'Other authors use it for',
       note: 'Every method book notates drums a little differently. The app follows the Percussive Arts Society convention (Norman Weinberg); the right column lists what other books use the same symbol for. If your book means something else, write the symbol as it is in the book.',
       rows: {
+        dynamics: { meaning: 'Dynamics: pp (very soft) … ff (very loud); fp loud then soft; sfz one strong attack', also: 'ppp and fff in some scores' },
+        wedges: { meaning: 'cresc. / dim.: louder or softer up to the next dynamic', also: 'Also drawn as hairpins < and >' },
         sharp: { meaning: 'Sharp: a semitone higher', also: '—' },
         flat: { meaning: 'Flat: a semitone lower', also: '—' },
         natural: { meaning: 'Natural: cancels a sharp or flat', also: '—' },
@@ -333,6 +339,7 @@ export const STRINGS = {
       midTom: 'Mid tom', highTom: 'High tom', hihat: 'Hi-hat', ride: 'Ride', crash: 'Crash',
     },
     palette: {
+      dynamics: 'Dynamics', dynHint: 'Loudness from this note on', pp: 'pianissimo', p: 'piano', mp: 'mezzo-piano', mf: 'mezzo-forte', f: 'forte', ff: 'fortissimo', fp: 'forte-piano', sfz: 'sforzando', cresc: 'crescendo', dim: 'diminuendo',
       dot: 'Dot', dotHint: 'The next value chosen lasts one and a half times (dotted quarter…)', tie: 'Tie', tieHint: 'The selected (empty) cell continues the note before it',
       accidental: 'Accidental', byKey: 'By key', byKeyHint: 'No accidental: the note follows the key signature', sharp: 'Sharp', flat: 'Flat', natural: 'Natural', doubleSharp: 'Double sharp', doubleFlat: 'Double flat', staccato: 'Staccato', tenuto: 'Tenuto', marcato: 'Marcato', fermata: 'Fermata',
       figure: 'Note value', tuplet: 'Tuplet', articulation: 'Articulation', hand: 'Hand', edit: 'Edit',
@@ -352,6 +359,7 @@ export const STRINGS = {
       colourReset: 'Default', landscapeHint: 'Turn the phone sideways for a bigger beat.', ok: 'ok', barAria: 'Bar',
     },
     status: {
+      dynOn: 'Next notes: {what}', dynOff: 'No dynamic on the next notes',
       dotOn: 'Dot on: the next value is dotted', dotOff: 'Dot off', tieOn: 'Tie: {pos} continues the note before', tieOff: 'Tie removed at {pos}',
       accidentalOn: 'Next notes: {what}', accidentalOff: 'Notes follow the key signature', keySet: 'Key from bar {n}: {key}', artOn: 'Next notes: {what}', artOff: '{what} off',
       partSwitched: 'Editing: {name}', partAdded: '{name} added. Write in the editor; the list next to BPM controls its sound.', partRemoved: '{name} removed', instrumentSet: 'Part is now {name}', muted: '{name} muted', unmuted: '{name} unmuted',
@@ -431,6 +439,8 @@ export const STRINGS = {
       open: 'Legende', title: 'Zeichenlegende', close: 'Schließen', symbol: 'Zeichen', meaning: 'In dieser App', also: 'Andere Autoren nutzen es für',
       note: 'Jede Schule notiert Schlagzeug etwas anders. Die App folgt der Konvention der Percussive Arts Society (Norman Weinberg); die rechte Spalte nennt, wofür andere Bücher dasselbe Zeichen verwenden. Meint dein Buch etwas anderes, schreib das Zeichen so wie im Buch.',
       rows: {
+        dynamics: { meaning: 'Dynamik: pp (sehr leise) … ff (sehr laut); fp laut, dann leise; sfz ein starker Einsatz', also: 'ppp und fff in manchen Partituren' },
+        wedges: { meaning: 'cresc. / dim.: lauter oder leiser bis zur nächsten Dynamik', also: 'Auch als Gabeln < und > notiert' },
         sharp: { meaning: 'Kreuz: einen Halbton höher', also: '—' },
         flat: { meaning: 'Be: einen Halbton tiefer', also: '—' },
         natural: { meaning: 'Auflösungszeichen: hebt Kreuz oder Be auf', also: '—' },
@@ -524,6 +534,7 @@ export const STRINGS = {
       midTom: 'Mitteltom', highTom: 'Hochtom', hihat: 'Hi-Hat', ride: 'Ride', crash: 'Crash',
     },
     palette: {
+      dynamics: 'Dynamik', dynHint: 'Lautstärke ab dieser Note', pp: 'pianissimo', p: 'piano', mp: 'mezzo-piano', mf: 'mezzo-forte', f: 'forte', ff: 'fortissimo', fp: 'forte-piano', sfz: 'sforzando', cresc: 'crescendo', dim: 'diminuendo',
       dot: 'Punkt', dotHint: 'Der nächste gewählte Wert gilt anderthalbfach (punktierte Viertel…)', tie: 'Haltebogen', tieHint: 'Die gewählte (leere) Zelle setzt die Note davor fort',
       accidental: 'Vorzeichen', byKey: 'Nach Tonart', byKeyHint: 'Ohne Vorzeichen: die Note folgt der Tonart', sharp: 'Kreuz', flat: 'Be', natural: 'Auflösung', doubleSharp: 'Doppelkreuz', doubleFlat: 'Doppel-B', staccato: 'Staccato', tenuto: 'Tenuto', marcato: 'Marcato', fermata: 'Fermate',
       figure: 'Notenwert', tuplet: 'Tole', articulation: 'Artikulation', hand: 'Hand', edit: 'Bearbeiten',
@@ -543,6 +554,7 @@ export const STRINGS = {
       colourReset: 'Standard', landscapeHint: 'Im Querformat wird der Schlag größer.', ok: 'ok', barAria: 'Takt',
     },
     status: {
+      dynOn: 'Nächste Noten: {what}', dynOff: 'Keine Dynamik für die nächsten Noten',
       dotOn: 'Punkt an: der nächste Wert ist punktiert', dotOff: 'Punkt aus', tieOn: 'Haltebogen: {pos} setzt die Note davor fort', tieOff: 'Haltebogen bei {pos} entfernt',
       accidentalOn: 'Nächste Noten: {what}', accidentalOff: 'Noten folgen der Tonart', keySet: 'Tonart ab Takt {n}: {key}', artOn: 'Nächste Noten: {what}', artOff: '{what} aus',
       partSwitched: 'Bearbeitet: {name}', partAdded: '{name} hinzugefügt. Im Editor schreiben; die Liste neben BPM steuert den Klang.', partRemoved: '{name} entfernt', instrumentSet: 'Stimme ist jetzt {name}', muted: '{name} stumm', unmuted: '{name} mit Ton',

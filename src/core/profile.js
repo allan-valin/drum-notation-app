@@ -37,12 +37,12 @@ export const DRUM_PROFILE = Object.freeze({
   id: 'drums',
   name: 'Bateria',
   family: 'rock',
-  palette: ['edit', 'figure', 'tuplet', 'tapMode', 'articulation', 'hand', 'head', 'technique'],
+  palette: ['edit', 'figure', 'tuplet', 'tapMode', 'articulation', 'dynamics', 'hand', 'head', 'technique'],
   articulations: ['accent', 'ghost'],
   heads: ALL_HEADS,
   techniques: ALL_TECHS,
   hands: true,
-  legend: ['cross', 'diamond', 'triangle', 'circleX', 'crossStick', 'slashed', 'open', 'closed', 'halfOpen', 'choke', 'buzz', 'tremolo', 'flam', 'drag', 'ghost', 'accent', 'simile', 'repeat'],
+  legend: ['cross', 'diamond', 'triangle', 'circleX', 'crossStick', 'slashed', 'open', 'closed', 'halfOpen', 'choke', 'buzz', 'tremolo', 'flam', 'drag', 'ghost', 'accent', 'dynamics', 'wedges', 'simile', 'repeat'],
   staves: Object.freeze([
     Object.freeze({
       lineCount: 5,
@@ -70,13 +70,13 @@ export const CONGAS_PROFILE = Object.freeze({
   id: 'congas',
   name: 'Congas',
   family: 'rock',
-  palette: ['edit', 'figure', 'tuplet', 'tapMode', 'articulation', 'hand', 'head', 'technique'],
+  palette: ['edit', 'figure', 'tuplet', 'tapMode', 'articulation', 'dynamics', 'hand', 'head', 'technique'],
   articulations: ['accent', 'ghost'],
   heads: ['cross'],
   techniques: ['closed', 'flam'],
   hands: true,
   labels: { cross: 'slap', closed: 'mute' },
-  legend: ['congaSlap', 'congaMute', 'flam', 'ghost', 'accent', 'simile', 'repeat'],
+  legend: ['congaSlap', 'congaMute', 'flam', 'ghost', 'accent', 'dynamics', 'wedges', 'simile', 'repeat'],
   staves: Object.freeze([
     Object.freeze({
       lineCount: 5,
@@ -94,9 +94,9 @@ export const CONGAS_PROFILE = Object.freeze({
  * Pitched instruments: the staff is every line and space in the written range. They use
  * accidentals and articulations; no sticks, so no drum heads, techniques or hands.
  */
-const PITCHED_PALETTE = ['edit', 'figure', 'length', 'tuplet', 'tapMode', 'accidental', 'articulation'];
+const PITCHED_PALETTE = ['edit', 'figure', 'length', 'tuplet', 'tapMode', 'accidental', 'articulation', 'dynamics'];
 const PITCHED_ARTS = ['accent', 'staccato', 'tenuto', 'marcato', 'fermata'];
-const PITCHED_LEGEND = ['sharp', 'flat', 'natural', 'doubleSharp', 'doubleFlat', 'staccato', 'tenuto', 'accent', 'marcato', 'fermata', 'simile', 'repeat'];
+const PITCHED_LEGEND = ['sharp', 'flat', 'natural', 'doubleSharp', 'doubleFlat', 'staccato', 'tenuto', 'accent', 'marcato', 'fermata', 'dynamics', 'wedges', 'simile', 'repeat'];
 function pitchedProfile(id, family, clef, low, high, voice, extra = {}) {
   return Object.freeze({
     id, name: id, family, palette: PITCHED_PALETTE, articulations: PITCHED_ARTS,

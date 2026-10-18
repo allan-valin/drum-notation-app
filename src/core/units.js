@@ -36,10 +36,10 @@ export function drawUnits(bar, den, carry = []) {
     let j = i + 1;
     while (j < cells.length && cells[j].leaf.cont) { chain.push(cells[j]); j += 1; }
     if (!head.leaf.cont && head.leaf.notes.length === 0) {
-      units.push({ beat: head.beat, idx: head.idx, notes: [], value: head.value, dotted: false, rest: true, tiedIn: false, members: [head] });
+      units.push({ beat: head.beat, idx: head.idx, notes: [], value: head.value, dotted: false, rest: true, tiedIn: false, members: [head], cell: head.leaf });
       lastNotes = [];
       // continuations after a rest have nothing to hold: draw them as rests too
-      for (const c of chain.slice(1)) units.push({ beat: c.beat, idx: c.idx, notes: [], value: c.value, dotted: false, rest: true, tiedIn: false, members: [c] });
+      for (const c of chain.slice(1)) units.push({ beat: c.beat, idx: c.idx, notes: [], value: c.value, dotted: false, rest: true, tiedIn: false, members: [c], cell: c.leaf });
       i = j;
       continue;
     }
@@ -57,7 +57,7 @@ export function drawUnits(bar, den, carry = []) {
       }
       const members = chain.slice(k, k + take);
       if (take === 1) shape = valueFor(members[0].length) ?? { value: members[0].value, dotted: false };
-      units.push({ beat: members[0].beat, idx: members[0].idx, notes: notes.length ? notes : [], value: shape.value, dotted: shape.dotted, rest: notes.length === 0, tiedIn, members });
+      units.push({ beat: members[0].beat, idx: members[0].idx, notes: notes.length ? notes : [], value: shape.value, dotted: shape.dotted, rest: notes.length === 0, tiedIn, members, cell: members[0].leaf });
       tiedIn = true;
       k += take;
     }

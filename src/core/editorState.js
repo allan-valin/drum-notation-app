@@ -5,7 +5,7 @@ import { cursor as mkCursor, next, prev, leafAt, clamp } from './cursor.js';
 import { parentOf, leafPaths, getAt } from './tree.js';
 import {
   placeNote, deleteNote, clearLeaf, splitBeat, splitCell, resizeCell, mergeCell, addBar, removeBar,
-  setTimeSig, toggleSimile, toggleRepeatStart, toggleRepeatEnd, setBarText, moveBars, setKey, setLength, toggleTie,
+  setTimeSig, toggleSimile, toggleRepeatStart, toggleRepeatEnd, setBarText, moveBars, setKey, setLength, toggleTie, setDynamic, setWedge,
 } from './edit.js';
 import { barLeaves } from './edit.js';
 import { profileById, slotNearest } from './profile.js';
@@ -25,7 +25,7 @@ export function initialState(score) {
     part,
     score: partView(full, part),
     cursor: mkCursor(0, 0, 0),
-    tool: { value: NoteValue.QUARTER, tuplet: null, delete: false, accent: false, ghost: false, sticking: null, splitMode: 'beat', head: null, tech: null, withNote: true, accidental: null, arts: [], dot: false },
+    tool: { value: NoteValue.QUARTER, tuplet: null, delete: false, accent: false, ghost: false, sticking: null, splitMode: 'beat', head: null, tech: null, withNote: true, accidental: null, arts: [], dot: false, dyn: null, wedge: null },
     history: [],
     refused: null,
   };
@@ -140,6 +140,8 @@ function reduceView(state, action) {
     case 'toggleArt': return tool(st, { arts: st.tool.arts.includes(action.art) ? st.tool.arts.filter((a) => a !== action.art) : [...st.tool.arts, action.art] });
     case 'setKey': return edit(st, (s) => setKey(s, st.cursor.bar, action.key));
     case 'toggleDot': return tool(st, { dot: !st.tool.dot });
+    case 'setDyn': return tool(st, { dyn: st.tool.dyn === action.dyn ? null : action.dyn });
+    case 'setWedge': return tool(st, { wedge: st.tool.wedge === action.wedge ? null : action.wedge });
     case 'toggleTie': {
       const s = toggleTie(st.score, st.cursor);
       if (s.refused) return { ...st, refused: s.refused };
@@ -193,7 +195,14 @@ function tap(st, staffPosition) {
     roll: Object.values(Roll).includes(tech) ? tech : null,
     grace: Object.values(Grace).includes(tech) ? tech : null,
   };
-  if (!st.tool.withNote) return applySymbols(st, staffPosition, techFields);
+  if (!st.tool.withNote) {
+    // dynamics belong to the cell: they go on even when it is empty
+    const onlyCell = (st.tool.dyn || st.tool.wedge) && !st.tool.accent && !st.tool.ghost && !st.tool.sticking && !st.tool.head && !st.tool.tech && st.tool.accidental === null && st.tool.arts.length === 0;
+    const marked = cellMarks(st);
+    if (onlyCell) return marked;
+    const out = applySymbols(marked, staffPosition, techFields);
+    return out.refused && marked !== st ? marked : out;
+  }
   const articulations = [];
   if (accent) articulations.push(Articulation.ACCENT);
   if (ghost) articulations.push(Articulation.GHOST);
@@ -202,7 +211,8 @@ function tap(st, staffPosition) {
   const alter = staff.pitched
     ? st.tool.accidental ?? keyAlter(barKey(st.score, st.cursor.bar), parseSlot(slot.id).step)
     : undefined;
-  return edit(st, (s) => placeNote(s, st.cursor, note(slot.id, { articulations, sticking, head, ...techFields, alter })));
+  const placed = edit(st, (s) => placeNote(s, st.cursor, note(slot.id, { articulations, sticking, head, ...techFields, alter })));
+  return cellMarks(placed, placed !== st);
 }
 
 /**
@@ -274,6 +284,19 @@ function split(st, value, tuplet) {
   }
   const out = edit(st, (s) => splitBeat(s, st.cursor, value, tuplet));
   return syncTool(clampCursor({ ...out, cursor: { ...out.cursor, path: [Math.min(out.cursor.path[0], 99)] } }));
+}
+
+/**
+ * Put the chosen dynamic and cresc./dim. on the selected cell (if not already there).
+ * `pushed`: the note write before this already saved an undo step; otherwise save one here.
+ */
+function cellMarks(st, pushed = false) {
+  const l = leafAt(st.score, st.cursor);
+  let s = st.score;
+  if (st.tool.dyn && l.dyn !== st.tool.dyn) s = setDynamic(s, st.cursor, st.tool.dyn);
+  if (st.tool.wedge && l.wedge !== st.tool.wedge) s = setWedge(s, st.cursor, st.tool.wedge);
+  if (s === st.score) return st;
+  return pushed ? { ...st, score: s } : { ...push(st), score: s };
 }
 
 function startTick(st) {

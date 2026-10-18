@@ -9,21 +9,44 @@ import { isGroup, getAt, parentOf, replaceAt, firstNotes, samePath } from './tre
  * what makes entering a kick and a hi-hat together two taps in the same place.
  */
 export function placeNote(score, c, note) {
-  return mapLeaf(score, c, (l) => leaf([...l.notes.filter((n) => n.slotId !== note.slotId), note]));
+  return mapLeaf(score, c, (l) => withNotes(l, [...l.notes.filter((n) => n.slotId !== note.slotId), note]));
+}
+
+/** A cell with new notes, keeping its dynamic and cresc./dim. (and no longer a continuation). */
+function withNotes(l, notes) {
+  return { notes: [...notes], ...(l.dyn ? { dyn: l.dyn } : {}), ...(l.wedge ? { wedge: l.wedge } : {}) };
+}
+
+export const DYNAMICS = ['pp', 'p', 'mp', 'mf', 'f', 'ff', 'fp', 'sfz'];
+
+/** A dynamic on the cell at `c` (choosing the one it has removes it). */
+export function setDynamic(score, c, dyn) {
+  return mapLeaf(score, c, (l) => {
+    const { dyn: had, ...rest } = l;
+    return had === dyn ? rest : { ...rest, dyn };
+  });
+}
+
+/** cresc. or dim. from the cell at `c` to the next dynamic (choosing the one it has removes it). */
+export function setWedge(score, c, wedge) {
+  return mapLeaf(score, c, (l) => {
+    const { wedge: had, ...rest } = l;
+    return had === wedge ? rest : { ...rest, wedge };
+  });
 }
 
 /** Remove whatever is on `slotId` at `c`, if anything. */
 export function deleteNote(score, c, slotId) {
   const l = getAt(score.bars[c.bar].beats[c.beat], c.path);
   if (!l.notes.some((n) => n.slotId === slotId)) return score;
-  return mapLeaf(score, c, (x) => leaf(x.notes.filter((n) => n.slotId !== slotId)));
+  return mapLeaf(score, c, (x) => withNotes(x, x.notes.filter((n) => n.slotId !== slotId)));
 }
 
 /** Empty the leaf at `c` (a rest); a continuation stops continuing. */
 export function clearLeaf(score, c) {
   const l = getAt(score.bars[c.bar].beats[c.beat], c.path);
   if (l.notes.length === 0 && !l.cont) return score;
-  return mapLeaf(score, c, () => leaf());
+  return mapLeaf(score, c, (x) => withNotes(x, []));
 }
 
 /**

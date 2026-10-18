@@ -93,6 +93,10 @@ export const Glyphs = Object.freeze({
   flag(value, dir = 'up') {
     return (dir === 'down' ? FLAG_DOWN : FLAG_UP)[value.id] ?? '';
   },
+  /** Dynamics as single SMuFL glyphs (verified 2026-10-18: pp E52B … sfz E539). */
+  dynamic(name) {
+    return { pp: cp(0xe52b), p: cp(0xe520), mp: cp(0xe52c), mf: cp(0xe52d), f: cp(0xe522), ff: cp(0xe52f), fp: cp(0xe534), sfz: cp(0xe539) }[name] ?? '';
+  },
   /** Sign for an alteration in semitones (halves are quarter tones); 0 is a natural. */
   accidental(alter) {
     return {
