@@ -16,6 +16,13 @@
   const views = full ? full.parts.map((p) => ({ id: p.id, instrument: p.instrument, view: partView(full, p.id), staff: profileById(p.instrument).staves[0] })) : [];
   const score = views[0]?.view ?? null;
   const many = views.length > 1;
+  const blocks = views.reduce((acc, v) => {
+    const g = full.parts.find((p) => p.id === v.id)?.group ?? null;
+    const last = acc[acc.length - 1];
+    if (g && last && last.group === g) last.views.push(v);
+    else acc.push({ group: g, views: [v] });
+    return acc;
+  }, []);
   const colours = normaliseColours(store.loadSettings().colours);
   let barsPerLine = $state(2);
   const pages = $derived(score ? paginate(score.bars.length, { barsPerLine, linesPerPage: 8 }) : [[]]);
@@ -41,11 +48,16 @@
         <div class="line">
           {#each line as bi, k}
             <div class="bar" style="flex: {k === 0 ? 1.25 : 1}">
-              {#each views as v (v.id)}
+              {#each blocks as blk}
+              <div class="block">
+                {#if blk.group && k === 0}<svg class="brace" viewBox="0 0 10 100" preserveAspectRatio="none" aria-hidden="true" style="position: absolute; left: 0; top: 8%; height: 84%; width: 9px; max-width: 9px; pointer-events: none; z-index: 2"><path d="M9 1 C3 3 6 30 4 46 C3 49 1 50 1 50 C1 50 3 51 4 54 C6 70 3 97 9 99" fill="none" stroke="currentColor" stroke-width="1.6" vector-effect="non-scaling-stroke" /></svg>{/if}
+              {#each blk.views as v (v.id)}
                 <div class="pstaff">
                   {#if many && k === 0}<span class="plabel">{t(`instrument.${v.instrument}`)}</span>{/if}
                   <ScoreSvg bar={v.view.bars[bi]} staff={v.staff} width={k === 0 ? LINE * 1.25 / line.length : LINE / line.length} staffSpacing={9} showClef={k === 0} timeSig={showsTimeSig(score, bi) ? barTimeSig(score, bi) : null} keyFifths={partKey(barKey(score, bi), profileById(v.view.profileId))} showKey={k === 0 || showsKey(score, bi)} den={barTimeSig(score, bi)[1]} carry={carryInto(v.view, bi)} tieOut={tiesOut(v.view, bi)} dynamicsAbove={!!profileById(v.view.profileId).dynamicsAbove} slurIn={slurOpenAt(v.view, bi)} {colours} fixedRange={many ? [7, 8.5] : [8, 10]} />
                 </div>
+              {/each}
+              </div>
               {/each}
             </div>
           {/each}
@@ -67,6 +79,8 @@
   .line { display: flex; gap: 0; margin: 8px 0 18px; }
   .bar :global(svg) { width: 100%; height: auto; }
   .pstaff { position: relative; }
+  .block { position: relative; }
+  .brace { position: absolute; left: 0; top: 8%; height: 84%; width: 9px; color: #000; pointer-events: none; }
   .plabel { position: absolute; top: 0; left: 0; font-size: 11px; font-weight: 600; color: #555; }
   .missing { padding: 24px; }
   @media print {

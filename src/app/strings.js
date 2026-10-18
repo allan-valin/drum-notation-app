@@ -41,6 +41,7 @@ export const STRINGS = {
       editLocked: 'Tocando: pare para editar',
     },
     tech: {
+      pizz: 'Pizzicato', arco: 'Arco', downBow: 'Arcada para baixo', upBow: 'Arcada para cima', harmonic: 'Harmônico', trill: 'Trinado', roll: 'Rufo',
       slash: 'Barra rítmica', fall: 'Fall', doit: 'Doit', scoop: 'Scoop', plop: 'Plop',
       slap: 'Slap', mute: 'Abafado',
       tapDoes: 'Ao tocar na pauta', withNote: 'Nota + símbolo', symbolOnly: 'Só símbolo', withNoteHint: 'Cada toque escreve uma nota com os símbolos escolhidos abaixo', symbolOnlyHint: 'Um toque em qualquer ponto da célula põe (ou tira) os símbolos na nota dela; com várias notas, na mais próxima do toque',
@@ -54,6 +55,12 @@ export const STRINGS = {
       open: 'Legenda', title: 'Legenda dos símbolos', close: 'Fechar', symbol: 'Símbolo', meaning: 'Neste app', also: 'Outros autores usam para',
       note: 'Cada método escreve bateria um pouco diferente. O app segue a convenção da Percussive Arts Society (Norman Weinberg); a coluna da direita lista o que outros livros usam para o mesmo símbolo. Se o seu livro usa outro sentido, escreva o símbolo como está no livro.',
       rows: {
+        pizz: { meaning: 'pizz. / arco: beliscar a corda / voltar ao arco', also: '—' },
+        downBow: { meaning: 'Arcada para baixo (talão para a ponta)', also: '—' },
+        upBow: { meaning: 'Arcada para cima (ponta para o talão)', also: '—' },
+        harmonic: { meaning: 'Harmônico: toque leve, som de flauta', also: 'Cabeça em losango: harmônico artificial' },
+        stringTremolo: { meaning: 'Trêmolo / rufo: repetir a nota rápido (três traços na haste)', also: 'Em percussão, rufo' },
+        trill: { meaning: 'Trinado: alternar rápido com a nota acima', also: 'Com acidente acima do tr: a nota auxiliar' },
         chord: { meaning: 'Cifra: o acorde para acompanhar (C7 = Dó com sétima)', also: 'Notação de jazz/pop; alguns usam Δ para maj7 e ø para m7♭5' },
         slashHead: { meaning: 'Barra rítmica: toque o acorde da cifra neste ritmo', also: 'Barras sem haste: improvise o acompanhamento' },
         fall: { meaning: 'Fall: deixe a nota cair no fim', also: 'Longo ou curto conforme o desenho' },
@@ -255,6 +262,7 @@ export const STRINGS = {
       editLocked: 'Playing: stop to edit',
     },
     tech: {
+      pizz: 'Pizzicato', arco: 'Arco', downBow: 'Down-bow', upBow: 'Up-bow', harmonic: 'Harmonic', trill: 'Trill', roll: 'Roll',
       slash: 'Rhythm slash', fall: 'Fall', doit: 'Doit', scoop: 'Scoop', plop: 'Plop',
       slap: 'Slap', mute: 'Muted',
       tapDoes: 'Tapping the staff', withNote: 'Note + symbol', symbolOnly: 'Symbol only', withNoteHint: 'Each tap writes a note carrying the symbols chosen below', symbolOnlyHint: 'A tap anywhere in the cell puts (or takes) the symbols on its note; with several notes, on the one nearest the tap',
@@ -268,6 +276,12 @@ export const STRINGS = {
       open: 'Legend', title: 'Symbol legend', close: 'Close', symbol: 'Symbol', meaning: 'In this app', also: 'Other authors use it for',
       note: 'Every method book notates drums a little differently. The app follows the Percussive Arts Society convention (Norman Weinberg); the right column lists what other books use the same symbol for. If your book means something else, write the symbol as it is in the book.',
       rows: {
+        pizz: { meaning: 'pizz. / arco: pluck the string / back to the bow', also: '—' },
+        downBow: { meaning: 'Down-bow (frog to tip)', also: '—' },
+        upBow: { meaning: 'Up-bow (tip to frog)', also: '—' },
+        harmonic: { meaning: 'Harmonic: light touch, flute-like sound', also: 'Diamond head: artificial harmonic' },
+        stringTremolo: { meaning: 'Tremolo / roll: repeat the note fast (three strokes on the stem)', also: 'In percussion, a roll' },
+        trill: { meaning: 'Trill: alternate fast with the note above', also: 'An accidental over tr gives the upper note' },
         chord: { meaning: 'Chord symbol: the chord to comp (C7 = C seventh)', also: 'Jazz/pop charts; some write Δ for maj7 and ø for m7♭5' },
         slashHead: { meaning: 'Rhythm slash: play the chord symbol in this rhythm', also: 'Stemless slashes: comp freely' },
         fall: { meaning: 'Fall: let the note drop off at the end', also: 'Long or short by the drawing' },
@@ -469,6 +483,7 @@ export const STRINGS = {
       editLocked: 'Wiedergabe läuft: zum Bearbeiten stoppen',
     },
     tech: {
+      pizz: 'Pizzicato', arco: 'Arco', downBow: 'Abstrich', upBow: 'Aufstrich', harmonic: 'Flageolett', trill: 'Triller', roll: 'Wirbel',
       slash: 'Rhythmusstrich', fall: 'Fall', doit: 'Doit', scoop: 'Scoop', plop: 'Plop',
       slap: 'Slap', mute: 'Gedämpft',
       tapDoes: 'Tippen ins System', withNote: 'Note + Zeichen', symbolOnly: 'Nur Zeichen', withNoteHint: 'Jedes Tippen schreibt eine Note mit den unten gewählten Zeichen', symbolOnlyHint: 'Ein Tippen irgendwo in der Zelle setzt (oder entfernt) die Zeichen an ihrer Note; bei mehreren an der nächstgelegenen',
@@ -482,6 +497,12 @@ export const STRINGS = {
       open: 'Legende', title: 'Zeichenlegende', close: 'Schließen', symbol: 'Zeichen', meaning: 'In dieser App', also: 'Andere Autoren nutzen es für',
       note: 'Jede Schule notiert Schlagzeug etwas anders. Die App folgt der Konvention der Percussive Arts Society (Norman Weinberg); die rechte Spalte nennt, wofür andere Bücher dasselbe Zeichen verwenden. Meint dein Buch etwas anderes, schreib das Zeichen so wie im Buch.',
       rows: {
+        pizz: { meaning: 'pizz. / arco: Saite zupfen / wieder mit Bogen', also: '—' },
+        downBow: { meaning: 'Abstrich (Frosch zur Spitze)', also: '—' },
+        upBow: { meaning: 'Aufstrich (Spitze zum Frosch)', also: '—' },
+        harmonic: { meaning: 'Flageolett: leicht berühren, flötenartiger Klang', also: 'Rautenkopf: künstliches Flageolett' },
+        stringTremolo: { meaning: 'Tremolo / Wirbel: die Note schnell wiederholen (drei Striche am Hals)', also: 'Bei Schlagwerk ein Wirbel' },
+        trill: { meaning: 'Triller: schnell mit der Note darüber wechseln', also: 'Vorzeichen über tr: die Nebennote' },
         chord: { meaning: 'Akkordsymbol: der Akkord zum Begleiten (C7 = C-Septakkord)', also: 'Jazz/Pop; manche schreiben Δ für maj7 und ø für m7♭5' },
         slashHead: { meaning: 'Rhythmusstrich: das Akkordsymbol in diesem Rhythmus spielen', also: 'Striche ohne Hals: frei begleiten' },
         fall: { meaning: 'Fall: die Note am Ende abfallen lassen', also: 'Lang oder kurz je nach Zeichnung' },

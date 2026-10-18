@@ -15,6 +15,15 @@
   const views = $derived(full.parts.map((p) => ({ id: p.id, muted: p.muted, view: partView(full, p.id), staff: profileById(p.instrument).staves[0], label: parts.find((x) => x.id === p.id)?.label ?? p.instrument })));
   const score = $derived(views[0].view);
   const many = $derived(views.length > 1);
+  /** Consecutive parts of one grouped instrument (both piano hands) drawn as one braced block. */
+  const blocks = $derived(views.reduce((acc, v) => {
+    const g = full.parts.find((p) => p.id === v.id)?.group ?? null;
+    const last = acc[acc.length - 1];
+    if (g && last && last.group === g) last.views.push(v);
+    else acc.push({ group: g, views: [v] });
+    return acc;
+  }, []));
+
 
   // ---- drag (casus caret-preview): nothing moves while aiming; a caret marks the gap ----
   let pool;
@@ -98,11 +107,16 @@
       {#each row as i}
         <button bind:this={frames[i]} class="frame" class:current={i === current} class:flash={i === flash} class:inrange={range && i >= range[0] && i <= range[1]} class:playing={i === playingBar} class:lifted={lifting !== null && i >= block(lifting)[0] && i <= block(lifting)[1]} onpointerdown={(e) => down(e, i)} onclick={() => click(i)} aria-label={t('editor.goToBar', { n: i + 1 })} aria-current={i === current}>
           <span class="n">{i + 1}</span>
-          {#each views as v (v.id)}
+          {#each blocks as blk}
+          <div class="block" class:grouped={blk.group}>
+            {#if blk.group && i % perRow === 0}<svg class="brace" viewBox="0 0 10 100" preserveAspectRatio="none" aria-hidden="true" style="position: absolute; left: 0; top: 8%; height: 84%; width: 10px; max-width: 10px; pointer-events: none; z-index: 2"><path d="M9 1 C3 3 6 30 4 46 C3 49 1 50 1 50 C1 50 3 51 4 54 C6 70 3 97 9 99" fill="none" stroke="currentColor" stroke-width="1.6" vector-effect="non-scaling-stroke" /></svg>{/if}
+          {#each blk.views as v (v.id)}
             <div class="staff" class:active={many && v.id === part} class:mutedpart={v.muted}>
               {#if many && i % perRow === 0}<span class="plabel">{v.label}</span>{/if}
               <ScoreSvg bar={v.view.bars[i]} staff={v.staff} width={barW - 4} staffSpacing={sp} showClef={i % perRow === 0} timeSig={showsTimeSig(score, i) ? barTimeSig(score, i) : null} keyFifths={partKey(barKey(score, i), profileById(v.view.profileId))} showKey={i % perRow === 0 || showsKey(score, i)} den={barTimeSig(score, i)[1]} carry={carryInto(v.view, i)} tieOut={tiesOut(v.view, i)} dynamicsAbove={!!profileById(v.view.profileId).dynamicsAbove} slurIn={slurOpenAt(v.view, i)} {colours} fixedRange={many ? [6.5, 8.5] : [8.5, 8.5]} />
             </div>
+          {/each}
+          </div>
           {/each}
         </button>
       {/each}
@@ -128,6 +142,9 @@
   .frame.flash { animation: flash 0.9s ease-out; }
   @keyframes flash { 0% { box-shadow: 0 0 0 6px var(--focus-ring); } 100% { box-shadow: 0 0 0 0 transparent; } }
   .staff { position: relative; }
+  .block { position: relative; }
+  .brace { position: absolute; left: 0; top: 8%; height: 84%; width: 10px; color: var(--ink); z-index: 2; pointer-events: none; }
+  .block.grouped .staff + .staff { border-top: none; }
   .staff + .staff { border-top: 1px dashed var(--line); }
   .staff.active { background: color-mix(in srgb, var(--accent) 7%, transparent); }
   .staff.mutedpart { opacity: 0.45; }

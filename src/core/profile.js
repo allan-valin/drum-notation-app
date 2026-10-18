@@ -183,7 +183,7 @@ const WIND_EXTRA = {
   techniques: ['trill', 'tremolo'],
   legend: [...PITCHED_LEGEND, 'breath', 'slur', 'trill'],
 };
-const MALLET_EXTRA = { palette: [...PITCHED_PALETTE, 'technique'], techniques: ['tremolo'], legend: [...PITCHED_LEGEND, 'stringTremolo'] };
+const MALLET_EXTRA = { palette: [...PITCHED_PALETTE, 'technique'], techniques: ['tremolo'], labels: { tremolo: 'roll' }, legend: [...PITCHED_LEGEND, 'stringTremolo'] };
 export const VIOLIN_PROFILE = pitchedProfile('violin', 'orchestra', 'treble', 'G3', 'E7', 'strings', STRINGS_EXTRA);
 export const VIOLA_PROFILE = pitchedProfile('viola', 'orchestra', 'alto', 'C3', 'E6', 'strings', STRINGS_EXTRA);
 export const CELLO_PROFILE = pitchedProfile('cello', 'orchestra', 'bass', 'C2', 'A5', 'strings', STRINGS_EXTRA);

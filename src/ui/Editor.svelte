@@ -19,7 +19,7 @@
   import { STRINGS } from '../app/strings.js';
   import { prefs } from '../app/prefs.svelte.js';
   import { t } from '../app/prefs.svelte.js';
-  import { partLabelIndex, isEmptyPart } from '../core/parts.js';
+  import { partLabelIndex, isEmptyPart, bandRows, groupOf } from '../core/parts.js';
   import { carryInto, tiesOut, slurOpenAt } from '../core/edit.js';
 
   /** `background`: drawn behind the welcome overlay, inert, nothing saved. */
@@ -52,6 +52,9 @@
     return t(`instrument.${p.instrument}`) + (n ? ` ${n}` : '');
   };
   const partList = $derived(st.full.parts.map((p) => ({ id: p.id, instrument: p.instrument, muted: p.muted, label: partName(st.full, p.id) })));
+  /** The band list: one row per instrument (a piano's two hands are one row). */
+  const bandList = $derived(bandRows(st.full).map((r) => ({ ...r, label: t(`instrument.${r.instrument}`) })));
+  const groupEmpty = (id) => groupOf(st.full, id).every((p) => isEmptyPart(st.full, p.id));
   const shownBar = $derived(playing && playhead ? playhead.bar : st.cursor.bar);
   const bar = $derived(st.score.bars[shownBar]);
   /** A drum's name, or a pitch spelled in the reader's language ("Fá♯4"). */
@@ -160,11 +163,11 @@
 
   /** The band list next to BPM: add, remove, re-instrument and mute parts. */
   function band(action) {
-    if (action.type === 'setInstrument' && !isEmptyPart(st.full, action.part)) {
+    if (action.type === 'setInstrument' && !groupEmpty(action.part)) {
       if (!confirm(t('instrument.confirmChange'))) return;
     }
-    if (action.type === 'removePart' && !isEmptyPart(st.full, action.part)) {
-      if (!confirm(t('instrument.confirmRemove', { name: partName(st.full, action.part) }))) return;
+    if (action.type === 'removePart' && !groupEmpty(action.part)) {
+      if (!confirm(t('instrument.confirmRemove', { name: bandList.find((r) => r.id === action.part)?.label ?? partName(st.full, action.part) }))) return;
     }
     dispatch(action);
   }
@@ -257,7 +260,7 @@
 
       <div class="bars-area"><BarRow score={st.score} barIndex={st.cursor.bar} onAction={dispatch} pitched={st.full.parts.some((p) => profileById(p.instrument).staves[0].pitched)} /></div>
 
-      <div class="transport-area"><Transport full={st.full} parts={partList} onBand={band} onSwing={(on) => dispatch({ type: 'setSwing', on })} currentBar={st.cursor.bar} {range} {store} bind:mode={playMode} bind:selecting onMove={moveBlock}
+      <div class="transport-area"><Transport full={st.full} parts={bandList} onBand={band} onSwing={(on) => dispatch({ type: 'setSwing', on })} currentBar={st.cursor.bar} {range} {store} bind:mode={playMode} bind:selecting onMove={moveBlock}
         onPlayhead={(p) => (playhead = p)} onPlaying={(on) => { playing = on; if (!on) playhead = null; }} onStatus={(m) => (status = m)} /></div>
 
       <div class="full-area"><FullScore full={st.full} parts={partList} part={st.part} range={selecting || playMode === 'selection' ? range : null} {selecting} onDrop={dropBlock} playingBar={playing ? playhead?.bar : null} {colours} current={st.cursor.bar} onOpen={openBar} /></div>

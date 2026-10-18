@@ -37,6 +37,8 @@
     ['chord', 'C7  B♭maj7'], ['slashHead', head(Notehead.SLASH)],
     ['fall', head(Notehead.NORMAL) + Glyphs.FALL], ['doit', head(Notehead.NORMAL) + Glyphs.DOIT],
     ['scoop', Glyphs.SCOOP + head(Notehead.NORMAL)], ['plop', Glyphs.PLOP + head(Notehead.NORMAL)],
+    ['pizz', 'pizz.'], ['downBow', Glyphs.DOWN_BOW], ['upBow', Glyphs.UP_BOW], ['harmonic', Glyphs.HARMONIC],
+    ['stringTremolo', Glyphs.TREMOLO3], ['trill', Glyphs.TRILL],
     ['congaSlap', head(Notehead.CROSS)],
     ['congaMute', Glyphs.CLOSED],
   ];

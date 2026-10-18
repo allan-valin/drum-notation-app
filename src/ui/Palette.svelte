@@ -27,6 +27,12 @@
     { id: Mark.DOIT, glyph: Glyphs.notehead(Notehead.NORMAL, q) + Glyphs.DOIT, cls: 'small' },
     { id: Mark.SCOOP, glyph: Glyphs.SCOOP + Glyphs.notehead(Notehead.NORMAL, q), cls: 'small' },
     { id: Mark.PLOP, glyph: Glyphs.PLOP + Glyphs.notehead(Notehead.NORMAL, q), cls: 'small' },
+    { id: Mark.PIZZ, text: 'pizz.', cls: 'word' },
+    { id: Mark.ARCO, text: 'arco', cls: 'word' },
+    { id: Mark.DOWN_BOW, glyph: Glyphs.DOWN_BOW, cls: 'mark' },
+    { id: Mark.UP_BOW, glyph: Glyphs.UP_BOW, cls: 'mark' },
+    { id: Mark.HARMONIC, glyph: Glyphs.HARMONIC, cls: 'mark' },
+    { id: Mark.TRILL, glyph: Glyphs.TRILL, cls: 'small' },
   ];
   const has = (group) => profile.palette.includes(group);
   const heads = $derived(HEADS.filter((h) => profile.heads.includes(h)));
@@ -268,7 +274,7 @@
     <div class="grid">
       {#each techs as x}
         <button class:on={tool.tech === x.id} aria-label={label(x.id)} onclick={() => tech(x.id)}>
-          <span class="smufl glyph {x.cls}">{x.glyph}</span><span class="label">{label(x.id)}</span>
+          {#if x.text}<span class="glyph text small-text wedge">{x.text}</span>{:else}<span class="smufl glyph {x.cls}">{x.glyph}</span>{/if}<span class="label">{label(x.id)}</span>
         </button>
       {/each}
     </div>
