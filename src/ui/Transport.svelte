@@ -3,7 +3,7 @@
   import { onDestroy } from 'svelte';
   import { t } from '../app/prefs.svelte.js';
   import { performanceAll } from '../core/schedule.js';
-  import { INSTRUMENTS } from '../core/profile.js';
+  import { INSTRUMENTS, INSTRUMENTS_BY_FAMILY } from '../core/profile.js';
   import { createPlayer } from '../audio/player.js';
   import { createKit, METRONOME_VOICES } from '../audio/kit.js';
   import { createSampleKit } from '../audio/samples.js';
@@ -141,7 +141,11 @@
       <div class="row" class:muted={p.muted}>
         <span class="n">{i + 1}</span>
         <select aria-label={`${t('instrument.label')} ${i + 1}`} value={p.instrument} disabled={playing} onchange={(e) => { const v = e.target.value; e.target.value = p.instrument; onBand({ type: 'setInstrument', part: p.id, instrument: v }); }}>
-          {#each INSTRUMENTS as id}<option value={id}>{t(`instrument.${id}`)}</option>{/each}
+          {#each INSTRUMENTS_BY_FAMILY as [fam, ids]}
+            <optgroup label={t(`family.${fam}`)}>
+              {#each ids as id}<option value={id}>{t(`instrument.${id}`)}</option>{/each}
+            </optgroup>
+          {/each}
         </select>
         <button class:on={p.muted} aria-pressed={p.muted} aria-label={`${p.muted ? t('instrument.unmute') : t('instrument.mute')}: ${p.label}`} title={p.muted ? t('instrument.unmute') : t('instrument.mute')} onclick={() => onBand({ type: 'toggleMute', part: p.id })}>{p.muted ? '🔇' : '🔊'}</button>
         <button aria-label={`${t('instrument.remove')}: ${p.label}`} title={t('instrument.remove')} disabled={parts.length <= 1 || playing} onclick={() => onBand({ type: 'removePart', part: p.id })}>✕</button>

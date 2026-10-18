@@ -41,6 +41,7 @@
   let range = $state(null);
   let selecting = $state(false);
   let onlyPart = $state(false);
+  let lyricsInfo = $state('');
   if (!background && loaded) store.saveSettings({ ...store.loadSettings(), lastId: id });
 
   const profile = $derived(profileById(st.score.profileId));
@@ -142,6 +143,12 @@
       case 'setWedge': return after.tool.wedge ? t('status.dynOn', { what: after.tool.wedge === 'cresc' ? 'cresc.' : 'dim.' }) : t('status.dynOff');
       case 'setChord': return a.text ? t('status.chordSet', { text: prettyChord(a.text), pos: `${before.cursor.bar + 1}.${posLabel(before.cursor)}` }) : t('status.chordCleared');
       case 'setSwing': return after.score.swing ? t('status.swingOn') : t('status.swingOff');
+      case 'setLyricAt': return a.text ? t('status.lyricSet', { text: a.text, pos: `${n}.${posLabel(after.cursor)}` }) : t('status.lyricCleared');
+      case 'pasteLyrics': {
+        const r = after.lyricsResult ?? { placed: 0, left: 0 };
+        lyricsInfo = t(r.left ? 'status.lyricsPastedLeft' : 'status.lyricsPasted', { n: r.placed, left: r.left });
+        return lyricsInfo;
+      }
       case 'setLyric': return a.text ? t('status.lyricSet', { text: a.text, pos: `${before.cursor.bar + 1}.${posLabel(before.cursor)}` }) : t('status.lyricCleared');
       case 'setSlur': return leafAt(after.score, after.cursor).slur ? t(`status.slur_${a.kind}`, { pos: p }) : t('status.slurRemoved', { pos: p });
       case 'toggleDot': return after.tool.dot ? t('status.dotOn') : t('status.dotOff');
@@ -225,7 +232,7 @@
 
   <div class="body">
     <aside class="palette-area no-print" class:locked={playing} inert={playing}>
-      <Palette tool={st.tool} canUndo={st.history.length > 0} canMerge={st.cursor.path.length > 1} onAction={dispatch} onLegend={() => (overlay = 'legend')} onHelp={() => (overlay = 'help')} {profile} parts={partList} part={st.part} lyric={leafAt(st.score, st.cursor).lyric ?? ''} chord={leafAt(st.score, st.cursor).chord ?? ''} />
+      <Palette tool={st.tool} canUndo={st.history.length > 0} canMerge={st.cursor.path.length > 1} onAction={dispatch} onLegend={() => (overlay = 'legend')} onHelp={() => (overlay = 'help')} {profile} parts={partList} part={st.part} lyric={leafAt(st.score, st.cursor).lyric ?? ''} chord={leafAt(st.score, st.cursor).chord ?? ''} {lyricsInfo} />
     </aside>
 
       <div class="stage">
@@ -244,6 +251,7 @@
           tieOut={tiesOut(st.score, shownBar)}
           dynamicsAbove={!!profile.dynamicsAbove}
           slurIn={slurOpenAt(st.score, shownBar)}
+          onLyric={profile.palette.includes('lyrics') && !playing ? ({ beat, path, text }) => dispatch({ type: 'setLyricAt', beat, path, text }) : null}
           showGuides={true}
           cards={true}
           deleteMode={st.tool.delete}

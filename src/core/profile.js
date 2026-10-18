@@ -311,3 +311,10 @@ export function groupName(instruments) {
 export function profileById(id) {
   return PROFILES[id] ?? DRUM_PROFILE;
 }
+
+/** Instruments for the dropdowns, grouped by family in a fixed order (section headers). */
+export const FAMILIES = ['rock', 'choir', 'jazz', 'orchestra', 'arabic', 'japanese'];
+export function familyOf(instrument) {
+  return profileById(GROUPS[instrument]?.[0] ?? instrument).family;
+}
+export const INSTRUMENTS_BY_FAMILY = Object.freeze(FAMILIES.map((f) => [f, INSTRUMENTS.filter((id) => familyOf(id) === f)]));

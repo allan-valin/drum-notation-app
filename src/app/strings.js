@@ -17,9 +17,11 @@ export function format(s, params = {}) {
 
 export const STRINGS = {
   pt: {
+    family: { rock: 'Banda de rock', choir: 'Coro', jazz: 'Jazz', orchestra: 'Orquestra', arabic: 'Música árabe', japanese: 'Japão' },
     maqam: { rast: 'Rast (Dó)', bayati: 'Bayati (Ré)', saba: 'Saba (Ré)', hijaz: 'Hijaz (Ré)', nahawand: 'Nahawand (Dó)', kurd: 'Kurd (Ré)', sikah: 'Sikah (Mi meio bemol)' },
     noteNames: { C: 'Dó', D: 'Ré', E: 'Mi', F: 'Fá', G: 'Sol', A: 'Lá', B: 'Si' },
     instrument: {
+      inScore: 'Nesta partitura',
       koto: 'Koto', shamisen: 'Shamisen', shakuhachi: 'Shakuhachi', taiko: 'Taiko',
       oud: 'Alaúde árabe (oud)', qanun: 'Qanun', ney: 'Ney', darbuka: 'Darbuka', riq: 'Riq', daf: 'Daf',
       piano: 'Piano', harp: 'Harpa', pianoRH: 'Piano (mão direita)', pianoLH: 'Piano (mão esquerda)', harpRH: 'Harpa (mão direita)', harpLH: 'Harpa (mão esquerda)', violin: 'Violino', viola: 'Viola', cello: 'Violoncelo', contrabass: 'Contrabaixo (orquestra)', flute: 'Flauta', oboe: 'Oboé', clarinet: 'Clarinete (Si♭)', bassoon: 'Fagote', horn: 'Trompa (Fá)', tuba: 'Tuba', timpani: 'Tímpanos', glockenspiel: 'Glockenspiel', xylophone: 'Xilofone', marimba: 'Marimba',
@@ -179,6 +181,7 @@ export const STRINGS = {
       midTom: 'Tom médio', highTom: 'Tom agudo', hihat: 'Chimbal', ride: 'Ride', crash: 'Crash',
     },
     palette: {
+      paste: 'Colar letra', pasteHint: 'Cole ou digite a letra: Glo-ri-a in ex-cel-sis. Vai da nota selecionada em diante; _ pula uma nota.',
       quarterFlat: 'Meio bemol', quarterSharp: 'Meio sustenido', threeQuarterFlat: 'Bemol e meio', threeQuarterSharp: 'Sustenido e meio',
       chords: 'Cifra', chordHint: 'ex.: C7, Bbmaj7, F#m7b5', chordApply: 'Escrever a cifra e ir para o próximo tempo', chordHelp: 'Enter escreve no tempo selecionado e vai para o próximo. Vazio apaga.',
       phrasing: 'Fraseado', slurStart: 'Início da ligadura', slurEnd: 'Fim da ligadura', slurHint: 'Marca a célula selecionada como início ou fim da ligadura de expressão', breath: 'Respiração', lyrics: 'Letra', lyricHint: 'sílaba (ex.: Glo-)', lyricApply: 'Escrever a sílaba e ir para a próxima nota', lyricHelp: 'Enter escreve na nota selecionada e vai para a próxima. Termine com - para o hífen.',
@@ -202,6 +205,7 @@ export const STRINGS = {
       colourReset: 'Padrão', landscapeHint: 'Na horizontal o tempo em foco fica maior.', ok: 'ok', barAria: 'Compasso',
     },
     status: {
+      lyricsPasted: '{n} sílabas colocadas', lyricsPastedLeft: '{n} sílabas colocadas; {left} ficaram sem nota',
       chordSet: 'Cifra {text} em {pos}', chordCleared: 'Cifra removida', swingOn: 'Swing ligado: colcheias suingadas', swingOff: 'Colcheias retas',
       lyricSet: '“{text}” em {pos}', lyricCleared: 'Letra removida', slur_start: 'Ligadura começa em {pos}', slur_end: 'Ligadura termina em {pos}', slurRemoved: 'Marca de ligadura removida em {pos}',
       dynOn: 'Próximas notas: {what}', dynOff: 'Sem dinâmica nas próximas notas',
@@ -252,9 +256,11 @@ export const STRINGS = {
   },
 
   en: {
+    family: { rock: 'Rock band', choir: 'Choir', jazz: 'Jazz', orchestra: 'Orchestra', arabic: 'Arabic music', japanese: 'Japan' },
     maqam: { rast: 'Rast (C)', bayati: 'Bayati (D)', saba: 'Saba (D)', hijaz: 'Hijaz (D)', nahawand: 'Nahawand (C)', kurd: 'Kurd (D)', sikah: 'Sikah (E half-flat)' },
     noteNames: { C: 'C', D: 'D', E: 'E', F: 'F', G: 'G', A: 'A', B: 'B' },
     instrument: {
+      inScore: 'In this score',
       koto: 'Koto', shamisen: 'Shamisen', shakuhachi: 'Shakuhachi', taiko: 'Taiko',
       oud: 'Oud', qanun: 'Qanun', ney: 'Ney', darbuka: 'Darbuka', riq: 'Riq', daf: 'Daf',
       piano: 'Piano', harp: 'Harp', pianoRH: 'Piano (right hand)', pianoLH: 'Piano (left hand)', harpRH: 'Harp (right hand)', harpLH: 'Harp (left hand)', violin: 'Violin', viola: 'Viola', cello: 'Cello', contrabass: 'Double bass (orchestra)', flute: 'Flute', oboe: 'Oboe', clarinet: 'Clarinet (B♭)', bassoon: 'Bassoon', horn: 'Horn (F)', tuba: 'Tuba', timpani: 'Timpani', glockenspiel: 'Glockenspiel', xylophone: 'Xylophone', marimba: 'Marimba',
@@ -414,6 +420,7 @@ export const STRINGS = {
       midTom: 'Mid tom', highTom: 'High tom', hihat: 'Hi-hat', ride: 'Ride', crash: 'Crash',
     },
     palette: {
+      paste: 'Paste lyrics', pasteHint: 'Paste or type the words: Glo-ri-a in ex-cel-sis. Goes from the selected note on; _ skips a note.',
       quarterFlat: 'Half flat', quarterSharp: 'Half sharp', threeQuarterFlat: 'Flat and a half', threeQuarterSharp: 'Sharp and a half',
       chords: 'Chord symbol', chordHint: 'e.g. C7, Bbmaj7, F#m7b5', chordApply: 'Write the chord and go to the next beat', chordHelp: 'Enter writes on the selected beat and moves to the next. Empty removes it.',
       phrasing: 'Phrasing', slurStart: 'Slur start', slurEnd: 'Slur end', slurHint: 'Marks the selected cell as where the slur starts or ends', breath: 'Breath', lyrics: 'Lyrics', lyricHint: 'syllable (e.g. Glo-)', lyricApply: 'Write the syllable and go to the next note', lyricHelp: 'Enter writes on the selected note and moves to the next. End with - for a hyphen.',
@@ -437,6 +444,7 @@ export const STRINGS = {
       colourReset: 'Default', landscapeHint: 'Turn the phone sideways for a bigger beat.', ok: 'ok', barAria: 'Bar',
     },
     status: {
+      lyricsPasted: '{n} syllables placed', lyricsPastedLeft: '{n} syllables placed; {left} had no note left',
       chordSet: 'Chord {text} at {pos}', chordCleared: 'Chord removed', swingOn: 'Swing on: eighths swung', swingOff: 'Straight eighths',
       lyricSet: '“{text}” at {pos}', lyricCleared: 'Lyric removed', slur_start: 'Slur starts at {pos}', slur_end: 'Slur ends at {pos}', slurRemoved: 'Slur mark removed at {pos}',
       dynOn: 'Next notes: {what}', dynOff: 'No dynamic on the next notes',
@@ -487,9 +495,11 @@ export const STRINGS = {
   },
 
   de: {
+    family: { rock: 'Rockband', choir: 'Chor', jazz: 'Jazz', orchestra: 'Orchester', arabic: 'Arabische Musik', japanese: 'Japan' },
     maqam: { rast: 'Rast (C)', bayati: 'Bayati (D)', saba: 'Saba (D)', hijaz: 'Hijaz (D)', nahawand: 'Nahawand (C)', kurd: 'Kurd (D)', sikah: 'Sikah (E-Halb-Be)' },
     noteNames: { C: 'C', D: 'D', E: 'E', F: 'F', G: 'G', A: 'A', B: 'H' },
     instrument: {
+      inScore: 'In dieser Partitur',
       koto: 'Koto', shamisen: 'Shamisen', shakuhachi: 'Shakuhachi', taiko: 'Taiko',
       oud: 'Oud', qanun: 'Qanun', ney: 'Ney', darbuka: 'Darbuka', riq: 'Riq', daf: 'Daf',
       piano: 'Klavier', harp: 'Harfe', pianoRH: 'Klavier (rechte Hand)', pianoLH: 'Klavier (linke Hand)', harpRH: 'Harfe (rechte Hand)', harpLH: 'Harfe (linke Hand)', violin: 'Violine', viola: 'Bratsche', cello: 'Violoncello', contrabass: 'Kontrabass (Orchester)', flute: 'Flöte', oboe: 'Oboe', clarinet: 'Klarinette (B)', bassoon: 'Fagott', horn: 'Horn (F)', tuba: 'Tuba', timpani: 'Pauken', glockenspiel: 'Glockenspiel', xylophone: 'Xylophon', marimba: 'Marimba',
@@ -649,6 +659,7 @@ export const STRINGS = {
       midTom: 'Mitteltom', highTom: 'Hochtom', hihat: 'Hi-Hat', ride: 'Ride', crash: 'Crash',
     },
     palette: {
+      paste: 'Text einfügen', pasteHint: 'Text einfügen oder tippen: Glo-ri-a in ex-cel-sis. Ab der gewählten Note; _ überspringt eine Note.',
       quarterFlat: 'Viertelton-Be', quarterSharp: 'Viertelton-Kreuz', threeQuarterFlat: 'Dreiviertelton-Be', threeQuarterSharp: 'Dreiviertelton-Kreuz',
       chords: 'Akkord', chordHint: 'z. B. C7, Bbmaj7, F#m7b5', chordApply: 'Akkord schreiben und zum nächsten Schlag', chordHelp: 'Enter schreibt auf den gewählten Schlag und geht zum nächsten. Leer löscht.',
       phrasing: 'Phrasierung', slurStart: 'Bogen Anfang', slurEnd: 'Bogen Ende', slurHint: 'Markiert die gewählte Zelle als Anfang oder Ende des Bogens', breath: 'Atmen', lyrics: 'Text', lyricHint: 'Silbe (z. B. Glo-)', lyricApply: 'Silbe schreiben und zur nächsten Note', lyricHelp: 'Enter schreibt auf die gewählte Note und geht zur nächsten. Mit - enden für den Trennstrich.',
@@ -672,6 +683,7 @@ export const STRINGS = {
       colourReset: 'Standard', landscapeHint: 'Im Querformat wird der Schlag größer.', ok: 'ok', barAria: 'Takt',
     },
     status: {
+      lyricsPasted: '{n} Silben gesetzt', lyricsPastedLeft: '{n} Silben gesetzt; {left} ohne Note',
       chordSet: 'Akkord {text} bei {pos}', chordCleared: 'Akkord entfernt', swingOn: 'Swing an: Achtel geswingt', swingOff: 'Gerade Achtel',
       lyricSet: '„{text}“ bei {pos}', lyricCleared: 'Text entfernt', slur_start: 'Bogen beginnt bei {pos}', slur_end: 'Bogen endet bei {pos}', slurRemoved: 'Bogenmarke bei {pos} entfernt',
       dynOn: 'Nächste Noten: {what}', dynOff: 'Keine Dynamik für die nächsten Noten',

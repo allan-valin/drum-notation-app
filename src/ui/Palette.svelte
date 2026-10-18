@@ -5,11 +5,11 @@
   import { Sticking, Mark, Roll, Grace } from '../core/score.js';
   import { t } from '../app/prefs.svelte.js';
 
-  import { DRUM_PROFILE, INSTRUMENTS } from '../core/profile.js';
+  import { DRUM_PROFILE, INSTRUMENTS_BY_FAMILY } from '../core/profile.js';
 
   let {
     tool, onAction, canUndo = false, canMerge = false, onLegend = () => {}, onHelp = () => {},
-    profile = DRUM_PROFILE, parts = [], part = null, lyric = '', chord = '',
+    profile = DRUM_PROFILE, parts = [], part = null, lyric = '', chord = '', lyricsInfo = '',
   } = $props();
   const q = NoteValue.QUARTER;
   const HEADS = [Notehead.CROSS, Notehead.DIAMOND, Notehead.TRIANGLE, Notehead.CIRCLE_X, Notehead.SLASHED, Notehead.SLASH];
@@ -77,10 +77,15 @@
       if (v.startsWith('add:')) { e.target.value = part; onAction({ type: 'addPart', instrument: v.slice(4) }); }
       else onAction({ type: 'setPart', part: v });
     }}>
-      {#each parts as p}<option value={p.id}>{p.label}</option>{/each}
-      <optgroup label={t('instrument.add')}>
-        {#each INSTRUMENTS as id}<option value={`add:${id}`}>+ {t(`instrument.${id}`)}</option>{/each}
+      <optgroup label={t('instrument.inScore')}>
+        {#each parts as p}<option value={p.id}>{p.label}</option>{/each}
       </optgroup>
+      <!-- section headers (optgroup labels) cannot be chosen -->
+      {#each INSTRUMENTS_BY_FAMILY as [fam, ids]}
+        <optgroup label={`${t('instrument.add')} · ${t(`family.${fam}`)}`}>
+          {#each ids as id}<option value={`add:${id}`}>+ {t(`instrument.${id}`)}</option>{/each}
+        </optgroup>
+      {/each}
     </select>
   </section>
   <section>
@@ -231,6 +236,11 @@
       <button type="submit" aria-label={t('palette.lyricApply')}>↵</button>
     </form>
     <p class="hint">{t('palette.lyricHelp')}</p>
+    <form class="paste" onsubmit={(e) => { e.preventDefault(); const f = e.currentTarget.elements.verse; onAction({ type: 'pasteLyrics', text: f.value }); }}>
+      <textarea name="verse" rows="3" placeholder={t('palette.pasteHint')} aria-label={t('palette.paste')}></textarea>
+      <button type="submit">{t('palette.paste')}</button>
+    </form>
+    {#if lyricsInfo}<p class="hint">{lyricsInfo}</p>{/if}
   </section>
   {/if}
 
@@ -310,6 +320,9 @@
   .glyph.acc { font-size: 34px; align-items: center; height: 34px; }
   .glyph.art { font-size: 34px; align-items: center; padding-top: 6px; }
   .lyrics form { display: flex; gap: 5px; }
+  .lyrics form.paste { flex-direction: column; margin-top: 6px; }
+  .lyrics textarea { min-height: 70px; font: inherit; font-size: 14px; padding: 6px 8px; color: var(--ink); background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); }
+  .lyrics form.paste button { flex-direction: row; font-size: 14px; }
   .lyrics input { flex: 1; min-width: 0; font: inherit; min-height: var(--tap); padding: 0 8px; color: var(--ink); background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); }
   .lyrics button { min-height: var(--tap); min-width: var(--tap); flex-direction: row; justify-content: center; }
   .glyph.dyn { font-size: 30px; align-items: center; height: 32px; }

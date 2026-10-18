@@ -12,6 +12,8 @@
   const slotLabel = (id) => noteName(id, 0, prefs.lang, STRINGS[prefs.lang].noteNames);
   import { samePath } from '../core/tree.js';
   import { prettyChord } from '../core/chords.js';
+  import { getAt } from '../core/tree.js';
+  const leafOf = (l) => getAt(bar.beats[l.beat], l.path);
   import { CLEFS, keyAccidentals, staffPositionOf } from '../core/pitch.js';
 
   let {
@@ -40,6 +42,8 @@
     /** voices: dynamics above the staff; a slur may come in from the previous bar */
     dynamicsAbove = false,
     slurIn = false,
+    /** voices: a text box under each note for its syllable; called with { beat, path, text } */
+    onLyric = null,
     showKey = true,
     /** highlight for a whole bar, e.g. the bar being played */
     playingPath = null,
@@ -197,6 +201,19 @@
     {/each}
   </g>
 </svg>
+{#if onLyric}
+  <!-- one box per note (held cells take no syllable), aligned under its cell -->
+  <div class="lyricrow" style="width: {width}px">
+    {#each layout.leaves as l (l.beat + ':' + l.path.join('.'))}
+      {@const cell = leafOf(l)}
+      {#if cell && cell.notes.length && !cell.cont}
+        <input type="text" class="lyricbox" maxlength="24" value={cell.lyric ?? ''} aria-label={t('palette.lyrics') + ` ${l.beat + 1}.${l.path.map((x) => x + 1).join('.')}`}
+          style="left: {lead + l.x0 + 1}px; width: {Math.max(28, l.x1 - l.x0 - 2)}px"
+          onchange={(e) => onLyric({ beat: l.beat, path: l.path, text: e.target.value })} />
+      {/if}
+    {/each}
+  </div>
+{/if}
 
 <style>
   .score { display: block; touch-action: manipulation; user-select: none; -webkit-user-select: none; color: var(--ink); }
@@ -212,6 +229,8 @@
   .guide { stroke: var(--focus-ring); stroke-opacity: 0.35; stroke-dasharray: 2 3; }
   .guide-label { fill: var(--muted); font-family: system-ui, sans-serif; pointer-events: none; }
   .ink { fill: var(--ink); }
+  .lyricrow { position: relative; height: 34px; }
+  .lyricbox { position: absolute; top: 2px; height: 28px; font: inherit; font-size: 14px; text-align: center; padding: 0 2px; color: var(--ink); background: var(--panel); border: 1px solid var(--line); border-radius: 6px; }
   .chord { fill: var(--ink); font-family: system-ui, sans-serif; font-weight: 700; }
   .slur { fill: var(--ink); stroke: var(--ink); stroke-width: 0.6; }
   .lyric { fill: var(--ink); font-family: system-ui, sans-serif; }

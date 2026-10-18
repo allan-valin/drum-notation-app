@@ -5,7 +5,7 @@ import { cursor as mkCursor, next, prev, leafAt, clamp } from './cursor.js';
 import { parentOf, leafPaths, getAt } from './tree.js';
 import {
   placeNote, deleteNote, clearLeaf, splitBeat, splitCell, resizeCell, mergeCell, addBar, removeBar,
-  setTimeSig, toggleSimile, toggleRepeatStart, toggleRepeatEnd, setBarText, moveBars, setKey, setLength, toggleTie, setDynamic, setWedge, setLyric, setSlur, setChord,
+  setTimeSig, toggleSimile, toggleRepeatStart, toggleRepeatEnd, setBarText, moveBars, setKey, setLength, toggleTie, setDynamic, setWedge, setLyric, setSlur, setChord, distributeLyrics,
 } from './edit.js';
 import { barLeaves } from './edit.js';
 import { profileById, slotNearest } from './profile.js';
@@ -112,7 +112,7 @@ function pushFull(st) {
 }
 
 function reduceView(state, action) {
-  const st = state.refused || state.selectedOnly || state.symbolsRemoved !== undefined ? { ...state, refused: null, selectedOnly: false, symbolsRemoved: undefined } : state;
+  const st = state.refused || state.selectedOnly || state.symbolsRemoved !== undefined || state.lyricsResult ? { ...state, refused: null, selectedOnly: false, symbolsRemoved: undefined, lyricsResult: undefined } : state;
   switch (action.type) {
     case 'tap': return tap(st, action.staffPosition);
     case 'tapAt': {
@@ -150,6 +150,16 @@ function reduceView(state, action) {
     case 'toggleDot': return tool(st, { dot: !st.tool.dot });
     case 'setDyn': return tool(st, { dyn: st.tool.dyn === action.dyn ? null : action.dyn });
     case 'setSlur': return edit(st, (s) => setSlur(s, st.cursor, action.kind));
+    case 'pasteLyrics': {
+      const r = distributeLyrics(st.score, st.cursor, action.text);
+      const out = r.score === st.score ? st : { ...push(st), score: r.score };
+      return { ...out, lyricsResult: { placed: r.placed, left: r.left } };
+    }
+    case 'setLyricAt': {
+      const c = clamp(st.score, { bar: st.cursor.bar, beat: action.beat, path: action.path });
+      const moved = syncTool({ ...st, cursor: c });
+      return edit(moved, (s) => setLyric(s, c, action.text));
+    }
     case 'setSwing': return edit(st, (s) => (!!s.swing === !!action.on ? s : { ...s, swing: !!action.on }));
     case 'setChord': {
       const s = setChord(st.score, st.cursor, action.text);

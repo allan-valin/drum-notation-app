@@ -401,3 +401,40 @@ export function carryInto(score, index) {
 export function tiesOut(score, index) {
   return index + 1 < score.bars.length && !!barLeaves(score, index + 1)[0]?.leaf.cont;
 }
+
+/** A verse as syllables: words split at hyphens ("Glo-ri-a" → "Glo-", "ri-", "a"); "_" stays (skip a note). */
+export function syllables(text) {
+  return String(text ?? '').split(/\s+/).filter(Boolean).flatMap((w) => {
+    if (w === '_') return ['_'];
+    const parts = w.split('-').filter(Boolean);
+    return parts.map((p, i) => (i < parts.length - 1 ? `${p}-` : p));
+  });
+}
+
+/**
+ * Put a verse on the notes from `c` on, one syllable per note in time order, across bars;
+ * held cells (ties, long notes) take none; "_" leaves a note without a syllable (melisma).
+ * Returns { score, placed, left } — left: syllables with no note to go on.
+ */
+export function distributeLyrics(score, c, text) {
+  const words = syllables(text);
+  let s = score;
+  let placed = 0;
+  let k = 0;
+  let started = false;
+  for (let b = c.bar; b < s.bars.length && k < words.length; b++) {
+    for (const l of barLeaves(s, b)) {
+      if (!started) {
+        if (l.beat !== c.beat || !samePath(l.path, c.path)) continue;
+        started = true;
+      }
+      if (k >= words.length) break;
+      if (!l.leaf.notes.length || l.leaf.cont) continue;
+      const w = words[k++];
+      if (w === '_') continue;
+      s = setLyric(s, at(l), w);
+      placed += 1;
+    }
+  }
+  return { score: s, placed, left: words.length - k };
+}
