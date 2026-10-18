@@ -1,7 +1,8 @@
 <script>
   import { newScore } from '../core/score.js';
   import { encode, decode } from '../core/json.js';
-  import { t } from '../app/prefs.svelte.js';
+  import { t, prefs } from '../app/prefs.svelte.js';
+  import { importPromptUrl } from '../app/importPrompt.js';
   import Prefs from './Prefs.svelte';
 
   let { store, onOpen, onPrint, last = null } = $props();
@@ -87,7 +88,7 @@
   <div class="actions">
     <button class={last ? '' : 'on'} onclick={create}>{t('archive.newScore')}</button>
     <button onclick={() => (importing = !importing)}>{importing ? t('archive.importClose') : t('archive.importOpen')}</button>
-    <a class="help" href="https://github.com/allan-valin/drum-notation-app/blob/main/docs/SCORE_IMPORT_PROMPT.md" target="_blank" rel="noopener">{t('archive.importHelp')}</a>
+    <a class="help" href={importPromptUrl(prefs.lang)} target="_blank" rel="noopener">{t('archive.importHelp')}</a>
   </div>
 
   {#if importing}

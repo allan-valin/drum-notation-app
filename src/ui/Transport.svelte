@@ -94,8 +94,9 @@
       {/each}
     </span>
     <span class="bpm">
+      <span class="lbl">{t('play.bpm')}</span>
       <button aria-label={t('play.slower')} disabled={playing} onclick={() => setBpm(bpm - 5)}>−</button>
-      <label>{t('play.bpm')} <input type="number" min="20" max="300" value={bpm} disabled={playing} onchange={(e) => setBpm(e.target.value)} /></label>
+      <input type="number" min="20" max="300" value={bpm} disabled={playing} aria-label={t('play.bpm')} onchange={(e) => setBpm(e.target.value)} />
       <button aria-label={t('play.faster')} disabled={playing} onclick={() => setBpm(bpm + 5)}>+</button>
     </span>
   </div>
@@ -106,17 +107,19 @@
 </section>
 
 <style>
-  .transport { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; padding: 8px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--panel); }
+  .transport { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; padding: 8px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--toolbar); }
   .play { display: inline-flex; align-items: center; gap: 6px; font-size: 16px; font-weight: 600; min-width: 110px; background: #1f8f4e; color: #fff; border-color: #1f8f4e; }
   .play.on { background: var(--danger); border-color: var(--danger); }
-  .modes { display: flex; flex-wrap: wrap; border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; }
+  .modes { background: var(--panel); display: flex; flex-wrap: wrap; border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; }
   .modes button { border: none; border-radius: 0; font-size: 14px; }
+  .modes button + button, .sound button + button { border-left: 1px solid var(--line); }
+  .sound .lbl + button { border-left: 1px solid var(--line); }
   .opts { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
   .opts > button { font-size: 14px; }
   .bpm { display: inline-flex; gap: 4px; align-items: center; }
-  .bpm label { display: inline-flex; gap: 4px; align-items: center; font-size: 13px; color: var(--muted); }
+  .bpm .lbl { font-size: 13px; color: var(--muted); }
   .bpm input { width: 64px; }
-  .sound { display: inline-flex; align-items: center; gap: 0; border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; }
+  .sound { background: var(--panel); display: inline-flex; align-items: center; gap: 0; border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; }
   .sound .lbl { font-size: 12px; color: var(--muted); padding: 0 8px; }
   .sound button { border: none; border-radius: 0; font-size: 14px; }
   .hint { width: 100%; margin: 0; font-size: 12px; color: var(--muted); }

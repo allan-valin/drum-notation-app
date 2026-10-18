@@ -24,7 +24,7 @@ box; each checkpoint is one commit + push and leaves the site working. Same rule
 
 ## Checkpoints
 
-### D1 — quick fixes: G1, G2, G5, G6, G9, G10, G11, G12 — [ ]
+### D1 — quick fixes: G1, G2, G5, G6, G9, G10, G11, G12 — [x] 2026-10-18 (hit-test: 25 stolen clicks → 0 at 1280×800, 800×360, 390×844)
 ### D2 — tap rules and merge-up: G3, G4 — [ ]
 ### D3 — symbol-only mode, single technique: G7, G8 — [ ]
 ### D4 — bar selection, move with arrows, drag and drop: G13 — [ ]

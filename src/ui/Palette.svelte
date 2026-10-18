@@ -17,6 +17,20 @@
     <button class="aux" onclick={onHelp} aria-label={t('help.title')}><span class="glyph text small-text">?</span><span class="label">{t('help.open')}</span></button>
   </div>
   <section>
+    <h3>{t('palette.edit')}</h3>
+    <div class="grid">
+      <button class="danger" class:on={tool.delete} aria-label={t('palette.delete')} title={t('palette.deleteHint')} onclick={() => onAction({ type: 'toggleDelete' })}>
+        <span class="glyph text">✕</span><span class="label">{t('palette.delete')}</span>
+      </button>
+      <button aria-label={t('palette.undo')} disabled={!canUndo} onclick={() => onAction({ type: 'undo' })}>
+        <span class="glyph text">↶</span><span class="label">{t('palette.undo')}</span>
+      </button>
+      <button aria-label={t('split.merge')} title={t('split.mergeHint')} disabled={!canMerge} onclick={() => onAction({ type: 'merge' })}>
+        <span class="glyph text">⊐⊏</span><span class="label">{t('split.merge')}</span>
+      </button>
+    </div>
+  </section>
+  <section>
     <h3>{t('palette.figure')}</h3>
     <div class="mode" role="radiogroup" aria-label={t('palette.figure')}>
       <button role="radio" aria-checked={tool.splitMode !== 'cell'} class:on={tool.splitMode !== 'cell'} onclick={() => onAction({ type: 'setSplitMode', mode: 'beat' })}>{t('split.beat')}</button>
@@ -112,20 +126,6 @@
     </div>
   </section>
 
-  <section>
-    <h3>{t('palette.edit')}</h3>
-    <div class="grid">
-      <button class="danger" class:on={tool.delete} aria-label={t('palette.delete')} title={t('palette.deleteHint')} onclick={() => onAction({ type: 'toggleDelete' })}>
-        <span class="glyph text">✕</span><span class="label">{t('palette.delete')}</span>
-      </button>
-      <button aria-label={t('palette.undo')} disabled={!canUndo} onclick={() => onAction({ type: 'undo' })}>
-        <span class="glyph text">↶</span><span class="label">{t('palette.undo')}</span>
-      </button>
-      <button aria-label={t('split.merge')} title={t('split.mergeHint')} disabled={!canMerge} onclick={() => onAction({ type: 'merge' })}>
-        <span class="glyph text">⊐⊏</span><span class="label">{t('split.merge')}</span>
-      </button>
-    </div>
-  </section>
 </div>
 
 <style>
@@ -143,10 +143,14 @@
   .grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 5px; }
   .grid.four { grid-template-columns: repeat(4, 1fr); }
   .grid.two { grid-template-columns: repeat(2, 1fr); }
+  /* overflow: hidden keeps tall glyphs (stems, big heads) inside their own button; without it
+     they covered the button above and took its clicks (Half selected 16th, X circled X) */
   button {
     display: flex; flex-direction: column; align-items: center; justify-content: flex-end;
     gap: 2px; min-width: 0; min-height: 56px; padding: 4px 2px 4px; line-height: 1;
+    position: relative; overflow: hidden;
   }
+  button > span { pointer-events: none; }
   .glyph { font-size: 28px; line-height: 1; height: 30px; display: flex; align-items: flex-end; }
   .glyph.note { align-items: center; }
   .glyph.small { font-size: 22px; align-items: center; }

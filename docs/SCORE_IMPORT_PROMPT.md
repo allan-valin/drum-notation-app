@@ -41,6 +41,13 @@ Regras:
 - Uma nota pode ser um objeto em vez de uma string quando tem detalhes:
   `{ "slot": "snare", "articulations": ["accent"], "sticking": "R" }`.
   Articulações: `accent` (>), `ghost` (cabeça entre parênteses). `sticking`: `"R"` ou `"L"`.
+- Cabeça diferente da normal do instrumento: `"head"` com `cross` (X; na linha da caixa é
+  cross-stick), `diamond` (losango: cúpula do prato), `triangle` (cowbell), `circleX` (X no
+  círculo: china), `slashed` (cabeça cortada: rimshot).
+- Técnica: `"marks": ["open"]` (○ acima: chimbal aberto), `["closed"]` (+), `["halfOpen"]` (ø),
+  `["choke"]` (abafar); `"roll": "buzz"` (z na haste) ou `"tremolo"` (três traços na haste);
+  `"grace": "flam"` (uma apojatura antes) ou `"drag"` (duas).
+- Texto sobre um compasso (ex.: "vassouras"): `"text": "vassouras"` no compasso.
 - `title`: o título que estiver na página, ou uma descrição curta. `defaultBpm`: o andamento
   escrito, senão 80.
 

@@ -11,7 +11,7 @@
   const score = store.load(id);
   const colours = normaliseColours(store.loadSettings().colours);
   const staff = score ? profileById(score.profileId).staves[0] : null;
-  let barsPerLine = $state(4);
+  let barsPerLine = $state(2);
   const pages = $derived(score ? paginate(score.bars.length, { barsPerLine, linesPerPage: 8 }) : [[]]);
   const LINE = 1000;
 </script>

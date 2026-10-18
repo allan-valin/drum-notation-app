@@ -209,7 +209,7 @@
   .body { display: grid; grid-template-columns: minmax(0, 1fr); grid-template-areas: 'stage' 'move' 'palette' 'bars' 'transport' 'full' 'colours'; gap: 8px; padding: 8px; }
   .stage { grid-area: stage; }
   .move { grid-area: move; }
-  .palette-area { grid-area: palette; }
+  .palette-area { grid-area: palette; background: var(--toolbar); border: 1px solid var(--line); border-radius: var(--radius); padding: 8px; }
   .bars-area { grid-area: bars; }
   .full-area { grid-area: full; }
   .transport-area { grid-area: transport; }

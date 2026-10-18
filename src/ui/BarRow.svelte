@@ -30,8 +30,8 @@
 
 <div class="barrow no-print">
   <span class="which">{t('bars.heading', { n: barIndex + 1 })}</span>
-  <button onclick={() => onAction({ type: 'addBar' })} aria-label={t('bars.addLong')} title={t('bars.addLong')}><b>+</b> {t('bars.add')}</button>
   <button onclick={() => onAction({ type: 'removeBar' })} disabled={score.bars.length <= 1} aria-label={t('bars.removeLong')} title={t('bars.removeLong')}><b>−</b> {t('bars.remove')}</button>
+  <button onclick={() => onAction({ type: 'addBar' })} aria-label={t('bars.addLong')} title={t('bars.addLong')}><b>+</b> {t('bars.add')}</button>
   <button class:on={picking} onclick={openPicker} aria-label={t('bars.timeSigLong')} title={t('bars.timeSigLong')}>
     <span class="sig"><span>{sig[0]}</span><span>{sig[1]}</span></span>
     {t('bars.timeSig', { sig: sig.join('/') })}
@@ -67,7 +67,7 @@
 {/if}
 
 <style>
-  .barrow { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; padding: 6px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--panel); }
+  .barrow { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; padding: 6px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--toolbar); }
   .text { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--muted); flex: 1; min-width: 200px; }
   .text input { flex: 1; min-width: 0; }
   .which { font-weight: 600; font-size: 14px; padding: 0 6px; }
