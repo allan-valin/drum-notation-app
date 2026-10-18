@@ -5,13 +5,18 @@
   import { Sticking } from '../core/score.js';
   import { t } from '../app/prefs.svelte.js';
 
-  let { tool, onAction, canUndo = false } = $props();
+  let { tool, onAction, canUndo = false, canMerge = false } = $props();
   const TUPLETS = [3, 5, 6, 7];
 </script>
 
 <div class="palette">
   <section>
     <h3>{t('palette.figure')}</h3>
+    <div class="mode" role="radiogroup" aria-label={t('palette.figure')}>
+      <button role="radio" aria-checked={tool.splitMode !== 'cell'} class:on={tool.splitMode !== 'cell'} onclick={() => onAction({ type: 'setSplitMode', mode: 'beat' })}>{t('split.beat')}</button>
+      <button role="radio" aria-checked={tool.splitMode === 'cell'} class:on={tool.splitMode === 'cell'} onclick={() => onAction({ type: 'setSplitMode', mode: 'cell' })}>{t('split.cell')}</button>
+    </div>
+    <p class="hint">{tool.splitMode === 'cell' ? t('split.hintCell') : t('split.hintBeat')}</p>
     <div class="grid">
       {#each NOTE_VALUES as v}
         <button class:on={tool.value === v} aria-label={t(`value.${v.id}`)} title="1/{v.divisionsPerWhole}" onclick={() => onAction({ type: 'selectValue', value: v })}>
@@ -66,12 +71,15 @@
 
   <section>
     <h3>{t('palette.edit')}</h3>
-    <div class="grid two">
+    <div class="grid">
       <button class="danger" class:on={tool.delete} aria-label={t('palette.delete')} title={t('palette.deleteHint')} onclick={() => onAction({ type: 'toggleDelete' })}>
         <span class="glyph text">✕</span><span class="label">{t('palette.delete')}</span>
       </button>
       <button aria-label={t('palette.undo')} disabled={!canUndo} onclick={() => onAction({ type: 'undo' })}>
         <span class="glyph text">↶</span><span class="label">{t('palette.undo')}</span>
+      </button>
+      <button aria-label={t('split.merge')} title={t('split.mergeHint')} disabled={!canMerge} onclick={() => onAction({ type: 'merge' })}>
+        <span class="glyph text">⊐⊏</span><span class="label">{t('split.merge')}</span>
       </button>
     </div>
   </section>
@@ -79,6 +87,9 @@
 
 <style>
   .palette { display: flex; flex-direction: column; gap: 8px; }
+  .mode { display: grid; grid-template-columns: 1fr 1fr; border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; margin-bottom: 3px; }
+  .mode button { min-height: 36px; border: none; border-radius: 0; flex-direction: row; justify-content: center; font-size: 14px; font-weight: 600; }
+  .hint { margin: 0 0 5px; font-size: 11px; color: var(--muted); line-height: 1.25; }
   h3 { margin: 0 0 3px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); }
   .grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 5px; }
   .grid.four { grid-template-columns: repeat(4, 1fr); }

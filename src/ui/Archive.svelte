@@ -4,7 +4,7 @@
   import { t } from '../app/prefs.svelte.js';
   import Prefs from './Prefs.svelte';
 
-  let { store, onOpen, onPrint } = $props();
+  let { store, onOpen, onPrint, last = null } = $props();
   let items = $state(store.list());
   let status = $state(t('archive.count', { n: store.list().length }));
   let importing = $state(false);
@@ -75,11 +75,17 @@
 <div class="archive">
   <header>
     <div class="top"><h1>{t('archive.heading')}</h1><Prefs onChange={(m) => (status = m)} /></div>
+    <p class="intro">{t('welcome.intro')}</p>
     <p class="sub">{t('archive.sub')}</p>
   </header>
 
+  {#if last}
+    <button class="continue on" onclick={() => onOpen(last.id)}>{t('welcome.continue', { title: last.title || t('app.untitled') })} ›</button>
+    <p class="or">{t('welcome.or')}</p>
+  {/if}
+
   <div class="actions">
-    <button class="on" onclick={create}>{t('archive.newScore')}</button>
+    <button class={last ? '' : 'on'} onclick={create}>{t('archive.newScore')}</button>
     <button onclick={() => (importing = !importing)}>{importing ? t('archive.importClose') : t('archive.importOpen')}</button>
     <a class="help" href="https://github.com/allan-valin/drum-notation-app/blob/main/docs/SCORE_IMPORT_PROMPT.md" target="_blank" rel="noopener">{t('archive.importHelp')}</a>
   </div>
@@ -122,6 +128,9 @@
   h1 { font-size: 22px; margin: 0; }
   .top { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: space-between; }
   .sub { margin: 4px 0 0; color: var(--muted); font-size: 14px; }
+  .intro { margin: 8px 0 0; font-size: 16px; line-height: 1.45; }
+  .continue { font-size: 17px; min-height: 52px; text-align: left; }
+  .or { margin: 0; font-size: 13px; color: var(--muted); }
   .actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
   .help { font-size: 14px; color: var(--accent); }
   .import { display: flex; flex-direction: column; gap: 8px; background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 12px; }

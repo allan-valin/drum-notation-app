@@ -91,18 +91,22 @@ sixteenth pair inside an eighth beat = [0, 480, 720], refusal of a longer value 
 `json.test.js` (v2 round trip, v1 import), `edit.test.js` (setTimeSig append/truncate, simile,
 repeats).
 
-### C3 — editor surface (medium) — [ ]
+### C3 — editor surface (medium) — [x] 2026-10-18
 
-- [ ] Big editor: one card per beat (alternating shade, 1 px border); selected card = accent
+- [x] Big editor: one card per beat (alternating shade, 1 px border); selected card = accent
   border + warm fill; selected leaf = stronger fill. Time signature shown when the bar sets one.
-- [ ] Bar row between big editor and full score: `+ compasso`, `− compasso`, `Fórmula 4/4`
+- [x] Bar row between big editor and full score: `+ compasso`, `− compasso`, `Fórmula 4/4`
   (picker num 1–12, den 2/4/8/16), `% repetir`, `||:`, `:||`, all labelled, all with status.
-- [ ] Full score: PDF look, 2 bars per row ≥ 700 px, 1 below; staff spacing ~2× today; current
+- [x] Full score: PDF look, 2 bars per row ≥ 700 px, 1 below; staff spacing ~2× today; current
   bar framed; click loads it; new bar scrolls into view. Simile draws the `%` glyph on the
   middle line and hides cells; repeat barlines drawn.
-- [ ] Toggle "Tempo | Célula" beside the figures, with a one-line explanation under it.
-- [ ] Welcome overlay on `#/`: title, one sentence, Nova partitura, list, import, language and
+- [x] Toggle "Tempo | Célula" beside the figures, with a one-line explanation under it.
+- [x] Welcome overlay on `#/`: title, one sentence, Nova partitura, list, import, language and
   theme pills; editor faded behind. `‹ Arquivo` reopens.
+
+Also done: portrait order is staff → arrows → palette → bar row → full score; opening a bar
+flashes its frame instead of scrolling the page (scrolling dragged the editor off screen in
+landscape); `Juntar` (merge) undoes a cell split.
 
 ### C4 — noteheads, marks, legend, help (medium) — [ ]
 

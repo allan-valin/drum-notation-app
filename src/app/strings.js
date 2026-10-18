@@ -17,6 +17,19 @@ export function format(s, params = {}) {
 
 export const STRINGS = {
   pt: {
+    bars: {
+      heading: 'Compasso {n}', add: 'Compasso', addLong: 'Adicionar compasso no fim', remove: 'Compasso', removeLong: 'Remover este compasso',
+      timeSig: 'Fórmula {sig}', timeSigLong: 'Mudar a fórmula de compasso deste compasso', timeSigTitle: 'Fórmula de compasso do compasso {n}',
+      beats: 'Tempos', unit: 'Figura do tempo', apply: 'Aplicar', inherit: 'Igual ao anterior', cancel: 'Cancelar',
+      simile: 'Repetir anterior', simileLong: 'Sinal %: este compasso repete o anterior',
+      repeatStart: 'Início', repeatStartLong: 'Barra de início de repetição ||:', repeatEnd: 'Fim', repeatEndLong: 'Barra de fim de repetição :||',
+      confirmShrink: 'A nova fórmula tem menos tempos. As notas dos tempos que sobram serão apagadas (dá para desfazer). Continuar?',
+    },
+    split: { beat: 'Tempo', cell: 'Célula', hintBeat: 'A figura divide o tempo inteiro', hintCell: 'A figura divide só a célula selecionada', merge: 'Juntar', mergeHint: 'Desfaz a divisão da célula' },
+    welcome: {
+      intro: 'Escreva exercícios de bateria tocando na pauta. Escolha a figura, toque na altura do instrumento e avance com ›. Cabeças, hastes, barras e pausas são desenhadas para você.',
+      continue: 'Continuar: {title}', or: 'ou escolha uma partitura',
+    },
     refused: {
       notShorter: 'Escolha uma figura menor que a da célula para dividi-la (ou use o modo Tempo)',
       nothingToMerge: 'Esta célula não está dividida', lastBar: 'A partitura precisa de pelo menos um compasso',
@@ -55,6 +68,12 @@ export const STRINGS = {
       colourReset: 'Padrão', landscapeHint: 'Na horizontal o tempo em foco fica maior.', ok: 'ok', barAria: 'Compasso',
     },
     status: {
+      splitCell: 'Célula {pos} dividida em {value}', mode: 'Modo: {mode}', merged: 'Célula {pos} juntada',
+      timeSigSet: 'Compasso {n} em {sig}', timeSigInherit: 'Compasso {n} segue a fórmula anterior ({sig})',
+      simileOn: 'Compasso {n} repete o anterior (%)', simileOff: 'Compasso {n} sem %',
+      repeatStartOn: 'Repetição começa no compasso {n}', repeatStartOff: 'Início de repetição removido do compasso {n}',
+      repeatEndOn: 'Repetição termina no compasso {n}', repeatEndOff: 'Fim de repetição removido do compasso {n}',
+      barOpened: 'Compasso {n} aberto para edição',
       opened: 'Aberto: {title}', newScore: 'Partitura nova', empty: 'vazio',
       nothingToDelete: 'Nada para apagar em {pos}', deleted: 'Apagado em {pos} → {notes}', placed: '{pos}: {notes}',
       split: 'Tempo {pos} dividido em {value}', tupletOn: 'Quiáltera de {n}', tupletOff: 'Quiáltera desligada',
@@ -89,6 +108,19 @@ export const STRINGS = {
   },
 
   en: {
+    bars: {
+      heading: 'Bar {n}', add: 'Bar', addLong: 'Add a bar at the end', remove: 'Bar', removeLong: 'Remove this bar',
+      timeSig: 'Time {sig}', timeSigLong: 'Change this bar\'s time signature', timeSigTitle: 'Time signature of bar {n}',
+      beats: 'Beats', unit: 'Beat unit', apply: 'Apply', inherit: 'Same as before', cancel: 'Cancel',
+      simile: 'Repeat previous', simileLong: '% sign: this bar repeats the previous one',
+      repeatStart: 'Start', repeatStartLong: 'Start repeat barline ||:', repeatEnd: 'End', repeatEndLong: 'End repeat barline :||',
+      confirmShrink: 'The new signature has fewer beats. Notes in the beats that go away will be deleted (undo brings them back). Continue?',
+    },
+    split: { beat: 'Beat', cell: 'Cell', hintBeat: 'The value splits the whole beat', hintCell: 'The value splits only the selected cell', merge: 'Merge', mergeHint: 'Undo the split of this cell' },
+    welcome: {
+      intro: 'Write drum exercises by tapping the staff. Pick a note value, tap at the instrument\'s height, move on with ›. Heads, stems, beams and rests are drawn for you.',
+      continue: 'Continue: {title}', or: 'or pick a score',
+    },
     refused: {
       notShorter: 'Pick a value shorter than the cell to split it (or use Beat mode)',
       nothingToMerge: 'This cell is not split', lastBar: 'A score needs at least one bar',
@@ -127,6 +159,12 @@ export const STRINGS = {
       colourReset: 'Default', landscapeHint: 'Turn the phone sideways for a bigger beat.', ok: 'ok', barAria: 'Bar',
     },
     status: {
+      splitCell: 'Cell {pos} split into {value}', mode: 'Mode: {mode}', merged: 'Cell {pos} merged',
+      timeSigSet: 'Bar {n} in {sig}', timeSigInherit: 'Bar {n} follows the previous signature ({sig})',
+      simileOn: 'Bar {n} repeats the previous one (%)', simileOff: 'Bar {n} without %',
+      repeatStartOn: 'Repeat starts at bar {n}', repeatStartOff: 'Start repeat removed from bar {n}',
+      repeatEndOn: 'Repeat ends at bar {n}', repeatEndOff: 'End repeat removed from bar {n}',
+      barOpened: 'Bar {n} open for editing',
       opened: 'Opened: {title}', newScore: 'New score', empty: 'empty',
       nothingToDelete: 'Nothing to delete at {pos}', deleted: 'Deleted at {pos} → {notes}', placed: '{pos}: {notes}',
       split: 'Beat {pos} split into {value}', tupletOn: 'Tuplet of {n}', tupletOff: 'Tuplet off',
@@ -161,6 +199,19 @@ export const STRINGS = {
   },
 
   de: {
+    bars: {
+      heading: 'Takt {n}', add: 'Takt', addLong: 'Takt am Ende hinzufügen', remove: 'Takt', removeLong: 'Diesen Takt entfernen',
+      timeSig: 'Taktart {sig}', timeSigLong: 'Taktart dieses Takts ändern', timeSigTitle: 'Taktart von Takt {n}',
+      beats: 'Schläge', unit: 'Schlageinheit', apply: 'Übernehmen', inherit: 'Wie vorher', cancel: 'Abbrechen',
+      simile: 'Wiederholen', simileLong: '%-Zeichen: dieser Takt wiederholt den vorherigen',
+      repeatStart: 'Anfang', repeatStartLong: 'Wiederholungsbeginn ||:', repeatEnd: 'Ende', repeatEndLong: 'Wiederholungsende :||',
+      confirmShrink: 'Die neue Taktart hat weniger Schläge. Noten in den wegfallenden Schlägen werden gelöscht (Rückgängig holt sie zurück). Weiter?',
+    },
+    split: { beat: 'Schlag', cell: 'Zelle', hintBeat: 'Der Notenwert teilt den ganzen Schlag', hintCell: 'Der Notenwert teilt nur die gewählte Zelle', merge: 'Verbinden', mergeHint: 'Teilung dieser Zelle aufheben' },
+    welcome: {
+      intro: 'Schlagzeugübungen durch Tippen auf das Notensystem schreiben. Notenwert wählen, auf Höhe des Instruments tippen, mit › weiter. Köpfe, Hälse, Balken und Pausen werden gezeichnet.',
+      continue: 'Weiter: {title}', or: 'oder eine Partitur wählen',
+    },
     refused: {
       notShorter: 'Einen kürzeren Notenwert als die Zelle wählen, um sie zu teilen (oder Schlag-Modus nutzen)',
       nothingToMerge: 'Diese Zelle ist nicht geteilt', lastBar: 'Eine Partitur braucht mindestens einen Takt',
@@ -199,6 +250,12 @@ export const STRINGS = {
       colourReset: 'Standard', landscapeHint: 'Im Querformat wird der Schlag größer.', ok: 'ok', barAria: 'Takt',
     },
     status: {
+      splitCell: 'Zelle {pos} in {value} geteilt', mode: 'Modus: {mode}', merged: 'Zelle {pos} verbunden',
+      timeSigSet: 'Takt {n} in {sig}', timeSigInherit: 'Takt {n} folgt der vorherigen Taktart ({sig})',
+      simileOn: 'Takt {n} wiederholt den vorherigen (%)', simileOff: 'Takt {n} ohne %',
+      repeatStartOn: 'Wiederholung beginnt in Takt {n}', repeatStartOff: 'Wiederholungsbeginn in Takt {n} entfernt',
+      repeatEndOn: 'Wiederholung endet in Takt {n}', repeatEndOff: 'Wiederholungsende in Takt {n} entfernt',
+      barOpened: 'Takt {n} zum Bearbeiten geöffnet',
       opened: 'Geöffnet: {title}', newScore: 'Neue Partitur', empty: 'leer',
       nothingToDelete: 'Nichts zu löschen bei {pos}', deleted: 'Gelöscht bei {pos} → {notes}', placed: '{pos}: {notes}',
       split: 'Schlag {pos} in {value} geteilt', tupletOn: '{n}er-Tole', tupletOff: 'Tole aus',

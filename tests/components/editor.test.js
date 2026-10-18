@@ -78,12 +78,40 @@ describe('Editor', () => {
     expect(container.querySelector('.status').textContent).toContain('Apagado');
   });
 
-  it('adds a bar and the overview grows', async () => {
+  it('adding a bar shows it in the full score, selects it and says so', async () => {
     const store = createStore(memoryStorage());
     store.save(newScore({ id: 'a', title: 'T' }));
     const { container, getByLabelText } = render(Editor, { store, id: 'a', onBack: () => {}, onPrint: () => {} });
-    await fireEvent.click(getByLabelText('Adicionar compasso'));
-    expect(container.querySelectorAll('.barthumb').length).toBe(2);
+    expect(container.querySelectorAll('.full .frame').length).toBe(1);
+    await fireEvent.click(getByLabelText('Adicionar compasso no fim'));
+    expect(container.querySelectorAll('.full .frame').length).toBe(2);
+    expect(container.querySelector('.full .frame.current').getAttribute('aria-label')).toContain('2');
     expect(container.querySelector('.where').textContent).toContain('Compasso 2 de 2');
+    expect(container.querySelector('.status').textContent).toContain('Compasso 2 adicionado');
+  });
+
+  it('time signature picker changes the current bar', async () => {
+    const store = createStore(memoryStorage());
+    store.save(newScore({ id: 'a', title: 'T' }));
+    const { container, getByLabelText, getByText } = render(Editor, { store, id: 'a', onBack: () => {}, onPrint: () => {} });
+    await fireEvent.click(getByLabelText('Mudar a fórmula de compasso deste compasso'));
+    const [num] = container.querySelectorAll('.picker select');
+    await fireEvent.change(num, { target: { value: '3' } });
+    await fireEvent.click(getByText('Aplicar'));
+    expect(store.load('a').bars[0].beats.length).toBe(3);
+    expect(container.querySelector('.status').textContent).toContain('3/4');
+  });
+
+  it('Célula mode splits only the selected cell', async () => {
+    const store = createStore(memoryStorage());
+    store.save(newScore({ id: 'a', title: 'T' }));
+    const { getByLabelText, getByRole } = render(Editor, { store, id: 'a', onBack: () => {}, onPrint: () => {} });
+    await fireEvent.click(getByLabelText('Colcheia'));
+    await fireEvent.click(getByLabelText('Próxima posição'));
+    await fireEvent.click(getByRole('radio', { name: 'Célula' }));
+    await fireEvent.click(getByLabelText('Semicolcheia'));
+    const beat = store.load('a').bars[0].beats[0];
+    expect(beat.cells[0].notes).toEqual([]);
+    expect(beat.cells[1].cells.length).toBe(2);
   });
 });

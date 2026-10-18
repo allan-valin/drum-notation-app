@@ -24,6 +24,10 @@
     deleteMode = false,
     /** fixed vertical range in staff spaces (above the top line, below it), so bars in a row share a baseline */
     fixedRange = null,
+    /** editor mode: every beat drawn as a card you can tap, the focused one highlighted */
+    cards = false,
+    /** highlight for a whole bar, e.g. the bar being played */
+    playingPath = null,
   } = $props();
 
   const sp = $derived(staffSpacing);
@@ -65,9 +69,19 @@
   role={onTap ? 'button' : 'img'}
   aria-label={t('editor.barAria')}
 >
+  {#if cards}
+    {#each layout.beatBounds as [a, b], bi}
+      <rect class="card" class:alt={bi % 2 === 1} class:focused={bi === focusedBeat} x={lead + a + 0.12 * sp} y={top + 0.12 * sp} width={b - a - 0.24 * sp} height={height - 0.24 * sp} rx={0.35 * sp} />
+    {/each}
+    {#if focusedBeat !== null}
+      {#each layout.leaves.filter((l) => l.beat === focusedBeat).slice(1) as l}
+        <line class="divider" x1={lead + l.x0} x2={lead + l.x0} y1={top + 0.6 * sp} y2={bottom - 0.6 * sp} />
+      {/each}
+    {/if}
+  {/if}
   {#if focusedBeat !== null && layout.beatBounds[focusedBeat]}
     {@const [a, b] = layout.beatBounds[focusedBeat]}
-    <rect class="focus" x={lead + a} y={top} width={b - a} height={height} />
+    {#if !cards}<rect class="focus" x={lead + a} y={top} width={b - a} height={height} />{/if}
     {#if focusedPath}
       {#each layout.leaves.filter((l) => l.beat === focusedBeat && samePath(l.path, focusedPath)) as l}
         <rect class="cell" x={lead + l.x0} y={top} width={l.x1 - l.x0} height={height} />
@@ -135,7 +149,11 @@
   .score.delete { cursor: not-allowed; }
   .staffline, .leger { stroke: var(--ink); }
   .focus { fill: var(--focus); }
-  .cell { fill: var(--focus-ring); fill-opacity: 0.22; }
+  .card { fill: var(--card-a); stroke: var(--card-line); stroke-width: 1; }
+  .card.alt { fill: var(--card-b); }
+  .card.focused { fill: var(--focus); stroke: var(--focus-ring); stroke-width: 2.5; }
+  .divider { stroke: var(--focus-ring); stroke-opacity: 0.45; stroke-dasharray: 3 3; }
+  .cell { fill: var(--focus-ring); fill-opacity: 0.28; }
   .guide { stroke: var(--focus-ring); stroke-opacity: 0.35; stroke-dasharray: 2 3; }
   .guide-label { fill: var(--muted); font-family: system-ui, sans-serif; pointer-events: none; }
   .ink { fill: var(--ink); }

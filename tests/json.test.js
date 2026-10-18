@@ -109,3 +109,12 @@ describe('score JSON v2', () => {
     expect(decode(JSON.stringify(j)).bars[0].beats[0].cells.length).toBe(4);
   });
 });
+
+describe('demo score', () => {
+  it('decodes', async () => {
+    const { demoScore } = await import('../src/core/demo.js');
+    const s = demoScore('Rock');
+    expect(s.bars.length).toBe(2);
+    expect(s.bars[1].simile).toBe(true);
+  });
+});
