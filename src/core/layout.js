@@ -52,6 +52,9 @@ export function layoutBar(bar, staff, config) {
   const units = drawUnits(bar, config.den ?? 4, config.carry ?? []);
   const lastHead = new Map(); // slot -> { x, y }: where the last drawn head of each note sits, for ties
   let lastSounding = []; // heads of the last note drawn, for a tie running out of the bar
+  const slurs = [];
+  let slurFrom = config.slurIn ? { x: 0, y: null, below: false } : null;
+  const lyrics = []; // { x, y, text, hyphen }
 
   bar.beats.forEach((beat, beatIndex) => {
     const beatWidth = unit * weights[beatIndex];
@@ -108,7 +111,9 @@ export function layoutBar(bar, staff, config) {
       const lf = span.unit.cell ?? {};
       if (lf.dyn || lf.wedge) {
         const low = notes.length ? Math.max(...notes.map((n) => yOf(posOf(n), sp))) : 4 * sp;
-        const dy = Math.max(6.9 * sp, low + 2.4 * sp);
+        const high = notes.length ? Math.min(...notes.map((n) => yOf(posOf(n), sp))) : 0;
+        // voices keep the space below for lyrics: their dynamics go above the staff
+        const dy = config.dynamicsAbove ? Math.min(-2.6 * sp, high - 4.6 * sp) : Math.max(6.9 * sp, low + 2.4 * sp);
         if (lf.dyn) glyphs.push({ ...base, kind: 'dynamic', glyph: Glyphs.dynamic(lf.dyn), x: centreX(i) - 1.3 * sp, y: dy });
         if (lf.wedge) texts.push({ kind: 'wedge', text: lf.wedge === 'cresc' ? 'cresc.' : 'dim.', x: centreX(i) + (lf.dyn ? 2.2 * sp : -1 * sp), y: dy, beat: beatIndex, cell: span.unit.idx });
       }
@@ -187,8 +192,27 @@ export function layoutBar(bar, staff, config) {
           glyphs.push({ ...base, kind: 'artic', glyph: Glyphs.artic(a, down), x: centreX(i) - 0.5 * sp, y: down ? y : y + 0.3 * sp });
           y += down ? -1.0 * sp : 1.0 * sp;
         }
+        if (notes.some((n) => n.articulations.includes(Articulation.BREATH))) {
+          glyphs.push({ ...base, kind: 'artic', glyph: Glyphs.BREATH, x: headX(i) + headW + 1.2 * sp, y: -0.8 * sp });
+        }
         if (notes.some((n) => n.articulations.includes(Articulation.FERMATA))) {
           glyphs.push({ ...base, kind: 'artic', glyph: Glyphs.FERMATA, x: centreX(i) - 1.2 * sp, y: Math.min(-1 * sp, topY - 2.5 * sp, stemTop - 1.2 * sp) });
+        }
+      }
+      if (pitched) {
+        if (lf.lyric) {
+          const low = Math.max(bottomY, down ? stemEnd : bottomY);
+          lyrics.push({ x: centreX(i), y: Math.max(6.6 * sp, low + 2.6 * sp), text: lf.lyric.replace(/-$/, ''), hyphen: lf.lyric.endsWith('-'), beat: beatIndex, cell: span.unit.idx });
+        }
+        // slurs on the notehead side: below up-stems, above down-stems
+        const anchor = { x: centreX(i), y: down ? topY - 1.0 * sp : bottomY + 1.0 * sp, below: !down };
+        if (lf.slur === 'start') slurFrom = anchor;
+        if (lf.slur === 'end' && slurFrom) {
+          // both ends on the side the slur started on
+          const side = slurFrom.y === null ? anchor.below : slurFrom.below;
+          const endY = side ? bottomY + 1.0 * sp : topY - 1.0 * sp;
+          slurs.push({ x1: slurFrom.x, y1: slurFrom.y ?? endY, x2: anchor.x, y2: endY, below: side });
+          slurFrom = null;
         }
       }
       let markY = stemTop - 0.5 * sp;
@@ -243,6 +267,18 @@ export function layoutBar(bar, staff, config) {
     ? { kind: 'barline', glyph: Glyphs.REPEAT_RIGHT, x: config.width - 1.47 * sp, y: yOf(0, sp) }
     : { kind: 'barline', glyph: Glyphs.BARLINE, x: config.width - Metrics.barlineThickness * sp, y: yOf(0, sp) });
 
+  // a slur still open at the bar line runs to it
+  if (slurFrom && slurFrom.y !== null) slurs.push({ x1: slurFrom.x, y1: slurFrom.y, x2: config.width - 0.5 * sp, y2: slurFrom.y, below: slurFrom.below });
+  // one verse is one line: every syllable of the bar on the lowest baseline any of them needs
+  const lyricY = Math.max(0, ...lyrics.map((w) => w.y));
+  lyrics.forEach((w, k) => {
+    w.y = lyricY;
+    texts.push({ kind: 'lyric', text: w.text, x: w.x, y: w.y, beat: w.beat, cell: w.cell });
+    if (w.hyphen) {
+      const nextX = lyrics[k + 1]?.x ?? config.width;
+      texts.push({ kind: 'hyphen', text: '-', x: (w.x + nextX) / 2, y: w.y, beat: w.beat, cell: w.cell });
+    }
+  });
   const ys = [...glyphs.map((g) => g.y), ...stems.map((s) => s.y2), ...texts.map((t) => t.y), 0, 4 * sp];
   // bar text goes above everything else in the bar, so it never collides with marks or beams
   const highest = Math.min(...ys, ...glyphs.filter((g) => g.kind === 'mark' || g.kind === 'accent').map((g) => g.y - 1.2 * sp));
@@ -252,7 +288,7 @@ export function layoutBar(bar, staff, config) {
   ys.push(...texts.map((t) => t.y - 1.2 * sp));
   const top = Math.min(...ys) - sp;
   const bottom = Math.max(...ys) + sp;
-  return { glyphs, stems, beams, texts, ties, beatBounds, leaves, top, bottom };
+  return { glyphs, stems, beams, texts, ties, slurs, beatBounds, leaves, top, bottom };
 }
 
 /** Leger lines a notehead needs: positions outside 0..8 on even half-steps up to its own. */

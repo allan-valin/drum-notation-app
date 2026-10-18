@@ -5,7 +5,7 @@ import { cursor as mkCursor, next, prev, leafAt, clamp } from './cursor.js';
 import { parentOf, leafPaths, getAt } from './tree.js';
 import {
   placeNote, deleteNote, clearLeaf, splitBeat, splitCell, resizeCell, mergeCell, addBar, removeBar,
-  setTimeSig, toggleSimile, toggleRepeatStart, toggleRepeatEnd, setBarText, moveBars, setKey, setLength, toggleTie, setDynamic, setWedge,
+  setTimeSig, toggleSimile, toggleRepeatStart, toggleRepeatEnd, setBarText, moveBars, setKey, setLength, toggleTie, setDynamic, setWedge, setLyric, setSlur,
 } from './edit.js';
 import { barLeaves } from './edit.js';
 import { profileById, slotNearest } from './profile.js';
@@ -141,6 +141,21 @@ function reduceView(state, action) {
     case 'setKey': return edit(st, (s) => setKey(s, st.cursor.bar, action.key));
     case 'toggleDot': return tool(st, { dot: !st.tool.dot });
     case 'setDyn': return tool(st, { dyn: st.tool.dyn === action.dyn ? null : action.dyn });
+    case 'setSlur': return edit(st, (s) => setSlur(s, st.cursor, action.kind));
+    case 'setLyric': {
+      // the one place the cursor may move on its own: typing lyrics, Enter goes to the next note
+      const out = edit(st, (s) => setLyric(s, st.cursor, action.text));
+      if (!action.advance) return out;
+      let c = out.cursor;
+      for (let guard = 0; guard < 512; guard++) {
+        const n = next(out.score, c);
+        if (n === c) break;
+        c = n;
+        const l = leafAt(out.score, c);
+        if (l.notes.length && !l.cont) return syncTool({ ...out, cursor: c });
+      }
+      return out;
+    }
     case 'setWedge': return tool(st, { wedge: st.tool.wedge === action.wedge ? null : action.wedge });
     case 'toggleTie': {
       const s = toggleTie(st.score, st.cursor);

@@ -7,6 +7,7 @@ export const Articulation = Object.freeze({
   TENUTO: 'tenuto',
   MARCATO: 'marcato',
   FERMATA: 'fermata',
+  BREATH: 'breath',
   CRESCENDO: 'crescendo',
   FORTISSIMO: 'ff',
   PIANISSIMO: 'pp',

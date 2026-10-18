@@ -19,6 +19,7 @@ export const STRINGS = {
   pt: {
     noteNames: { C: 'Dó', D: 'Ré', E: 'Mi', F: 'Fá', G: 'Sol', A: 'Lá', B: 'Si' },
     instrument: {
+      soprano: 'Soprano', alto: 'Contralto', tenor: 'Tenor', bass: 'Baixo (voz)',
       electricGuitar: 'Guitarra elétrica', bassGuitar: 'Baixo elétrico', keys: 'Teclado', vocal: 'Voz',
       label: 'Instrumento', editing: 'Editando', drums: 'Bateria', congas: 'Congas',
       band: 'Instrumentos', add: '+ Adicionar instrumento', mute: 'Silenciar', unmute: 'Ativar som', remove: 'Remover instrumento',
@@ -49,6 +50,9 @@ export const STRINGS = {
       open: 'Legenda', title: 'Legenda dos símbolos', close: 'Fechar', symbol: 'Símbolo', meaning: 'Neste app', also: 'Outros autores usam para',
       note: 'Cada método escreve bateria um pouco diferente. O app segue a convenção da Percussive Arts Society (Norman Weinberg); a coluna da direita lista o que outros livros usam para o mesmo símbolo. Se o seu livro usa outro sentido, escreva o símbolo como está no livro.',
       rows: {
+        breath: { meaning: 'Respiração: respire aqui', also: 'Pequena pausa em sopros e cordas' },
+        slur: { meaning: 'Ligadura de expressão: cante/toque as notas ligadas, sem separar', also: 'Em cordas: na mesma arcada' },
+        lyric: { meaning: 'Letra: uma sílaba por nota; o hífen liga sílabas da mesma palavra', also: 'Linha depois da sílaba: melisma' },
         dynamics: { meaning: 'Dinâmica: pp (muito suave) … ff (muito forte); fp forte e logo suave; sfz um ataque forte', also: 'ppp e fff em algumas partituras' },
         wedges: { meaning: 'cresc. / dim.: crescendo ou diminuendo até a próxima dinâmica', also: 'Também escritos como abertura < e fechamento >' },
         sharp: { meaning: 'Sustenido: meio tom acima', also: '—' },
@@ -144,6 +148,7 @@ export const STRINGS = {
       midTom: 'Tom médio', highTom: 'Tom agudo', hihat: 'Chimbal', ride: 'Ride', crash: 'Crash',
     },
     palette: {
+      phrasing: 'Fraseado', slurStart: 'Início da ligadura', slurEnd: 'Fim da ligadura', slurHint: 'Marca a célula selecionada como início ou fim da ligadura de expressão', breath: 'Respiração', lyrics: 'Letra', lyricHint: 'sílaba (ex.: Glo-)', lyricApply: 'Escrever a sílaba e ir para a próxima nota', lyricHelp: 'Enter escreve na nota selecionada e vai para a próxima. Termine com - para o hífen.',
       dynamics: 'Dinâmica', dynHint: 'Volume a partir desta nota', pp: 'pianissimo', p: 'piano', mp: 'mezzo-piano', mf: 'mezzo-forte', f: 'forte', ff: 'fortissimo', fp: 'forte-piano', sfz: 'sforzando', cresc: 'crescendo', dim: 'diminuendo',
       dot: 'Ponto', dotHint: 'A próxima figura escolhida vale uma vez e meia (semínima pontuada…)', tie: 'Ligadura', tieHint: 'A célula selecionada (vazia) continua a nota anterior',
       accidental: 'Acidente', byKey: 'Pela armadura', byKeyHint: 'Sem acidente: a nota segue a armadura', sharp: 'Sustenido', flat: 'Bemol', natural: 'Bequadro', doubleSharp: 'Dobrado sustenido', doubleFlat: 'Dobrado bemol', staccato: 'Staccato', tenuto: 'Tenuto', marcato: 'Marcato', fermata: 'Fermata',
@@ -164,6 +169,7 @@ export const STRINGS = {
       colourReset: 'Padrão', landscapeHint: 'Na horizontal o tempo em foco fica maior.', ok: 'ok', barAria: 'Compasso',
     },
     status: {
+      lyricSet: '“{text}” em {pos}', lyricCleared: 'Letra removida', slur_start: 'Ligadura começa em {pos}', slur_end: 'Ligadura termina em {pos}', slurRemoved: 'Marca de ligadura removida em {pos}',
       dynOn: 'Próximas notas: {what}', dynOff: 'Sem dinâmica nas próximas notas',
       dotOn: 'Ponto ligado: a próxima figura é pontuada', dotOff: 'Ponto desligado', tieOn: 'Ligadura: {pos} continua a nota anterior', tieOff: 'Ligadura removida em {pos}',
       accidentalOn: 'Próximas notas: {what}', accidentalOff: 'Notas seguem a armadura', keySet: 'Armadura a partir do compasso {n}: {key}', artOn: 'Próximas notas: {what}', artOff: '{what} desligado',
@@ -214,6 +220,7 @@ export const STRINGS = {
   en: {
     noteNames: { C: 'C', D: 'D', E: 'E', F: 'F', G: 'G', A: 'A', B: 'B' },
     instrument: {
+      soprano: 'Soprano', alto: 'Alto', tenor: 'Tenor', bass: 'Bass (voice)',
       electricGuitar: 'Electric guitar', bassGuitar: 'Bass guitar', keys: 'Keyboard', vocal: 'Vocals',
       label: 'Instrument', editing: 'Editing', drums: 'Drum kit', congas: 'Congas',
       band: 'Instruments', add: '+ Add instrument', mute: 'Mute', unmute: 'Unmute', remove: 'Remove instrument',
@@ -244,6 +251,9 @@ export const STRINGS = {
       open: 'Legend', title: 'Symbol legend', close: 'Close', symbol: 'Symbol', meaning: 'In this app', also: 'Other authors use it for',
       note: 'Every method book notates drums a little differently. The app follows the Percussive Arts Society convention (Norman Weinberg); the right column lists what other books use the same symbol for. If your book means something else, write the symbol as it is in the book.',
       rows: {
+        breath: { meaning: 'Breath: breathe here', also: 'A short break in winds and strings' },
+        slur: { meaning: 'Slur: sing/play the notes joined, without separating them', also: 'Strings: in one bow' },
+        lyric: { meaning: 'Lyrics: one syllable per note; a hyphen joins syllables of one word', also: 'A line after a syllable: melisma' },
         dynamics: { meaning: 'Dynamics: pp (very soft) … ff (very loud); fp loud then soft; sfz one strong attack', also: 'ppp and fff in some scores' },
         wedges: { meaning: 'cresc. / dim.: louder or softer up to the next dynamic', also: 'Also drawn as hairpins < and >' },
         sharp: { meaning: 'Sharp: a semitone higher', also: '—' },
@@ -339,6 +349,7 @@ export const STRINGS = {
       midTom: 'Mid tom', highTom: 'High tom', hihat: 'Hi-hat', ride: 'Ride', crash: 'Crash',
     },
     palette: {
+      phrasing: 'Phrasing', slurStart: 'Slur start', slurEnd: 'Slur end', slurHint: 'Marks the selected cell as where the slur starts or ends', breath: 'Breath', lyrics: 'Lyrics', lyricHint: 'syllable (e.g. Glo-)', lyricApply: 'Write the syllable and go to the next note', lyricHelp: 'Enter writes on the selected note and moves to the next. End with - for a hyphen.',
       dynamics: 'Dynamics', dynHint: 'Loudness from this note on', pp: 'pianissimo', p: 'piano', mp: 'mezzo-piano', mf: 'mezzo-forte', f: 'forte', ff: 'fortissimo', fp: 'forte-piano', sfz: 'sforzando', cresc: 'crescendo', dim: 'diminuendo',
       dot: 'Dot', dotHint: 'The next value chosen lasts one and a half times (dotted quarter…)', tie: 'Tie', tieHint: 'The selected (empty) cell continues the note before it',
       accidental: 'Accidental', byKey: 'By key', byKeyHint: 'No accidental: the note follows the key signature', sharp: 'Sharp', flat: 'Flat', natural: 'Natural', doubleSharp: 'Double sharp', doubleFlat: 'Double flat', staccato: 'Staccato', tenuto: 'Tenuto', marcato: 'Marcato', fermata: 'Fermata',
@@ -359,6 +370,7 @@ export const STRINGS = {
       colourReset: 'Default', landscapeHint: 'Turn the phone sideways for a bigger beat.', ok: 'ok', barAria: 'Bar',
     },
     status: {
+      lyricSet: '“{text}” at {pos}', lyricCleared: 'Lyric removed', slur_start: 'Slur starts at {pos}', slur_end: 'Slur ends at {pos}', slurRemoved: 'Slur mark removed at {pos}',
       dynOn: 'Next notes: {what}', dynOff: 'No dynamic on the next notes',
       dotOn: 'Dot on: the next value is dotted', dotOff: 'Dot off', tieOn: 'Tie: {pos} continues the note before', tieOff: 'Tie removed at {pos}',
       accidentalOn: 'Next notes: {what}', accidentalOff: 'Notes follow the key signature', keySet: 'Key from bar {n}: {key}', artOn: 'Next notes: {what}', artOff: '{what} off',
@@ -409,6 +421,7 @@ export const STRINGS = {
   de: {
     noteNames: { C: 'C', D: 'D', E: 'E', F: 'F', G: 'G', A: 'A', B: 'H' },
     instrument: {
+      soprano: 'Sopran', alto: 'Alt', tenor: 'Tenor', bass: 'Bass (Stimme)',
       electricGuitar: 'E-Gitarre', bassGuitar: 'E-Bass', keys: 'Keyboard', vocal: 'Gesang',
       label: 'Instrument', editing: 'Bearbeitet', drums: 'Schlagzeug', congas: 'Congas',
       band: 'Instrumente', add: '+ Instrument hinzufügen', mute: 'Stumm', unmute: 'Ton an', remove: 'Instrument entfernen',
@@ -439,6 +452,9 @@ export const STRINGS = {
       open: 'Legende', title: 'Zeichenlegende', close: 'Schließen', symbol: 'Zeichen', meaning: 'In dieser App', also: 'Andere Autoren nutzen es für',
       note: 'Jede Schule notiert Schlagzeug etwas anders. Die App folgt der Konvention der Percussive Arts Society (Norman Weinberg); die rechte Spalte nennt, wofür andere Bücher dasselbe Zeichen verwenden. Meint dein Buch etwas anderes, schreib das Zeichen so wie im Buch.',
       rows: {
+        breath: { meaning: 'Atemzeichen: hier atmen', also: 'Kleine Zäsur bei Bläsern und Streichern' },
+        slur: { meaning: 'Bogen: Noten gebunden singen/spielen', also: 'Streicher: auf einem Bogenstrich' },
+        lyric: { meaning: 'Text: eine Silbe pro Note; der Trennstrich verbindet Silben eines Worts', also: 'Linie nach der Silbe: Melisma' },
         dynamics: { meaning: 'Dynamik: pp (sehr leise) … ff (sehr laut); fp laut, dann leise; sfz ein starker Einsatz', also: 'ppp und fff in manchen Partituren' },
         wedges: { meaning: 'cresc. / dim.: lauter oder leiser bis zur nächsten Dynamik', also: 'Auch als Gabeln < und > notiert' },
         sharp: { meaning: 'Kreuz: einen Halbton höher', also: '—' },
@@ -534,6 +550,7 @@ export const STRINGS = {
       midTom: 'Mitteltom', highTom: 'Hochtom', hihat: 'Hi-Hat', ride: 'Ride', crash: 'Crash',
     },
     palette: {
+      phrasing: 'Phrasierung', slurStart: 'Bogen Anfang', slurEnd: 'Bogen Ende', slurHint: 'Markiert die gewählte Zelle als Anfang oder Ende des Bogens', breath: 'Atmen', lyrics: 'Text', lyricHint: 'Silbe (z. B. Glo-)', lyricApply: 'Silbe schreiben und zur nächsten Note', lyricHelp: 'Enter schreibt auf die gewählte Note und geht zur nächsten. Mit - enden für den Trennstrich.',
       dynamics: 'Dynamik', dynHint: 'Lautstärke ab dieser Note', pp: 'pianissimo', p: 'piano', mp: 'mezzo-piano', mf: 'mezzo-forte', f: 'forte', ff: 'fortissimo', fp: 'forte-piano', sfz: 'sforzando', cresc: 'crescendo', dim: 'diminuendo',
       dot: 'Punkt', dotHint: 'Der nächste gewählte Wert gilt anderthalbfach (punktierte Viertel…)', tie: 'Haltebogen', tieHint: 'Die gewählte (leere) Zelle setzt die Note davor fort',
       accidental: 'Vorzeichen', byKey: 'Nach Tonart', byKeyHint: 'Ohne Vorzeichen: die Note folgt der Tonart', sharp: 'Kreuz', flat: 'Be', natural: 'Auflösung', doubleSharp: 'Doppelkreuz', doubleFlat: 'Doppel-B', staccato: 'Staccato', tenuto: 'Tenuto', marcato: 'Marcato', fermata: 'Fermate',
@@ -554,6 +571,7 @@ export const STRINGS = {
       colourReset: 'Standard', landscapeHint: 'Im Querformat wird der Schlag größer.', ok: 'ok', barAria: 'Takt',
     },
     status: {
+      lyricSet: '„{text}“ bei {pos}', lyricCleared: 'Text entfernt', slur_start: 'Bogen beginnt bei {pos}', slur_end: 'Bogen endet bei {pos}', slurRemoved: 'Bogenmarke bei {pos} entfernt',
       dynOn: 'Nächste Noten: {what}', dynOff: 'Keine Dynamik für die nächsten Noten',
       dotOn: 'Punkt an: der nächste Wert ist punktiert', dotOff: 'Punkt aus', tieOn: 'Haltebogen: {pos} setzt die Note davor fort', tieOff: 'Haltebogen bei {pos} entfernt',
       accidentalOn: 'Nächste Noten: {what}', accidentalOff: 'Noten folgen der Tonart', keySet: 'Tonart ab Takt {n}: {key}', artOn: 'Nächste Noten: {what}', artOff: '{what} aus',

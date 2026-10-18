@@ -9,7 +9,7 @@
 
   let { store, id, onBack } = $props();
   import { partView } from '../core/parts.js';
-  import { carryInto, tiesOut } from '../core/edit.js';
+  import { carryInto, tiesOut, slurOpenAt } from '../core/edit.js';
   const full = store.load(id);
   /** Every part, one staff each per bar; `score` (the first part) carries signatures and title. */
   const views = full ? full.parts.map((p) => ({ id: p.id, instrument: p.instrument, view: partView(full, p.id), staff: profileById(p.instrument).staves[0] })) : [];
@@ -43,7 +43,7 @@
               {#each views as v (v.id)}
                 <div class="pstaff">
                   {#if many && k === 0}<span class="plabel">{t(`instrument.${v.instrument}`)}</span>{/if}
-                  <ScoreSvg bar={v.view.bars[bi]} staff={v.staff} width={k === 0 ? LINE * 1.25 / line.length : LINE / line.length} staffSpacing={9} showClef={k === 0} timeSig={showsTimeSig(score, bi) ? barTimeSig(score, bi) : null} keyFifths={barKey(score, bi)} showKey={k === 0 || showsKey(score, bi)} den={barTimeSig(score, bi)[1]} carry={carryInto(v.view, bi)} tieOut={tiesOut(v.view, bi)} {colours} fixedRange={many ? [7, 8.5] : [8, 10]} />
+                  <ScoreSvg bar={v.view.bars[bi]} staff={v.staff} width={k === 0 ? LINE * 1.25 / line.length : LINE / line.length} staffSpacing={9} showClef={k === 0} timeSig={showsTimeSig(score, bi) ? barTimeSig(score, bi) : null} keyFifths={barKey(score, bi)} showKey={k === 0 || showsKey(score, bi)} den={barTimeSig(score, bi)[1]} carry={carryInto(v.view, bi)} tieOut={tiesOut(v.view, bi)} dynamicsAbove={!!profileById(v.view.profileId).dynamicsAbove} slurIn={slurOpenAt(v.view, bi)} {colours} fixedRange={many ? [7, 8.5] : [8, 10]} />
                 </div>
               {/each}
             </div>

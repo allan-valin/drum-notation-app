@@ -46,7 +46,7 @@ function encodeGroup(g) {
     ...(g.tuplet ? { tuplet: g.tuplet } : {}),
     cells: g.cells.map((c) => {
       if (isGroup(c)) return encodeGroup(c);
-      const marks = { ...(c.dyn ? { dyn: c.dyn } : {}), ...(c.wedge ? { wedge: c.wedge } : {}) };
+      const marks = { ...(c.dyn ? { dyn: c.dyn } : {}), ...(c.wedge ? { wedge: c.wedge } : {}), ...(c.lyric ? { lyric: c.lyric } : {}), ...(c.slur ? { slur: c.slur } : {}) };
       if (c.cont) return { cont: true, ...marks };
       return Object.keys(marks).length ? { notes: c.notes.map(encodeNote), ...marks } : c.notes.map(encodeNote);
     }),
@@ -169,6 +169,11 @@ function decodeGroup(g, expected, staff, where) {
       if (c.dyn !== undefined) {
         if (!DYNAMICS.includes(c.dyn)) throw new Error(`${here}: dinâmica desconhecida "${c.dyn}" (válidas: ${DYNAMICS.join(', ')})`);
         marks.dyn = c.dyn;
+      }
+      if (typeof c.lyric === 'string' && c.lyric.trim()) marks.lyric = c.lyric.trim().slice(0, 24);
+      if (c.slur !== undefined) {
+        if (!['start', 'end'].includes(c.slur)) throw new Error(`${here}: slur desconhecido "${c.slur}" (válidos: start, end)`);
+        marks.slur = c.slur;
       }
       if (c.wedge !== undefined) {
         if (!['cresc', 'dim'].includes(c.wedge)) throw new Error(`${here}: wedge desconhecido "${c.wedge}" (válidos: cresc, dim)`);

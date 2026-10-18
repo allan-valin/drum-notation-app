@@ -9,7 +9,7 @@
 
   let {
     tool, onAction, canUndo = false, canMerge = false, onLegend = () => {}, onHelp = () => {},
-    profile = DRUM_PROFILE, parts = [], part = null,
+    profile = DRUM_PROFILE, parts = [], part = null, lyric = '',
   } = $props();
   const q = NoteValue.QUARTER;
   const HEADS = [Notehead.CROSS, Notehead.DIAMOND, Notehead.TRIANGLE, Notehead.CIRCLE_X, Notehead.SLASHED];
@@ -169,6 +169,34 @@
     </div>
   </section>
 
+  {#if has('phrasing')}
+  <section>
+    <h3>{t('palette.phrasing')}</h3>
+    <div class="grid">
+      <button aria-label={t('palette.slurStart')} title={t('palette.slurHint')} onclick={() => onAction({ type: 'setSlur', kind: 'start' })}>
+        <span class="glyph text small-text">⌒(</span><span class="label">{t('palette.slurStart')}</span>
+      </button>
+      <button aria-label={t('palette.slurEnd')} title={t('palette.slurHint')} onclick={() => onAction({ type: 'setSlur', kind: 'end' })}>
+        <span class="glyph text small-text">)⌒</span><span class="label">{t('palette.slurEnd')}</span>
+      </button>
+      <button class:on={tool.arts.includes('breath')} aria-label={t('palette.breath')} onclick={() => onAction({ type: 'toggleArt', art: 'breath' })}>
+        <span class="smufl glyph art">{Glyphs.BREATH}</span><span class="label">{t('palette.breath')}</span>
+      </button>
+    </div>
+  </section>
+  {/if}
+
+  {#if has('lyrics')}
+  <section class="lyrics">
+    <h3>{t('palette.lyrics')}</h3>
+    <form onsubmit={(e) => { e.preventDefault(); const f = e.currentTarget.elements.lyric; onAction({ type: 'setLyric', text: f.value, advance: true }); f.value = ''; f.focus(); }}>
+      <input name="lyric" type="text" maxlength="24" value={lyric} placeholder={t('palette.lyricHint')} aria-label={t('palette.lyrics')} autocomplete="off" />
+      <button type="submit" aria-label={t('palette.lyricApply')}>↵</button>
+    </form>
+    <p class="hint">{t('palette.lyricHelp')}</p>
+  </section>
+  {/if}
+
   {#if has('dynamics')}
   <section>
     <h3>{t('palette.dynamics')}</h3>
@@ -244,6 +272,9 @@
   .glyph.mark { font-size: 36px; align-items: center; padding-top: 14px; }
   .glyph.acc { font-size: 34px; align-items: center; height: 34px; }
   .glyph.art { font-size: 34px; align-items: center; padding-top: 6px; }
+  .lyrics form { display: flex; gap: 5px; }
+  .lyrics input { flex: 1; min-width: 0; font: inherit; min-height: var(--tap); padding: 0 8px; color: var(--ink); background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); }
+  .lyrics button { min-height: var(--tap); min-width: var(--tap); flex-direction: row; justify-content: center; }
   .glyph.dyn { font-size: 30px; align-items: center; height: 32px; }
   .wedge { font-style: italic; font-size: 15px; }
   .grid + .grid { margin-top: 5px; }

@@ -36,6 +36,9 @@
     den = 4,
     carry = [],
     tieOut = false,
+    /** voices: dynamics above the staff; a slur may come in from the previous bar */
+    dynamicsAbove = false,
+    slurIn = false,
     showKey = true,
     /** highlight for a whole bar, e.g. the bar being played */
     playingPath = null,
@@ -47,7 +50,7 @@
   const keyWidth = $derived(keySigns.length ? keySigns.length * 1.0 + 0.6 : 0);
   const lead = $derived((showClef ? 3 : 0.5) * sp + keyWidth * sp + (timeSig ? 2.5 * sp : 0));
   const barWidth = $derived(Math.max(width - lead - 0.5 * sp, 10 * sp));
-  const layout = $derived(layoutBar(bar, staff, { width: barWidth, staffSpacing: sp, focusedBeat, key: keyFifths, den, carry, tieOut }));
+  const layout = $derived(layoutBar(bar, staff, { width: barWidth, staffSpacing: sp, focusedBeat, key: keyFifths, den, carry, tieOut, dynamicsAbove, slurIn }));
   // pitched ranges can be wide: guides cover the staff and three ledger lines each side
   const guideSlots = $derived(staff.pitched ? staff.slots.filter((x) => x.staffPosition >= -6 && x.staffPosition <= 14) : staff.slots);
   const guideTop = $derived(yOf(guideSlots[guideSlots.length - 1].staffPosition, sp) - 1.5 * sp);
@@ -171,8 +174,17 @@
       {@const bow = (tie.below ? 1 : -1) * Math.min(1.2 * sp, Math.max(0.5 * sp, (tie.x2 - tie.x1) * 0.15))}
       <path class="tie" d="M {tie.x1} {tie.y + off} Q {(tie.x1 + tie.x2) / 2} {tie.y + off + bow} {tie.x2} {tie.y + off}" stroke-width={0.16 * sp} />
     {/each}
+    {#each layout.slurs as sl}
+      {@const bow = (sl.below ? 1 : -1) * Math.min(2.2 * sp, Math.max(0.8 * sp, (sl.x2 - sl.x1) * 0.12))}
+      {@const mx = (sl.x1 + sl.x2) / 2}
+      {@const my = (sl.y1 + sl.y2) / 2 + bow}
+      <!-- a slur is thicker in the middle: two curves, filled between -->
+      <path class="slur" d="M {sl.x1} {sl.y1} Q {mx} {my} {sl.x2} {sl.y2} Q {mx} {my - (sl.below ? 0.22 : -0.22) * sp} {sl.x1} {sl.y1} Z" />
+    {/each}
     {#each layout.texts as tx}
-      {#if tx.kind === 'wedge'}
+      {#if tx.kind === 'lyric' || tx.kind === 'hyphen'}
+        <text class="lyric" x={tx.x} y={tx.y} font-size={1.25 * sp} text-anchor="middle">{tx.text}</text>
+      {:else if tx.kind === 'wedge'}
         <text class="wedge" x={tx.x} y={tx.y} font-size={1.1 * sp}>{tx.text}</text>
       {:else if tx.kind === 'barText'}
         <text class="bartext" x={tx.x} y={tx.y} font-size={1.2 * sp}>{tx.text}</text>
@@ -197,6 +209,8 @@
   .guide { stroke: var(--focus-ring); stroke-opacity: 0.35; stroke-dasharray: 2 3; }
   .guide-label { fill: var(--muted); font-family: system-ui, sans-serif; pointer-events: none; }
   .ink { fill: var(--ink); }
+  .slur { fill: var(--ink); stroke: var(--ink); stroke-width: 0.6; }
+  .lyric { fill: var(--ink); font-family: system-ui, sans-serif; }
   .wedge { fill: var(--ink); font-family: Georgia, 'Times New Roman', serif; font-style: italic; }
   .bartext { fill: var(--ink); font-family: system-ui, sans-serif; font-style: italic; }
   .sticking { fill: var(--ink); font-family: system-ui, sans-serif; font-weight: 600; }

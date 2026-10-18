@@ -14,7 +14,44 @@ export function placeNote(score, c, note) {
 
 /** A cell with new notes, keeping its dynamic and cresc./dim. (and no longer a continuation). */
 function withNotes(l, notes) {
-  return { notes: [...notes], ...(l.dyn ? { dyn: l.dyn } : {}), ...(l.wedge ? { wedge: l.wedge } : {}) };
+  return { notes: [...notes], ...cellMarksOf(l) };
+}
+
+/** What belongs to the cell rather than its notes: dynamics, cresc./dim., lyric, slur ends. */
+export function cellMarksOf(l) {
+  const out = {};
+  for (const k of ['dyn', 'wedge', 'lyric', 'slur']) if (l[k]) out[k] = l[k];
+  return out;
+}
+
+/** One syllable under the cell's note; a trailing "-" draws the dash to the next. Empty removes it. */
+export function setLyric(score, c, text) {
+  const clean = String(text ?? '').trim().slice(0, 24);
+  return mapLeaf(score, c, (l) => {
+    const { lyric: had, ...rest } = l;
+    if (!clean) return had === undefined ? l : rest;
+    return had === clean ? l : { ...rest, lyric: clean };
+  });
+}
+
+/** Mark the cell as where a slur starts or ends (choosing the same again removes it). */
+export function setSlur(score, c, kind) {
+  return mapLeaf(score, c, (l) => {
+    const { slur: had, ...rest } = l;
+    return had === kind ? rest : { ...rest, slur: kind };
+  });
+}
+
+/** True when a slur started before bar `index` is still open when it begins. */
+export function slurOpenAt(score, index) {
+  let open = false;
+  for (let b = 0; b < index; b++) {
+    for (const l of barLeaves(score, b)) {
+      if (l.leaf.slur === 'start') open = true;
+      if (l.leaf.slur === 'end') open = false;
+    }
+  }
+  return open;
 }
 
 export const DYNAMICS = ['pp', 'p', 'mp', 'mf', 'f', 'ff', 'fp', 'sfz'];

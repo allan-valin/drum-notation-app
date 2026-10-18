@@ -110,7 +110,21 @@ function pitchedProfile(id, family, clef, low, high, voice, extra = {}) {
 export const ELECTRIC_GUITAR_PROFILE = pitchedProfile('electricGuitar', 'rock', 'treble8vb', 'D3', 'E6', 'guitar');
 export const BASS_GUITAR_PROFILE = pitchedProfile('bassGuitar', 'rock', 'bass8vb', 'C2', 'G4', 'bass');
 export const KEYS_PROFILE = pitchedProfile('keys', 'rock', 'treble', 'F3', 'C7', 'keys');
-export const VOCAL_PROFILE = pitchedProfile('vocal', 'rock', 'treble', 'E3', 'C6', 'voice');
+/**
+ * Voices: lyrics, breath marks and slurs; dynamics above the staff so lyrics have the space
+ * below (the choral convention). Tenor is written in treble clef, sounding an octave lower.
+ */
+const VOICE_EXTRA = {
+  palette: [...PITCHED_PALETTE, 'phrasing', 'lyrics'],
+  articulations: [...PITCHED_ARTS, 'breath'],
+  legend: [...PITCHED_LEGEND, 'breath', 'slur', 'lyric'],
+  dynamicsAbove: true,
+};
+export const VOCAL_PROFILE = pitchedProfile('vocal', 'rock', 'treble', 'E3', 'C6', 'voice', VOICE_EXTRA);
+export const SOPRANO_PROFILE = pitchedProfile('soprano', 'choir', 'treble', 'A3', 'C6', 'voice', VOICE_EXTRA);
+export const ALTO_PROFILE = pitchedProfile('alto', 'choir', 'treble', 'E3', 'F5', 'voice', VOICE_EXTRA);
+export const TENOR_PROFILE = pitchedProfile('tenor', 'choir', 'treble8vb', 'A3', 'C6', 'voice', VOICE_EXTRA);
+export const BASS_PROFILE = pitchedProfile('bass', 'choir', 'bass', 'C2', 'F4', 'voice', VOICE_EXTRA);
 
 export const PROFILES = Object.freeze({
   drums: DRUM_PROFILE,
@@ -119,6 +133,10 @@ export const PROFILES = Object.freeze({
   bassGuitar: BASS_GUITAR_PROFILE,
   keys: KEYS_PROFILE,
   vocal: VOCAL_PROFILE,
+  soprano: SOPRANO_PROFILE,
+  alto: ALTO_PROFILE,
+  tenor: TENOR_PROFILE,
+  bass: BASS_PROFILE,
 });
 
 /** Instruments offered in the dropdowns, in order. */

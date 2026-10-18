@@ -18,7 +18,7 @@
   import { prefs } from '../app/prefs.svelte.js';
   import { t } from '../app/prefs.svelte.js';
   import { partLabelIndex, isEmptyPart } from '../core/parts.js';
-  import { carryInto, tiesOut } from '../core/edit.js';
+  import { carryInto, tiesOut, slurOpenAt } from '../core/edit.js';
 
   /** `background`: drawn behind the welcome overlay, inert, nothing saved. */
   let { store, id, onBack, onPrint, fallback = null, background = false } = $props();
@@ -130,6 +130,8 @@
       }
       case 'setDyn': return after.tool.dyn ? t('status.dynOn', { what: after.tool.dyn }) : t('status.dynOff');
       case 'setWedge': return after.tool.wedge ? t('status.dynOn', { what: after.tool.wedge === 'cresc' ? 'cresc.' : 'dim.' }) : t('status.dynOff');
+      case 'setLyric': return a.text ? t('status.lyricSet', { text: a.text, pos: `${before.cursor.bar + 1}.${posLabel(before.cursor)}` }) : t('status.lyricCleared');
+      case 'setSlur': return leafAt(after.score, after.cursor).slur ? t(`status.slur_${a.kind}`, { pos: p }) : t('status.slurRemoved', { pos: p });
       case 'toggleDot': return after.tool.dot ? t('status.dotOn') : t('status.dotOff');
       case 'toggleTie': return leafAt(after.score, after.cursor).cont ? t('status.tieOn', { pos: p }) : t('status.tieOff', { pos: p });
       case 'setTitle': return t('status.titleSet');
@@ -211,7 +213,7 @@
 
   <div class="body">
     <aside class="palette-area no-print" class:locked={playing} inert={playing}>
-      <Palette tool={st.tool} canUndo={st.history.length > 0} canMerge={st.cursor.path.length > 1} onAction={dispatch} onLegend={() => (overlay = 'legend')} onHelp={() => (overlay = 'help')} {profile} parts={partList} part={st.part} />
+      <Palette tool={st.tool} canUndo={st.history.length > 0} canMerge={st.cursor.path.length > 1} onAction={dispatch} onLegend={() => (overlay = 'legend')} onHelp={() => (overlay = 'help')} {profile} parts={partList} part={st.part} lyric={leafAt(st.score, st.cursor).lyric ?? ''} />
     </aside>
 
       <div class="stage">
@@ -228,6 +230,8 @@
           den={barTimeSig(st.score, shownBar)[1]}
           carry={carryInto(st.score, shownBar)}
           tieOut={tiesOut(st.score, shownBar)}
+          dynamicsAbove={!!profile.dynamicsAbove}
+          slurIn={slurOpenAt(st.score, shownBar)}
           showGuides={true}
           cards={true}
           deleteMode={st.tool.delete}

@@ -33,6 +33,7 @@
     ['staccato', Glyphs.STACCATO], ['tenuto', Glyphs.TENUTO], ['marcato', Glyphs.MARCATO], ['fermata', Glyphs.FERMATA],
     ['dynamics', Glyphs.dynamic('p') + ' ' + Glyphs.dynamic('mf') + ' ' + Glyphs.dynamic('ff')],
     ['wedges', 'cresc.'],
+    ['breath', Glyphs.BREATH], ['slur', '⌒'], ['lyric', 'Glo-ri-a'],
     ['congaSlap', head(Notehead.CROSS)],
     ['congaMute', Glyphs.CLOSED],
   ];
