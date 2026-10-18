@@ -261,7 +261,7 @@ export const STRINGS = {
       s7t: '7. Listen',
       s7: 'Under "Listen": choose this bar, from the start, from here on, or a selection (tick "Select bars" and tap the bars; the arrows beside it, or dragging, move bars around). "Loop" repeats, "Metronome" clicks the beats, "Count-in" gives one bar of clicks first. The BPM here does not change the score. While playing, the editor is locked and follows the bar being played; % and ||: :|| repeats play as written. Under "Sound", choose the recorded or the synthesized kit, or \"Silent\" to practise with just the highlights and the metronome.',
       s8t: '8. Instruments',
-      s8: 'A score can hold several instruments, like a band. Under "Instruments", next to BPM, pick each row's instrument, mute or remove it, and use "+ Add instrument". Under "Editing", at the top of the palette, choose which instrument you are writing: the palette shows only what that instrument uses. Bars, time signatures and repeats apply to all; Play plays them together.',
+      s8: 'A score can hold several instruments, like a band. Under "Instruments", next to BPM, pick each row\'s instrument, mute or remove it, and use "+ Add instrument". Under "Editing", at the top of the palette, choose which instrument you are writing: the palette shows only what that instrument uses. Bars, time signatures and repeats apply to all; Play plays them together.',
       s6t: '6. Saving, PDF and photos',
       s6: 'Every change is saved in this browser. "PDF" opens the print page. In the library, "JSON" exports a copy. To import from a photo, follow "How to import from a photo".',
     },
