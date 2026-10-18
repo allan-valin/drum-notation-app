@@ -147,23 +147,27 @@ circled X E0B3/E0B2/E0B1, slashed E0CF/E0D1/E0D3, open E5E7, closed E5E5, half-o
 choke E805, buzz E217, tremolo3 E222, flam E560, drag E562 ×2. Cross-stick = the X head chosen
 on the snare line. Bar text is drawn above everything else in the bar.
 
-### C5 — playback, synth kit (medium) — [ ]
+### C5 — playback, synth kit (medium) — [x] 2026-10-18
 
-- [ ] `src/core/schedule.js` (pure): `events(score, range)` → `[{ tick, slotId, note, barIndex, path }]`
+- [x] `src/core/schedule.js` (pure): `events(score, range)` → `[{ tick, slotId, note, barIndex, path }]`
   with simile expanded to the previous bar and repeat sections played twice; `secondsAt(tick, bpm)`.
   Tests: a 4/4 bar of eighth hi-hats at 120 BPM → 8 events at 0, 0.25 s …; simile copies;
   repeat doubles; range `[2, 3]` starts at bar 2.
-- [ ] `src/audio/kit.js`: Web Audio synth per slot (kick: swept sine + click; snare: noise burst
+- [x] `src/audio/kit.js`: Web Audio synth per slot (kick: swept sine + click; snare: noise burst
   + 180 Hz body; hi-hat closed/open: high-passed noise, 60 ms / 400 ms; toms: decaying sines
   by pitch; crash/ride/china: band-passed metallic noise; bell: inharmonic partials). Accent =
   louder, ghost = quieter, open/closed marks pick hi-hat length, roll = repeated hits, flam =
   grace hit 30 ms early.
-- [ ] `src/audio/player.js`: look-ahead scheduler (25 ms tick, 120 ms ahead) on the
+- [x] `src/audio/player.js`: look-ahead scheduler (25 ms tick, 120 ms ahead) on the
   AudioContext clock; count-in option; metronome click option; loop; playhead callback.
-- [ ] Transport bar under the bar row: ▶ ■ ⟲, BPM, click, count-in; modes: compasso atual ·
+- [x] Transport bar under the bar row: ▶ ■ ⟲, BPM, click, count-in; modes: compasso atual ·
   do início · a partir daqui · seleção (tap first then last bar in the full score). Playhead
   highlights the bar and the cell, separate from the edit cursor.
-- [ ] AudioContext created on the first ▶ tap (browser rule); status explains iOS mute switch.
+- [x] AudioContext created on the first ▶ tap (browser rule); status explains iOS mute switch.
+
+Verified in headless Chromium with real Web Audio: 136 voices started over two bars at 120 BPM,
+bar 1 framed as playing at 1.3 s, palette inert while playing, "Parado" at the end. The
+transport BPM is a practice tempo and does not change the score.
 
 ### C6 — sampled kit (small, after C5 works) — [ ]
 

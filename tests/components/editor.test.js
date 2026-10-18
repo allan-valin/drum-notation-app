@@ -134,7 +134,7 @@ describe('legend and help overlays', () => {
     const { getByLabelText, getByRole } = render(Editor, { store, id: 'a', onBack: () => {}, onPrint: () => {} });
     await fireEvent.click(getByLabelText('Como usar'));
     const dialog = getByRole('dialog', { name: 'Como usar' });
-    expect(dialog.querySelectorAll('section').length).toBe(6);
+    expect(dialog.querySelectorAll('section').length).toBe(7);
     expect(dialog.querySelectorAll('figure svg').length).toBe(3);
   });
   it('a technique toggle rides on the next note', async () => {
@@ -146,5 +146,40 @@ describe('legend and help overlays', () => {
     const sp = spOf(container);
     await tapAt(container, 5.5 * sp + 20, yOf(9, sp));
     expect(store.load('a').bars[0].beats[0].cells[0].notes[0]).toMatchObject({ slotId: 'hihat', marks: ['open'] });
+  });
+});
+
+describe('play mode', () => {
+  function fakeAudio() {
+    const param = () => ({ value: 0, setValueAtTime() {}, exponentialRampToValueAtTime() {} });
+    const node = () => ({ connect(n) { return n; }, start() {}, stop() {}, frequency: param(), Q: param(), gain: param(), playbackRate: param(), threshold: param(), ratio: param() });
+    return class { constructor() { this.currentTime = 0; this.sampleRate = 8000; this.destination = node(); }
+      createGain() { return node(); } createDynamicsCompressor() { return node(); } createBiquadFilter() { return node(); }
+      createOscillator() { return node(); } createBufferSource() { return node(); }
+      createBuffer(c, len) { return { getChannelData: () => new Float32Array(len) }; } resume() {} close() {} };
+  }
+  it('a selection made in the full score plays, locks editing, and stops', async () => {
+    window.AudioContext = fakeAudio();
+    const store = createStore(memoryStorage());
+    store.save(newScore({ id: 'a', title: 'T' }));
+    const { container, getByLabelText, getByRole } = render(Editor, { store, id: 'a', onBack: () => {}, onPrint: () => {} });
+    await fireEvent.click(getByLabelText('Adicionar compasso no fim'));
+    await fireEvent.click(getByLabelText('Adicionar compasso no fim'));
+    await fireEvent.click(getByRole('radio', { name: 'Seleção' }));
+    await fireEvent.click(getByLabelText('Ir ao compasso 2'));
+    await fireEvent.click(getByLabelText('Ir ao compasso 3'));
+    expect(container.querySelector('.status').textContent).toContain('Seleção: compassos 2–3');
+    expect(container.querySelectorAll('.full .frame.inrange').length).toBe(2);
+    await fireEvent.click(getByLabelText('Tocar'));
+    expect(container.querySelector('.status').textContent).toContain('Tocando compassos 2–3');
+    const pal = () => container.querySelector('.palette-area');
+    expect(pal().inert === true || pal().hasAttribute('inert')).toBe(true);
+    expect(pal().classList.contains('locked')).toBe(true);
+    await fireEvent.click(getByLabelText('Próxima posição'));
+    expect(container.querySelector('.status').textContent).toContain('pare para editar');
+    await fireEvent.click(getByLabelText('Parar'));
+    expect(container.querySelector('.status').textContent).toContain('Parado');
+    expect(pal().inert === true || pal().hasAttribute('inert')).toBe(false);
+    delete window.AudioContext;
   });
 });

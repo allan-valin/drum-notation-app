@@ -6,6 +6,7 @@
   import Prefs from './Prefs.svelte';
   import Legend from './Legend.svelte';
   import Help from './Help.svelte';
+  import Transport from './Transport.svelte';
   import { initialState, reduce } from '../core/editorState.js';
   import { profileById } from '../core/profile.js';
   import { DEFAULT_COLOURS, INK, normaliseColours, overridesOnly } from '../core/colours.js';
@@ -26,15 +27,22 @@
   const landscape = $derived(width >= 640 && width > height);
   let colours = $state(normaliseColours(store.loadSettings().colours));
   let overlay = $state(null);
+  // play mode: while playing, editing is locked and the big editor follows the playhead
+  let playing = $state(false);
+  let playhead = $state(null);
+  let playMode = $state('bar');
+  let range = $state(null);
   if (!background && loaded) store.saveSettings({ ...store.loadSettings(), lastId: id });
 
   const staff = $derived(profileById(st.score.profileId).staves[0]);
-  const bar = $derived(st.score.bars[st.cursor.bar]);
+  const shownBar = $derived(playing && playhead ? playhead.bar : st.cursor.bar);
+  const bar = $derived(st.score.bars[shownBar]);
   const slotName = (sid) => t(`slot.${sid}`);
   const pos = () => `${st.cursor.bar + 1}.${posLabel(st.cursor)}`;
 
   function dispatch(action) {
     if (background) return;
+    if (playing) { status = t('play.editLocked'); return; }
     const before = st;
     st = reduce(st, action);
     status = st.refused ? t(`refused.${st.refused}`) : describe(action, before, st);
@@ -91,6 +99,16 @@
     }
   }
 
+  /** A tap on the full score: in selection mode it marks the range to play, otherwise it opens the bar. */
+  function openBar(i) {
+    if (playMode === 'selection' && !playing) {
+      range = !range || range[0] !== range[1] ? [i, i] : [Math.min(range[0], i), Math.max(range[0], i)];
+      status = t('play.selected', { from: range[0] + 1, to: range[1] + 1 });
+      return;
+    }
+    dispatch({ type: 'goTo', cursor: mkCursor(i, 0, 0) });
+  }
+
   function setColour(valueId, colour) {
     colours = { ...colours, [valueId]: colour };
     store.saveSettings({ ...store.loadSettings(), colours: overridesOnly(colours) });
@@ -123,7 +141,7 @@
   </header>
 
   <div class="body">
-    <aside class="palette-area no-print">
+    <aside class="palette-area no-print" class:locked={playing} inert={playing}>
       <Palette tool={st.tool} canUndo={st.history.length > 0} canMerge={st.cursor.path.length > 1} onAction={dispatch} onLegend={() => (overlay = 'legend')} onHelp={() => (overlay = 'help')} />
     </aside>
 
@@ -133,10 +151,10 @@
           {staff}
           width={stageWidth}
           staffSpacing={sp}
-          focusedBeat={st.cursor.beat}
-          focusedPath={st.cursor.path}
+          focusedBeat={playing ? (playhead?.beat ?? null) : st.cursor.beat}
+          focusedPath={playing ? (playhead?.path ?? null) : st.cursor.path}
           {colours}
-          timeSig={barTimeSig(st.score, st.cursor.bar)}
+          timeSig={barTimeSig(st.score, shownBar)}
           showGuides={true}
           cards={true}
           deleteMode={st.tool.delete}
@@ -158,7 +176,10 @@
 
       <div class="bars-area"><BarRow score={st.score} barIndex={st.cursor.bar} onAction={dispatch} /></div>
 
-      <div class="full-area"><FullScore score={st.score} {staff} {colours} current={st.cursor.bar} onOpen={(i) => dispatch({ type: 'goTo', cursor: mkCursor(i, 0, 0) })} /></div>
+      <div class="transport-area"><Transport score={st.score} currentBar={st.cursor.bar} {range} bind:mode={playMode}
+        onPlayhead={(p) => (playhead = p)} onPlaying={(on) => { playing = on; if (!on) playhead = null; }} onStatus={(m) => (status = m)} /></div>
+
+      <div class="full-area"><FullScore {range} playingBar={playing ? playhead?.bar : null} score={st.score} {staff} {colours} current={st.cursor.bar} onOpen={openBar} /></div>
 
       <details class="colours no-print">
         <summary>{t('editor.colours')}</summary>
@@ -185,12 +206,14 @@
   .bpm { display: flex; align-items: center; gap: 4px; font-size: 13px; color: var(--muted); }
   .bpm input { width: 64px; }
   /* portrait: staff first, then arrows, palette, bar actions, full score */
-  .body { display: grid; grid-template-columns: minmax(0, 1fr); grid-template-areas: 'stage' 'move' 'palette' 'bars' 'full' 'colours'; gap: 8px; padding: 8px; }
+  .body { display: grid; grid-template-columns: minmax(0, 1fr); grid-template-areas: 'stage' 'move' 'palette' 'bars' 'transport' 'full' 'colours'; gap: 8px; padding: 8px; }
   .stage { grid-area: stage; }
   .move { grid-area: move; }
   .palette-area { grid-area: palette; }
   .bars-area { grid-area: bars; }
   .full-area { grid-area: full; }
+  .transport-area { grid-area: transport; }
+  .locked { opacity: 0.4; }
   .colours { grid-area: colours; }
   .where { font-size: 13px; color: var(--muted); }
   .stage { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 4px; overflow-x: auto; }
@@ -204,7 +227,7 @@
   .reset { min-height: 28px; font-size: 12px; padding: 0 8px; }
   @media (orientation: landscape) and (min-width: 640px) {
     header { padding: 4px 8px; }
-    .body { grid-template-columns: 220px minmax(0, 1fr); grid-template-areas: 'palette stage' 'palette move' 'palette bars' 'palette full' 'palette colours'; grid-template-rows: auto auto auto auto 1fr; padding: 6px; align-items: start; }
+    .body { grid-template-columns: 220px minmax(0, 1fr); grid-template-areas: 'palette stage' 'palette move' 'palette bars' 'palette transport' 'palette full' 'palette colours'; grid-template-rows: auto auto auto auto auto 1fr; padding: 6px; align-items: start; }
     .palette-area { position: sticky; top: 6px; }
     .stage { padding: 0; }
   }

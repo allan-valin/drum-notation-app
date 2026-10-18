@@ -4,7 +4,7 @@
   import { t } from '../app/prefs.svelte.js';
   import { barTimeSig, showsTimeSig } from '../core/score.js';
 
-  let { score, staff, colours, current, onOpen } = $props();
+  let { score, staff, colours, current, onOpen, range = null, playingBar = null } = $props();
   let width = $state(600);
   const perRow = $derived(width >= 700 ? 2 : 1);
   const barW = $derived(Math.max(240, (width - 8 * (perRow - 1)) / perRow));
@@ -29,7 +29,7 @@
   {#each rows as row}
     <div class="row" style="grid-template-columns: repeat({perRow}, 1fr)">
       {#each row as i}
-        <button class="frame" class:current={i === current} class:flash={i === flash} onclick={() => onOpen(i)} aria-label={t('editor.goToBar', { n: i + 1 })} aria-current={i === current}>
+        <button class="frame" class:current={i === current} class:flash={i === flash} class:inrange={range && i >= range[0] && i <= range[1]} class:playing={i === playingBar} onclick={() => onOpen(i)} aria-label={t('editor.goToBar', { n: i + 1 })} aria-current={i === current}>
           <span class="n">{i + 1}</span>
           <ScoreSvg bar={score.bars[i]} {staff} width={barW - 4} staffSpacing={sp} showClef={i % perRow === 0} timeSig={showsTimeSig(score, i) ? barTimeSig(score, i) : null} {colours} fixedRange={[8.5, 6]} />
         </button>
@@ -44,6 +44,8 @@
   .row { display: grid; gap: 8px; }
   .frame { position: relative; display: block; padding: 0; min-height: 0; background: var(--panel); border: 1px solid var(--line); overflow: hidden; }
   .frame.current { border: 2.5px solid var(--focus-ring); background: var(--focus); }
+  .frame.inrange { outline: 3px dashed #1f8f4e; outline-offset: -3px; }
+  .frame.playing { border: 2.5px solid #1f8f4e; box-shadow: 0 0 0 3px color-mix(in srgb, #1f8f4e 35%, transparent); }
   .frame.flash { animation: flash 0.9s ease-out; }
   @keyframes flash { 0% { box-shadow: 0 0 0 6px var(--focus-ring); } 100% { box-shadow: 0 0 0 0 transparent; } }
   .n { position: absolute; top: 4px; left: 6px; font-size: 12px; color: var(--muted); }
