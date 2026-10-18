@@ -27,7 +27,7 @@ box; each checkpoint is one commit + push and leaves the site working. Same rule
 ### D1 — quick fixes: G1, G2, G5, G6, G9, G10, G11, G12 — [x] 2026-10-18 (hit-test: 25 stolen clicks → 0 at 1280×800, 800×360, 390×844)
 ### D2 — tap rules and merge-up: G3, G4 — [x] 2026-10-18
 ### D3 — symbol-only mode, single technique: G7, G8 — [x] 2026-10-18
-### D4 — bar selection, move with arrows, drag and drop: G13 — [ ]
+### D4 — bar selection, move with arrows, drag and drop: G13 — [x] 2026-10-18 (real-browser drag: bar 1 dropped after bar 3; two-bar block moved with ‹)
 
 Moving bars keeps each bar's shape: the moved bars and the bar after the gap they leave get
 their effective time signature written explicitly first; a `%` bar moved to the front loses

@@ -32,6 +32,7 @@
   let playhead = $state(null);
   let playMode = $state('bar');
   let range = $state(null);
+  let selecting = $state(false);
   if (!background && loaded) store.saveSettings({ ...store.loadSettings(), lastId: id });
 
   const staff = $derived(profileById(st.score.profileId).staves[0]);
@@ -103,12 +104,31 @@
 
   /** A tap on the full score: in selection mode it marks the range to play, otherwise it opens the bar. */
   function openBar(i) {
-    if (playMode === 'selection' && !playing) {
-      range = !range || range[0] !== range[1] ? [i, i] : [Math.min(range[0], i), Math.max(range[0], i)];
+    if (selecting && !playing) {
+      // contiguous block: a tap outside it stretches it to the tapped bar, a tap inside starts over there
+      if (!range) range = [i, i];
+      else if (i < range[0]) range = [i, range[1]];
+      else if (i > range[1]) range = [range[0], i];
+      else range = [i, i];
       status = t('play.selected', { from: range[0] + 1, to: range[1] + 1 });
       return;
     }
     dispatch({ type: 'goTo', cursor: mkCursor(i, 0, 0) });
+  }
+
+  function moveBlock(dir) {
+    if (!range) { status = t('play.dragHint'); return; }
+    const [a, b] = range;
+    if ((dir < 0 && a === 0) || (dir > 0 && b === st.score.bars.length - 1)) { status = t('play.cantMove'); return; }
+    dropBlock(a, b, dir < 0 ? a - 1 : b + 2);
+  }
+  function dropBlock(a, b, gap) {
+    const before = st;
+    dispatch({ type: 'moveBars', from: a, to: b, gap });
+    if (st.score !== before.score) {
+      range = st.range;
+      status = t('play.moved', { from: range[0] + 1, to: range[1] + 1 });
+    }
   }
 
   function setColour(valueId, colour) {
@@ -178,10 +198,10 @@
 
       <div class="bars-area"><BarRow score={st.score} barIndex={st.cursor.bar} onAction={dispatch} /></div>
 
-      <div class="transport-area"><Transport score={st.score} currentBar={st.cursor.bar} {range} {store} bind:mode={playMode}
+      <div class="transport-area"><Transport score={st.score} currentBar={st.cursor.bar} {range} {store} bind:mode={playMode} bind:selecting onMove={moveBlock}
         onPlayhead={(p) => (playhead = p)} onPlaying={(on) => { playing = on; if (!on) playhead = null; }} onStatus={(m) => (status = m)} /></div>
 
-      <div class="full-area"><FullScore {range} playingBar={playing ? playhead?.bar : null} score={st.score} {staff} {colours} current={st.cursor.bar} onOpen={openBar} /></div>
+      <div class="full-area"><FullScore range={selecting || playMode === 'selection' ? range : null} {selecting} onDrop={dropBlock} playingBar={playing ? playhead?.bar : null} score={st.score} {staff} {colours} current={st.cursor.bar} onOpen={openBar} /></div>
 
       <details class="colours no-print">
         <summary>{t('editor.colours')}</summary>

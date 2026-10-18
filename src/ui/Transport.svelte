@@ -10,6 +10,8 @@
   let {
     score, currentBar, range = null, store = null,
     mode = $bindable('bar'),
+    selecting = $bindable(false),
+    onMove = () => {},
     onPlayhead = () => {}, onPlaying = () => {}, onStatus = () => {},
   } = $props();
 
@@ -77,6 +79,12 @@
     <span>{playing ? t('play.stop') : t('play.play')}</span>
   </button>
 
+  <span class="selbox">
+    <button class="arrow" disabled={!selecting || playing} aria-label={t('play.moveLeft')} title={t('play.moveLeft')} onclick={() => onMove(-1)}>‹</button>
+    <label class="check"><input type="checkbox" bind:checked={selecting} disabled={playing} onchange={() => { if (selecting) mode = 'selection'; if (selecting) onStatus(t('play.dragHint')); }} /> {t('play.selectBars')}</label>
+    <button class="arrow" disabled={!selecting || playing} aria-label={t('play.moveRight')} title={t('play.moveRight')} onclick={() => onMove(1)}>›</button>
+  </span>
+
   <div class="modes" role="radiogroup" aria-label={t('play.what')}>
     {#each MODES as m}
       <button role="radio" aria-checked={mode === m} class:on={mode === m} disabled={playing} onclick={() => { mode = m; if (m === 'selection') onStatus(range ? t('play.selected', { from: range[0] + 1, to: range[1] + 1 }) : t('play.selectHint')); }}>{t(`play.${m}`)}</button>
@@ -101,7 +109,7 @@
     </span>
   </div>
   {#if mode === 'selection'}
-    <p class="hint">{range ? t('play.selected', { from: range[0] + 1, to: range[1] + 1 }) : t('play.selectHint')}</p>
+    <p class="hint">{range ? t('play.selected', { from: range[0] + 1, to: range[1] + 1 }) + ' · ' : ''}{selecting ? t('play.dragHint') : t('play.selectHint')}</p>
   {/if}
   <p class="hint">{t('play.soundHint')}</p>
 </section>
@@ -122,5 +130,9 @@
   .sound { background: var(--panel); display: inline-flex; align-items: center; gap: 0; border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; }
   .sound .lbl { font-size: 12px; color: var(--muted); padding: 0 8px; }
   .sound button { border: none; border-radius: 0; font-size: 14px; }
+  .selbox { display: inline-flex; align-items: stretch; border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; background: var(--panel); }
+  .selbox .arrow { border: none; border-radius: 0; font-size: 22px; min-width: 44px; }
+  .selbox .check { display: inline-flex; align-items: center; gap: 6px; padding: 0 10px; font-size: 14px; border-left: 1px solid var(--line); border-right: 1px solid var(--line); cursor: pointer; }
+  .selbox input { width: 20px; height: 20px; }
   .hint { width: 100%; margin: 0; font-size: 12px; color: var(--muted); }
 </style>

@@ -4,7 +4,7 @@ import { cursor as mkCursor, next, prev, leafAt, clamp } from './cursor.js';
 import { parentOf, leafPaths, getAt } from './tree.js';
 import {
   placeNote, deleteNote, clearLeaf, splitBeat, splitCell, resizeCell, mergeCell, addBar, removeBar,
-  setTimeSig, toggleSimile, toggleRepeatStart, toggleRepeatEnd, setBarText,
+  setTimeSig, toggleSimile, toggleRepeatStart, toggleRepeatEnd, setBarText, moveBars,
 } from './edit.js';
 import { profileById, slotNearest } from './profile.js';
 
@@ -58,6 +58,18 @@ export function reduce(state, action) {
     case 'setHead': return tool(st, { head: st.tool.head === action.head ? null : action.head });
     case 'setTech': return tool(st, { tech: st.tool.tech === action.tech ? null : action.tech });
     case 'setWithNote': return tool(st, { withNote: action.on !== false });
+    case 'moveBars': {
+      const { score, range } = moveBars(st.score, action.from, action.to, action.gap);
+      if (score === st.score) return st;
+      // the cursor stays on the bar it was on, wherever that bar went
+      const order = st.score.bars.map((_, i) => i);
+      const block = order.slice(action.from, action.to + 1);
+      const rest = [...order.slice(0, action.from), ...order.slice(action.to + 1)];
+      const at = action.gap > action.to ? action.gap - block.length : action.gap;
+      const moved = [...rest.slice(0, at), ...block, ...rest.slice(at)];
+      const bar = moved.indexOf(st.cursor.bar);
+      return { ...push(st), score, range, cursor: clamp(score, { ...st.cursor, bar }) };
+    }
     case 'setBarText': return edit(st, (s) => setBarText(s, st.cursor.bar, action.text));
     case 'addBar': {
       const s = addBar(st.score);

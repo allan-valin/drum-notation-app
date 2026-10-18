@@ -171,7 +171,8 @@ describe('play mode', () => {
     const { container, getByLabelText, getByRole } = render(Editor, { store, id: 'a', onBack: () => {}, onPrint: () => {} });
     await fireEvent.click(getByLabelText('Adicionar compasso no fim'));
     await fireEvent.click(getByLabelText('Adicionar compasso no fim'));
-    await fireEvent.click(getByRole('radio', { name: 'Seleção' }));
+    await fireEvent.click(getByLabelText('Selecionar compassos'));
+    expect(getByRole('radio', { name: 'Seleção' }).getAttribute('aria-checked')).toBe('true');
     await fireEvent.click(getByLabelText('Ir ao compasso 2'));
     await fireEvent.click(getByLabelText('Ir ao compasso 3'));
     expect(container.querySelector('.status').textContent).toContain('Seleção: compassos 2–3');
@@ -204,5 +205,28 @@ describe('symbol only, in the page', () => {
     expect(notes.length).toBe(1);
     expect(notes[0].articulations).toEqual(['accent']);
     expect(container.querySelector('.status').textContent).toContain('Símbolos postos');
+  });
+});
+
+describe('moving bars', () => {
+  it('the arrows move the selected bars and the selection follows them', async () => {
+    const store = createStore(memoryStorage());
+    store.save(newScore({ id: 'a', title: 'T' }));
+    const { container, getByLabelText } = render(Editor, { store, id: 'a', onBack: () => {}, onPrint: () => {} });
+    const sp = spOf(container);
+    await tapAt(container, 5.5 * sp + 20, yOf(-2, sp)); // kick in bar 1
+    await fireEvent.click(getByLabelText('Adicionar compasso no fim'));
+    await fireEvent.click(getByLabelText('Adicionar compasso no fim'));
+    await fireEvent.click(getByLabelText('Selecionar compassos'));
+    await fireEvent.click(getByLabelText('Ir ao compasso 1'));
+    await fireEvent.click(getByLabelText('Mover a seleção um compasso para a direita'));
+    await fireEvent.click(getByLabelText('Mover a seleção um compasso para a direita'));
+    const bars = store.load('a').bars;
+    expect(bars[2].beats[0].cells[0].notes[0].slotId).toBe('kick');
+    expect(bars[0].beats[0].cells[0].notes).toEqual([]);
+    expect(container.querySelector('.status').textContent).toContain('agora 3–3');
+    await fireEvent.click(getByLabelText('Mover a seleção um compasso para a direita'));
+    expect(container.querySelector('.status').textContent).toContain('já está na ponta');
+    expect(container.querySelectorAll('.full .frame.inrange').length).toBe(1);
   });
 });

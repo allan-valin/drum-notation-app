@@ -150,6 +150,25 @@ function leafBeat(notes, den) {
   return group(noteValueFor(den), null, [leaf(notes)]);
 }
 
+/**
+ * Move bars `from..to` so they sit before the bar that was at index `gap` (gap = bars.length:
+ * the end). Returns `{ score, range }`, range being where the block is now. Signatures are
+ * written out on the block's first bar and on the bars that end up after the block or after
+ * the hole it left, so every bar keeps its own shape; a `%` that lands first loses it.
+ */
+export function moveBars(score, from, to, gap) {
+  if (gap >= from && gap <= to + 1) return { score, range: [from, to] };
+  const sigAt = (i) => barTimeSig(score, i);
+  const pin = (b, i) => (b.timeSig ? b : { ...b, timeSig: [...sigAt(i)] });
+  let bars = score.bars.map((b, i) => (i === from || i === to + 1 || i === gap ? pin(b, i) : b));
+  const block = bars.slice(from, to + 1);
+  const rest = [...bars.slice(0, from), ...bars.slice(to + 1)];
+  const at = gap > to ? gap - block.length : gap;
+  bars = [...rest.slice(0, at), ...block, ...rest.slice(at)];
+  if (bars[0].simile) bars = bars.map((b, i) => (i === 0 ? { ...b, simile: false } : b));
+  return { score: touch({ ...score, bars }), range: [at, at + block.length - 1] };
+}
+
 /** `%`: this bar repeats the previous one. The first bar has nothing to repeat. */
 export function toggleSimile(score, index) {
   if (index === 0) return score;
