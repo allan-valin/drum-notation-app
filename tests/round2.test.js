@@ -98,10 +98,22 @@ describe('symbol-only mode', () => {
     st = run(st, { type: 'setSticking', sticking: Sticking.L }, { type: 'setHead', head: Notehead.DIAMOND }, { type: 'setTech', tech: Mark.OPEN }, { type: 'tap', staffPosition: 9 });
     expect(notes(st)[0]).toMatchObject({ slotId: 'hihat', sticking: 'L', head: 'diamond', marks: ['open'] });
   });
-  it('with no note at that height it does nothing and says so', () => {
+  it('in an empty cell it does nothing and says so', () => {
     const st = run(start(), { type: 'setWithNote', on: false }, { type: 'toggleAccent' }, { type: 'tap', staffPosition: 4 });
     expect(notes(st)).toEqual([]);
     expect(st.refused).toBe('noNoteThere');
+  });
+  it('a tap anywhere in the cell reaches its note, whatever the height', () => {
+    const st = run(start(), { type: 'tap', staffPosition: 4 }, { type: 'setWithNote', on: false }, { type: 'toggleAccent' }, { type: 'tap', staffPosition: 11 });
+    expect(notes(st).length).toBe(1);
+    expect(notes(st)[0]).toMatchObject({ slotId: 'snare', articulations: [Articulation.ACCENT] });
+  });
+  it('with several notes in the cell it picks the one nearest the tap', () => {
+    let st = run(start(), { type: 'tap', staffPosition: -2 }, { type: 'tap', staffPosition: 9 }, { type: 'setWithNote', on: false }, { type: 'setTech', tech: Mark.OPEN });
+    st = reduce(st, { type: 'tap', staffPosition: 7 });
+    const byId = Object.fromEntries(notes(st).map((n) => [n.slotId, n]));
+    expect(byId.hihat.marks).toEqual([Mark.OPEN]);
+    expect(byId.kick.marks).toEqual([]);
   });
   it('with nothing chosen it says so', () => {
     const st = run(start(), { type: 'tap', staffPosition: 4 }, { type: 'setWithNote', on: false }, { type: 'tap', staffPosition: 4 });

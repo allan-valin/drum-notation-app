@@ -111,7 +111,7 @@ function tap(st, staffPosition) {
     roll: Object.values(Roll).includes(tech) ? tech : null,
     grace: Object.values(Grace).includes(tech) ? tech : null,
   };
-  if (!st.tool.withNote) return applySymbols(st, slot.id, techFields);
+  if (!st.tool.withNote) return applySymbols(st, staffPosition, techFields);
   const articulations = [];
   if (accent) articulations.push(Articulation.ACCENT);
   if (ghost) articulations.push(Articulation.GHOST);
@@ -122,10 +122,14 @@ function tap(st, staffPosition) {
  * "Só símbolo": add the chosen symbols to the note already at that height, no new note. If the
  * note already carries all of them, they come off again, so a second tap undoes the first.
  */
-function applySymbols(st, slotId, techFields) {
+function applySymbols(st, staffPosition, techFields) {
   const { head, tech, sticking, accent, ghost } = st.tool;
   if (!accent && !ghost && !sticking && !head && !tech) return { ...st, refused: 'nothingToApply' };
-  const existing = leafAt(st.score, st.cursor).notes.find((n) => n.slotId === slotId);
+  // anywhere in the cell counts; with several notes, the one nearest the tap height
+  const staff = profileById(st.score.profileId).staves[0];
+  const pos = (n) => staff.slots.find((x) => x.id === n.slotId)?.staffPosition ?? 0;
+  const existing = leafAt(st.score, st.cursor).notes
+    .reduce((best, n) => (!best || Math.abs(pos(n) - staffPosition) < Math.abs(pos(best) - staffPosition) ? n : best), null);
   if (!existing) return { ...st, refused: 'noNoteThere' };
   const arts = [accent && Articulation.ACCENT, ghost && Articulation.GHOST].filter(Boolean);
   const has = arts.every((a) => existing.articulations.includes(a))
