@@ -3,11 +3,12 @@
   import ScoreSvg from './ScoreSvg.svelte';
   import { profileById } from '../core/profile.js';
   import { paginate } from '../core/pagination.js';
-  import { DEFAULT_COLOURS } from '../core/colours.js';
+  import { normaliseColours } from '../core/colours.js';
+  import { t } from '../app/prefs.svelte.js';
 
   let { store, id, onBack } = $props();
   const score = store.load(id);
-  const colours = { ...DEFAULT_COLOURS, ...(store.loadSettings().colours ?? {}) };
+  const colours = normaliseColours(store.loadSettings().colours);
   const staff = score ? profileById(score.profileId).staves[0] : null;
   let barsPerLine = $state(4);
   const pages = $derived(score ? paginate(score.bars.length, { barsPerLine, linesPerPage: 8 }) : [[]]);
@@ -15,18 +16,18 @@
 </script>
 
 {#if !score}
-  <div class="missing"><p>Partitura não encontrada.</p><button onclick={onBack}>‹ Voltar</button></div>
+  <div class="missing"><p>{t('print.notFound')}</p><button onclick={onBack}>‹ {t('print.backShort')}</button></div>
 {:else}
   <div class="toolbar no-print">
-    <button onclick={onBack}>‹ Editor</button>
-    <label>Compassos por linha <input type="number" min="1" max="8" bind:value={barsPerLine} /></label>
-    <button class="on" onclick={() => window.print()}>Imprimir / salvar PDF</button>
-    <span class="tip">No diálogo de impressão, escolha "Salvar como PDF".</span>
+    <button onclick={onBack}>‹ {t('print.back')}</button>
+    <label>{t('print.barsPerLine')} <input type="number" min="1" max="8" bind:value={barsPerLine} /></label>
+    <button class="on" onclick={() => window.print()}>{t('print.print')}</button>
+    <span class="tip">{t('print.tip')}</span>
   </div>
   {#each pages as page, pi}
     <section class="page">
       {#if pi === 0}
-        <h1>{score.title || 'Sem título'}</h1>
+        <h1>{score.title || t('app.untitled')}</h1>
         <p class="meta">{score.timeSigNum}/{score.timeSigDen} · ♩ = {score.defaultBpm}</p>
       {/if}
       {#each page as line}

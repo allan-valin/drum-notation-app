@@ -1,30 +1,32 @@
 <script>
   import { newScore } from '../core/score.js';
   import { encode, decode } from '../core/json.js';
+  import { t } from '../app/prefs.svelte.js';
+  import Prefs from './Prefs.svelte';
 
   let { store, onOpen, onPrint } = $props();
   let items = $state(store.list());
-  let status = $state(`${store.list().length} partitura(s) neste navegador`);
+  let status = $state(t('archive.count', { n: store.list().length }));
   let importing = $state(false);
   let importText = $state('');
 
   const refresh = () => { items = store.list(); };
-  const when = (t) => new Date(t).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' });
+  const when = (ts) => new Date(ts).toLocaleString(undefined, { dateStyle: 'short', timeStyle: 'short' });
 
   function create() {
-    const title = prompt('Título da partitura', 'Novo exercício');
-    if (title === null) { status = 'Criação cancelada'; return; }
-    const s = newScore({ title: title.trim() || 'Sem título' });
+    const title = prompt(t('archive.newPrompt'), t('archive.newDefault'));
+    if (title === null) { status = t('archive.cancelled'); return; }
+    const s = newScore({ title: title.trim() || t('app.untitled') });
     store.save(s);
-    status = `Criada: ${s.title}`;
+    status = t('archive.created', { title: s.title });
     onOpen(s.id);
   }
 
   function remove(item) {
-    if (!confirm(`Apagar "${item.title}"? Não dá para desfazer.`)) { status = 'Nada apagado'; return; }
+    if (!confirm(t('archive.confirmRemove', { title: item.title }))) { status = t('archive.notRemoved'); return; }
     store.remove(item.id);
     refresh();
-    status = `Apagada: ${item.title}`;
+    status = t('archive.removed', { title: item.title });
   }
 
   function exportJson(item) {
@@ -35,15 +37,15 @@
     a.download = `${(s.title || 'partitura').replace(/[^\w\-]+/g, '_')}.json`;
     a.click();
     URL.revokeObjectURL(a.href);
-    status = `Exportada: ${s.title} (${a.download})`;
+    status = t('archive.exported', { title: s.title, file: a.download });
   }
 
   function duplicate(item) {
     const s = store.load(item.id);
-    const copy = newScore({ ...s, id: undefined, title: `${s.title} (cópia)`, createdAt: undefined, updatedAt: undefined });
+    const copy = newScore({ ...s, id: undefined, title: `${s.title} ${t('archive.copySuffix')}`, createdAt: undefined, updatedAt: undefined });
     store.save(copy);
     refresh();
-    status = `Duplicada: ${copy.title}`;
+    status = t('archive.duplicated', { title: copy.title });
   }
 
   function importFromText() {
@@ -54,17 +56,17 @@
       refresh();
       importing = false;
       importText = '';
-      status = `Importada: ${fresh.title || 'sem título'} (${fresh.bars.length} compasso(s))`;
+      status = t('archive.imported', { title: fresh.title || t('app.untitled'), n: fresh.bars.length });
     } catch (e) {
-      status = `Importação falhou: ${e.message}`;
+      status = t('archive.importFailed', { error: e.message });
     }
   }
 
   async function importFile(e) {
     const f = e.target.files?.[0];
-    if (!f) { status = 'Nenhum arquivo escolhido'; return; }
+    if (!f) { status = t('archive.noFile'); return; }
     importText = await f.text();
-    status = `Lido ${f.name} (${importText.length} caracteres)`;
+    status = t('archive.readFile', { name: f.name, n: importText.length });
     importFromText();
     e.target.value = '';
   }
@@ -72,43 +74,43 @@
 
 <div class="archive">
   <header>
-    <h1>Partituras de bateria</h1>
-    <p class="sub">Tudo fica neste navegador. Exporte em JSON para guardar ou levar a outro aparelho.</p>
+    <div class="top"><h1>{t('archive.heading')}</h1><Prefs onChange={(m) => (status = m)} /></div>
+    <p class="sub">{t('archive.sub')}</p>
   </header>
 
   <div class="actions">
-    <button class="on" onclick={create}>+ Nova partitura</button>
-    <button onclick={() => (importing = !importing)}>{importing ? 'Fechar importação' : 'Importar JSON'}</button>
-    <a class="help" href="https://github.com/allan-valin/drum-notation-app/blob/main/docs/SCORE_IMPORT_PROMPT.md" target="_blank" rel="noopener">Como importar de uma foto</a>
+    <button class="on" onclick={create}>{t('archive.newScore')}</button>
+    <button onclick={() => (importing = !importing)}>{importing ? t('archive.importClose') : t('archive.importOpen')}</button>
+    <a class="help" href="https://github.com/allan-valin/drum-notation-app/blob/main/docs/SCORE_IMPORT_PROMPT.md" target="_blank" rel="noopener">{t('archive.importHelp')}</a>
   </div>
 
   {#if importing}
     <div class="import">
-      <label>Arquivo .json <input type="file" accept="application/json,.json" onchange={importFile} /></label>
-      <textarea bind:value={importText} placeholder={'ou cole o JSON aqui'}></textarea>
-      <button onclick={importFromText} disabled={!importText.trim()}>Importar o texto colado</button>
+      <label>{t('archive.importFile')} <input type="file" accept="application/json,.json" onchange={importFile} /></label>
+      <textarea bind:value={importText} placeholder={t('archive.importPaste')}></textarea>
+      <button onclick={importFromText} disabled={!importText.trim()}>{t('archive.importPasted')}</button>
     </div>
   {/if}
 
   <p class="status" aria-live="polite">{status}</p>
 
   {#if items.length === 0}
-    <p class="empty">Nenhuma partitura ainda. Crie uma nova ou importe um JSON.</p>
+    <p class="empty">{t('archive.empty')}</p>
   {/if}
 
   <ul>
     {#each items as item (item.id)}
       <li>
         <button class="title" onclick={() => onOpen(item.id)}>
-          <strong>{item.title || 'Sem título'}</strong>
-          <span class="meta">{item.bars} compasso{item.bars === 1 ? '' : 's'} · {item.defaultBpm} BPM · {when(item.updatedAt)}</span>
+          <strong>{item.title || t('app.untitled')}</strong>
+          <span class="meta">{t('archive.bars', { n: item.bars })} · {item.defaultBpm} BPM · {when(item.updatedAt)}</span>
         </button>
         <div class="row">
-          <button onclick={() => onOpen(item.id)}>Editar</button>
-          <button onclick={() => onPrint(item.id)}>PDF</button>
-          <button onclick={() => exportJson(item)}>JSON</button>
-          <button onclick={() => duplicate(item)}>Duplicar</button>
-          <button class="danger" onclick={() => remove(item)}>Apagar</button>
+          <button onclick={() => onOpen(item.id)}>{t('archive.edit')}</button>
+          <button onclick={() => onPrint(item.id)}>{t('archive.pdf')}</button>
+          <button onclick={() => exportJson(item)}>{t('archive.json')}</button>
+          <button onclick={() => duplicate(item)}>{t('archive.duplicate')}</button>
+          <button class="danger" onclick={() => remove(item)}>{t('archive.remove')}</button>
         </div>
       </li>
     {/each}
@@ -118,6 +120,7 @@
 <style>
   .archive { max-width: 720px; margin: 0 auto; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
   h1 { font-size: 22px; margin: 0; }
+  .top { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: space-between; }
   .sub { margin: 4px 0 0; color: var(--muted); font-size: 14px; }
   .actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
   .help { font-size: 14px; color: var(--accent); }

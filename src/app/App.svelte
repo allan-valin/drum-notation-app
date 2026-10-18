@@ -4,7 +4,11 @@
   import PrintPage from '../ui/PrintPage.svelte';
   import { createStore } from '../core/storage.js';
 
+  import { initPrefs, t } from './prefs.svelte.js';
+
   const store = createStore(window.localStorage);
+  initPrefs(store);
+  $effect(() => { document.title = t('app.title'); });
 
   let route = $state(parse(location.hash));
   function parse(hash) {

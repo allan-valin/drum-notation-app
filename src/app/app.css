@@ -33,6 +33,17 @@
     --focus-ring: #e0a800;
   }
 }
+/* the header switch sets data-theme explicitly; same values as the system dark mode */
+:root[data-theme='dark'] {
+    --bg: #141416;
+    --panel: #1e1e21;
+    --ink: #ececec;
+    --muted: #9a9aa2;
+    --line: #35353a;
+    --accent: #5b8def;
+    --focus: #3a3410;
+    --focus-ring: #e0a800;
+}
 
 * { box-sizing: border-box; }
 html, body { margin: 0; height: 100%; }

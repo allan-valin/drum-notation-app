@@ -6,6 +6,7 @@
   import { layoutBar, yOf, staffPositionAt, legerLines } from '../core/layout.js';
   import { Glyphs, Metrics } from '../core/glyphs.js';
   import { colourFor } from '../core/colours.js';
+  import { t } from '../app/prefs.svelte.js';
 
   let {
     bar,
@@ -63,7 +64,7 @@
   {height}
   onpointerdown={tap}
   role={onTap ? 'button' : 'img'}
-  aria-label="Compasso"
+  aria-label={t('editor.barAria')}
 >
   {#if focusedBeat !== null && layout.beatBounds[focusedBeat]}
     {@const [a, b] = layout.beatBounds[focusedBeat]}
@@ -81,7 +82,7 @@
       {@const y = yOf(slot.staffPosition, sp)}
       <line class="guide" x1={lead + a} x2={lead + b} y1={y} y2={y} />
       <!-- two staggered columns so names one half-step apart do not collide -->
-      <text class="guide-label" x={lead + a + 0.2 * sp + (i % 2) * 3.4 * sp} y={y + 0.25 * sp} font-size={0.7 * sp}>{slot.name}</text>
+      <text class="guide-label" x={lead + a + 0.2 * sp + (i % 2) * 3.4 * sp} y={y + 0.25 * sp} font-size={0.7 * sp}>{t(`slot.${slot.id}`)}</text>
     {/each}
   {/if}
 

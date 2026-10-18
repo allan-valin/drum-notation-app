@@ -30,20 +30,20 @@ action writes a status line, open-source only.
 
 ## Checkpoints
 
-### C1 — theme, languages, labels (small) — [ ]
+### C1 — theme, languages, labels (small) — [x] 2026-10-18
 
-- [ ] `src/core/colours.js`: `DEFAULT_COLOURS.whole/half/quarter = 'ink'`; `colourFor` returns
+- [x] `src/core/colours.js`: `DEFAULT_COLOURS.whole/half/quarter = 'ink'`; `colourFor` returns
   `'currentColor'` for `'ink'`. Test: default quarter is ink, eighth is not.
-- [ ] `src/app/theme.js`: `applyTheme('light'|'dark'|'system')` sets `data-theme` on `<html>`;
+- [x] `src/app/theme.js`: `applyTheme('light'|'dark'|'system')` sets `data-theme` on `<html>`;
   stored in settings. Header pill: sun/moon inline SVG, three states collapse to a 2-way
   toggle (tap flips light/dark; system default only until first tap).
-- [ ] `src/app/i18n.js`: `t(key, params)`, tables `pt`, `en`, `de`; keys for UI, note value
+- [x] `src/app/i18n.js`: `t(key, params)`, tables `pt`, `en`, `de`; keys for UI, note value
   names, instrument names, status lines, help and legend text. `lang` store persisted, default
   from `navigator.language` (pt* → pt, de* → de, else en). Header pill PT · EN · DE.
   Test: every key present in all three tables (one test that diffs key sets).
-- [ ] Palette: headings (Figura · Quiáltera · Articulação · Mão · Edição) + label under each
+- [x] Palette: headings (Figura · Quiáltera · Articulação · Mão · Edição) + label under each
   button; headings and labels via `t()`.
-- [ ] Print page stays light regardless of theme.
+- [x] Print page stays light regardless of theme.
 
 ### C2 — nested subdivision + per-bar time signature (large, the core pass) — [ ]
 
