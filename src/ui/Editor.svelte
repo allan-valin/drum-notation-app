@@ -40,6 +40,7 @@
   let playMode = $state('bar');
   let range = $state(null);
   let selecting = $state(false);
+  let onlyPart = $state(false);
   if (!background && loaded) store.saveSettings({ ...store.loadSettings(), lastId: id });
 
   const profile = $derived(profileById(st.score.profileId));
@@ -131,9 +132,11 @@
       case 'toggleArt': return after.tool.arts.includes(a.art) ? t('status.artOn', { what: t(`palette.${a.art}`) }) : t('status.artOff', { what: t(`palette.${a.art}`) });
       case 'setKey': {
         const k = barKey(after.score, after.cursor.bar);
-        if (typeof k === 'string') return t('status.keySet', { n, key: t(`maqam.${k}`) });
+        // a percussion staff has no key signature: say where it shows instead of looking broken
+        const note = staff.pitched ? '' : ` · ${t('bars.keyNotOnDrums')}`;
+        if (typeof k === 'string') return t('status.keySet', { n, key: t(`maqam.${k}`) }) + note;
         const [maj] = keyNames(k, prefs.lang, STRINGS[prefs.lang].noteNames);
-        return t('status.keySet', { n, key: `${maj} ${t('bars.major')}` });
+        return t('status.keySet', { n, key: `${maj} ${t('bars.major')}` }) + note;
       }
       case 'setDyn': return after.tool.dyn ? t('status.dynOn', { what: after.tool.dyn }) : t('status.dynOff');
       case 'setWedge': return after.tool.wedge ? t('status.dynOn', { what: after.tool.wedge === 'cresc' ? 'cresc.' : 'dim.' }) : t('status.dynOff');
@@ -182,7 +185,7 @@
   }
   function dropBlock(a, b, gap) {
     const before = st;
-    dispatch({ type: 'moveBars', from: a, to: b, gap });
+    dispatch({ type: 'moveBars', from: a, to: b, gap, onlyPart });
     if (st.full !== before.full) {
       range = st.range;
       status = t('play.moved', { from: range[0] + 1, to: range[1] + 1 });
@@ -260,12 +263,12 @@
         <button onclick={() => dispatch({ type: 'goTo', cursor: mkCursor(st.cursor.bar + 1, 0, 0) })} disabled={st.cursor.bar >= st.score.bars.length - 1} aria-label={t('editor.nextBar')} title={t('editor.nextBar')}>»</button>
       </div>
 
-      <div class="bars-area"><BarRow score={st.score} barIndex={st.cursor.bar} onAction={dispatch} pitched={st.full.parts.some((p) => profileById(p.instrument).staves[0].pitched)} /></div>
+      <div class="bars-area"><BarRow score={st.score} barIndex={st.cursor.bar} onAction={dispatch} pitched={st.full.parts.some((p) => profileById(p.instrument).staves[0].pitched)} keyHere={staff.pitched} /></div>
 
-      <div class="transport-area"><Transport full={st.full} parts={bandList} onBand={band} onSwing={(on) => dispatch({ type: 'setSwing', on })} currentBar={st.cursor.bar} {range} {store} bind:mode={playMode} bind:selecting onMove={moveBlock}
+      <div class="transport-area"><Transport full={st.full} parts={bandList} onBand={band} onSwing={(on) => dispatch({ type: 'setSwing', on })} currentBar={st.cursor.bar} {range} {store} bind:mode={playMode} bind:selecting bind:onlyPart onMove={moveBlock}
         onPlayhead={(p) => (playhead = p)} onPlaying={(on) => { playing = on; if (!on) playhead = null; }} onStatus={(m) => (status = m)} /></div>
 
-      <div class="full-area"><FullScore full={st.full} parts={partList} part={st.part} range={selecting || playMode === 'selection' ? range : null} {selecting} onDrop={dropBlock} playingBar={playing ? playhead?.bar : null} {colours} current={st.cursor.bar} onOpen={openBar} /></div>
+      <div class="full-area"><FullScore full={st.full} parts={partList} part={st.part} {onlyPart} range={selecting || playMode === 'selection' ? range : null} {selecting} onDrop={dropBlock} playingBar={playing ? playhead?.bar : null} {colours} current={st.cursor.bar} onOpen={openBar} /></div>
 
       <details class="colours no-print">
         <summary>{t('editor.colours')}</summary>
@@ -314,7 +317,8 @@
   @media (orientation: landscape) and (min-width: 640px) {
     header { padding: 4px 8px; }
     .body { grid-template-columns: 220px minmax(0, 1fr); grid-template-areas: 'palette stage' 'palette move' 'palette bars' 'palette transport' 'palette full' 'palette colours'; grid-template-rows: auto auto auto auto auto 1fr; padding: 6px; align-items: start; }
-    .palette-area { position: sticky; top: 6px; }
+    /* its own scroll: the palette is long, the page is as long as the score */
+    .palette-area { position: sticky; top: 6px; max-height: calc(100vh - 70px); max-height: calc(100dvh - 70px); overflow-y: auto; overscroll-behavior: contain; }
     .stage { padding: 0; }
   }
 </style>

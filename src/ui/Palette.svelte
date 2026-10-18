@@ -5,7 +5,7 @@
   import { Sticking, Mark, Roll, Grace } from '../core/score.js';
   import { t } from '../app/prefs.svelte.js';
 
-  import { DRUM_PROFILE } from '../core/profile.js';
+  import { DRUM_PROFILE, INSTRUMENTS } from '../core/profile.js';
 
   let {
     tool, onAction, canUndo = false, canMerge = false, onLegend = () => {}, onHelp = () => {},
@@ -71,8 +71,16 @@
   </div>
   <section class="instrument">
     <h3>{t('instrument.editing')}</h3>
-    <select aria-label={t('instrument.label')} value={part} onchange={(e) => onAction({ type: 'setPart', part: e.target.value })}>
+    <select aria-label={t('instrument.label')} value={part} onchange={(e) => {
+      const v = e.target.value;
+      // "add:violin": a new instrument from here, added to the band and opened for writing
+      if (v.startsWith('add:')) { e.target.value = part; onAction({ type: 'addPart', instrument: v.slice(4) }); }
+      else onAction({ type: 'setPart', part: v });
+    }}>
       {#each parts as p}<option value={p.id}>{p.label}</option>{/each}
+      <optgroup label={t('instrument.add')}>
+        {#each INSTRUMENTS as id}<option value={`add:${id}`}>+ {t(`instrument.${id}`)}</option>{/each}
+      </optgroup>
     </select>
   </section>
   <section>

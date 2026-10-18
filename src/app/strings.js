@@ -31,6 +31,7 @@ export const STRINGS = {
       confirmChange: 'Trocar o instrumento apaga as notas já escritas nesta parte (dá para desfazer). Continuar?', confirmRemove: 'Remover {name} e as notas dele? (dá para desfazer)',
     },
     play: {
+      onlyPart: 'Só este instrumento', onlyPartHint: 'Mover só os compassos do instrumento que está editando; os outros ficam no lugar',
       swing: 'Swing', swingHint: 'Colcheias suingadas (tercina) na reprodução',
       metronomeSound: 'Som do metrônomo', voice_beep: 'Bipe', voice_woodblock: 'Bloco de madeira', voice_click: 'Clique', voice_cowbell: 'Cowbell', voice_sidestick: 'Aro (cross-stick)', voice_hihat: 'Chimbal fechado', voiceSet: 'Metrônomo: {voice}',
       selectBars: 'Selecionar compassos', moveLeft: 'Mover a seleção um compasso para a esquerda', moveRight: 'Mover a seleção um compasso para a direita', dragHint: 'Toque nos compassos para selecionar. Arraste um compasso (ou a seleção) e solte onde aparecer a barra |.', moved: 'Compassos movidos: agora {from}–{to}', cantMove: 'A seleção já está na ponta',
@@ -133,6 +134,7 @@ export const STRINGS = {
       s6: 'Tudo é salvo neste navegador a cada mudança. "PDF" abre a página de impressão. No arquivo, "JSON" exporta uma cópia. Para importar de uma foto, use o link "Como importar de uma foto".',
     },
     bars: {
+      keyNotOnDrums: 'Percussão não usa armadura: ela aparece nos instrumentos com notas (partitura inteira)',
       maqam: 'Maqam (música árabe)',
       key: 'Armadura', keyLong: 'Armadura de clave deste compasso em diante', keyNone: 'Sem acidentes', keySharps: '{n} ♯', keyFlats: '{n} ♭', major: 'maior', minor: 'menor',
       heading: 'Compasso {n}', add: 'Compasso', addLong: 'Adicionar compasso no fim', remove: 'Compasso', removeLong: 'Remover este compasso',
@@ -148,6 +150,7 @@ export const STRINGS = {
       continue: 'Continuar: {title}', or: 'ou escolha uma partitura',
     },
     refused: {
+      signaturesDiffer: 'Só dá para mover um instrumento entre compassos de mesma fórmula',
       badChord: 'O app não lê essa cifra (ex.: C7, Bbmaj7, F#m7b5, C/E)',
       doesNotFit: 'Essa duração não cabe aqui (passa do compasso ou não divide a célula)', tieNeedsEmpty: 'A ligadura vai numa célula vazia, logo depois da nota', nothingToTie: 'Não há nota antes desta célula para ligar',
       lastPart: 'A partitura precisa de pelo menos um instrumento',
@@ -263,6 +266,7 @@ export const STRINGS = {
       confirmChange: 'Changing the instrument deletes the notes already in this part (undo brings them back). Continue?', confirmRemove: 'Remove {name} and its notes? (undo brings them back)',
     },
     play: {
+      onlyPart: 'This instrument only', onlyPartHint: 'Move only the bars of the instrument being edited; the others stay put',
       swing: 'Swing', swingHint: 'Eighths played swung (triplet feel)',
       metronomeSound: 'Metronome sound', voice_beep: 'Beep', voice_woodblock: 'Wood block', voice_click: 'Click', voice_cowbell: 'Cowbell', voice_sidestick: 'Side stick', voice_hihat: 'Closed hi-hat', voiceSet: 'Metronome: {voice}',
       selectBars: 'Select bars', moveLeft: 'Move the selection one bar left', moveRight: 'Move the selection one bar right', dragHint: 'Tap bars to select them. Drag a bar (or the selection) and drop it where the | appears.', moved: 'Bars moved: now {from}–{to}', cantMove: 'The selection is already at the end',
@@ -365,6 +369,7 @@ export const STRINGS = {
       s6: 'Every change is saved in this browser. "PDF" opens the print page. In the library, "JSON" exports a copy. To import from a photo, follow "How to import from a photo".',
     },
     bars: {
+      keyNotOnDrums: 'Percussion has no key signature: it shows on the pitched instruments (whole score)',
       maqam: 'Maqam (Arabic music)',
       key: 'Key', keyLong: 'Key signature from this bar on', keyNone: 'No sharps or flats', keySharps: '{n} ♯', keyFlats: '{n} ♭', major: 'major', minor: 'minor',
       heading: 'Bar {n}', add: 'Bar', addLong: 'Add a bar at the end', remove: 'Bar', removeLong: 'Remove this bar',
@@ -380,6 +385,7 @@ export const STRINGS = {
       continue: 'Continue: {title}', or: 'or pick a score',
     },
     refused: {
+      signaturesDiffer: 'One instrument can only move between bars with the same time signature',
       badChord: 'The app cannot read that chord (e.g. C7, Bbmaj7, F#m7b5, C/E)',
       doesNotFit: 'That length does not fit here (it runs past the bar or does not divide the cell)', tieNeedsEmpty: 'A tie goes on an empty cell right after the note', nothingToTie: 'There is no note before this cell to tie',
       lastPart: 'A score needs at least one instrument',
@@ -495,6 +501,7 @@ export const STRINGS = {
       confirmChange: 'Ein anderes Instrument löscht die Noten dieser Stimme (Rückgängig holt sie zurück). Weiter?', confirmRemove: '{name} und seine Noten entfernen? (Rückgängig holt sie zurück)',
     },
     play: {
+      onlyPart: 'Nur dieses Instrument', onlyPartHint: 'Nur die Takte des bearbeiteten Instruments verschieben; die anderen bleiben',
       swing: 'Swing', swingHint: 'Achtel geswingt abspielen (Triolengefühl)',
       metronomeSound: 'Metronomklang', voice_beep: 'Piep', voice_woodblock: 'Holzblock', voice_click: 'Klick', voice_cowbell: 'Cowbell', voice_sidestick: 'Side Stick', voice_hihat: 'Geschlossene Hi-Hat', voiceSet: 'Metronom: {voice}',
       selectBars: 'Takte auswählen', moveLeft: 'Auswahl einen Takt nach links', moveRight: 'Auswahl einen Takt nach rechts', dragHint: 'Takte antippen, um sie auszuwählen. Einen Takt (oder die Auswahl) ziehen und dort loslassen, wo der Strich | erscheint.', moved: 'Takte verschoben: jetzt {from}–{to}', cantMove: 'Die Auswahl ist schon am Rand',
@@ -597,6 +604,7 @@ export const STRINGS = {
       s6: 'Jede Änderung wird in diesem Browser gespeichert. "PDF" öffnet die Druckseite. In der Bibliothek exportiert "JSON" eine Kopie. Zum Import aus einem Foto dem Link "Aus einem Foto importieren" folgen.',
     },
     bars: {
+      keyNotOnDrums: 'Schlagwerk hat keine Vorzeichnung: sie steht bei den Instrumenten mit Tonhöhe (ganze Partitur)',
       maqam: 'Maqam (arabische Musik)',
       key: 'Tonart', keyLong: 'Tonart ab diesem Takt', keyNone: 'Ohne Vorzeichen', keySharps: '{n} ♯', keyFlats: '{n} ♭', major: 'Dur', minor: 'Moll',
       heading: 'Takt {n}', add: 'Takt', addLong: 'Takt am Ende hinzufügen', remove: 'Takt', removeLong: 'Diesen Takt entfernen',
@@ -612,6 +620,7 @@ export const STRINGS = {
       continue: 'Weiter: {title}', or: 'oder eine Partitur wählen',
     },
     refused: {
+      signaturesDiffer: 'Ein einzelnes Instrument lässt sich nur zwischen Takten gleicher Taktart verschieben',
       badChord: 'Diesen Akkord kann die App nicht lesen (z. B. C7, Bbmaj7, F#m7b5, C/E)',
       doesNotFit: 'Diese Länge passt hier nicht (über den Takt hinaus oder teilt die Zelle nicht)', tieNeedsEmpty: 'Ein Haltebogen gehört in eine leere Zelle direkt nach der Note', nothingToTie: 'Vor dieser Zelle steht keine Note zum Binden',
       lastPart: 'Eine Partitur braucht mindestens ein Instrument',

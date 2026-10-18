@@ -9,7 +9,7 @@
   import { Glyphs } from '../core/glyphs.js';
   import { leafSpans } from '../core/tree.js';
 
-  let { score, barIndex, onAction, pitched = false } = $props();
+  let { score, barIndex, onAction, pitched = false, keyHere = true } = $props();
   const key = $derived(barKey(score, barIndex));
   const KEYS = Array.from({ length: 15 }, (_, i) => i - 7);
   function keyLabel(f) {
@@ -65,6 +65,7 @@
         </optgroup>
       </select>
     </label>
+    {#if !keyHere}<span class="keynote">{t('bars.keyNotOnDrums')}</span>{/if}
   {/if}
   <label class="text">{t('tech.barText')}
     <input type="text" maxlength="80" value={bar.text ?? ''} placeholder={t('tech.barTextHint')} onchange={(e) => onAction({ type: 'setBarText', text: e.target.value.trim() })} />
@@ -89,6 +90,7 @@
 
 <style>
   .barrow { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; padding: 6px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--toolbar); }
+  .keynote { font-size: 12px; color: var(--muted); max-width: 260px; }
   .keysel { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--muted); }
   .keysel select { font: inherit; font-size: 14px; min-height: var(--tap); color: var(--ink); background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 0 6px; }
   .text { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--muted); flex: 1; min-width: 200px; }

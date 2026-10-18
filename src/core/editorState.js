@@ -9,7 +9,7 @@ import {
 } from './edit.js';
 import { barLeaves } from './edit.js';
 import { profileById, slotNearest } from './profile.js';
-import { toFull, partView, zipPart, applyAll, addPart, removePart, setInstrument, toggleMute } from './parts.js';
+import { toFull, partView, zipPart, applyAll, addPart, removePart, setInstrument, toggleMute, movePartBars } from './parts.js';
 
 const HISTORY = 50;
 
@@ -63,6 +63,14 @@ export function reduce(state, action) {
       return switchPart({ ...pushFull(state), full }, state.part, true);
     }
     case 'toggleMute': return { ...state, full: toggleMute(state.full, action.part) };
+    case 'moveBars': {
+      if (!action.onlyPart) break;
+      const r = movePartBars(state.full, state.part, action.from, action.to, action.gap);
+      if (r.refused) return { ...state, refused: r.refused };
+      if (r.full === state.full) return state;
+      const score = partView(r.full, state.part);
+      return { ...pushFull(state), full: r.full, score, range: r.range, refused: null, cursor: clamp(score, { ...state.cursor, bar: r.range[0] }) };
+    }
     case 'undo': {
       if (state.history.length === 0) return state;
       const [full, ...history] = state.history;

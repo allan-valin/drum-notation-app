@@ -12,6 +12,7 @@
     full, parts = [], onBand = () => {}, onSwing = () => {}, currentBar, range = null, store = null,
     mode = $bindable('bar'),
     selecting = $bindable(false),
+    onlyPart = $bindable(false),
     onMove = () => {},
     onPlayhead = () => {}, onPlaying = () => {}, onStatus = () => {},
   } = $props();
@@ -102,6 +103,7 @@
     <button class="arrow" disabled={!selecting || playing} aria-label={t('play.moveLeft')} title={t('play.moveLeft')} onclick={() => onMove(-1)}>‹</button>
     <label class="check"><input type="checkbox" bind:checked={selecting} disabled={playing} onchange={() => { if (selecting) mode = 'selection'; if (selecting) onStatus(t('play.dragHint')); }} /> {t('play.selectBars')}</label>
     <button class="arrow" disabled={!selecting || playing} aria-label={t('play.moveRight')} title={t('play.moveRight')} onclick={() => onMove(1)}>›</button>
+    <label class="check only" title={t('play.onlyPartHint')}><input type="checkbox" bind:checked={onlyPart} disabled={!selecting || playing} /> {t('play.onlyPart')}</label>
   </span>
 
   <div class="modes" role="radiogroup" aria-label={t('play.what')}>
@@ -172,11 +174,12 @@
   .sound button { border: none; border-radius: 0; font-size: 14px; }
   .selbox { display: inline-flex; align-items: stretch; border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; background: var(--panel); }
   .selbox .arrow { border: none; border-radius: 0; font-size: 22px; min-width: 44px; }
+  .selbox .check.only { border-right: none; }
   .selbox .check { display: inline-flex; align-items: center; gap: 6px; padding: 0 10px; font-size: 14px; border-left: 1px solid var(--line); border-right: 1px solid var(--line); cursor: pointer; }
   .selbox input { width: 20px; height: 20px; }
   .voice { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--muted); }
   .voice select { font: inherit; font-size: 14px; color: var(--ink); background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); min-height: var(--tap); padding: 0 8px; }
-  .band { width: 100%; display: flex; flex-direction: column; gap: 6px; padding: 8px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--panel); }
+  .band { width: 100%; display: flex; flex-direction: column; gap: 6px; padding: 8px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--toolbar-deep); }
   .band .lbl { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); }
   .band .row { display: flex; gap: 6px; align-items: center; }
   .band .row.muted select { opacity: 0.5; }

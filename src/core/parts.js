@@ -242,3 +242,27 @@ export function fromViews(parts, views) {
     })),
   };
 }
+
+/**
+ * Move bars `from..to` of one part only, to before the bar that was at `gap`; every other part
+ * and the bars themselves (signatures, repeats) stay put. Only between bars of one signature,
+ * since a part's beats are shaped by it: otherwise { refused: 'signaturesDiffer' }.
+ */
+export function movePartBars(full, partId, from, to, gap) {
+  if (gap >= from && gap <= to + 1) return { full, range: [from, to] };
+  const view = partView(full, partId);
+  const lo = Math.min(from, gap);
+  const hi = Math.max(to, gap - 1);
+  const sig = barTimeSig(view, lo).join('/');
+  for (let i = lo; i <= hi; i++) if (barTimeSig(view, i).join('/') !== sig) return { refused: 'signaturesDiffer' };
+  const contents = full.bars.map((b) => b.parts[partId]);
+  const block = contents.slice(from, to + 1);
+  const rest = [...contents.slice(0, from), ...contents.slice(to + 1)];
+  const at = gap > to ? gap - block.length : gap;
+  let moved = [...rest.slice(0, at), ...block, ...rest.slice(at)];
+  if (moved[0].simile) moved = moved.map((c, i) => (i === 0 ? { ...c, simile: false } : c));
+  return {
+    full: touch({ ...full, bars: full.bars.map((b, i) => ({ ...b, parts: { ...b.parts, [partId]: moved[i] } })) }),
+    range: [at, at + block.length - 1],
+  };
+}

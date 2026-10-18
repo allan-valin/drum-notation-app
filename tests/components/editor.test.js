@@ -283,7 +283,7 @@ describe('instruments', () => {
     await fireEvent.click(getByText('+ Adicionar instrumento'));
     expect(container.querySelector('.status').textContent).toContain('Congas adicionado');
     const select = getByLabelText('Instrumento');
-    expect([...select.options].map((o) => o.textContent)).toEqual(['Bateria', 'Congas']);
+    expect([...select.options].filter((o) => !o.value.startsWith('add:')).map((o) => o.textContent)).toEqual(['Bateria', 'Congas']);
     expect(select.value).toBe(store.load('a').parts[1].id);
     expect(queryByLabelText('Losango')).toBeNull();      // drum-only head gone from the palette
     expect(queryByLabelText('Aberto')).toBeNull();       // hi-hat technique gone
@@ -340,5 +340,36 @@ describe('a pitched instrument in the page', () => {
     expect(container.querySelector('.status').textContent).toContain('Fá♯4');
     const full = store.load('a');
     expect(partView(full, full.parts[1].id).bars[0].beats[0].cells[0].notes[0]).toMatchObject({ slotId: 'F4', alter: 1 });
+  });
+});
+
+describe('round 4', () => {
+  it('a new instrument can be added from the Editing dropdown, and is opened for writing', async () => {
+    const store = createStore(memoryStorage());
+    store.save(newScore({ id: 'a', title: 'T' }));
+    const { getByLabelText } = render(Editor, { store, id: 'a', onBack: () => {}, onPrint: () => {} });
+    const sel = getByLabelText('Instrumento');
+    await fireEvent.change(sel, { target: { value: 'add:violin' } });
+    const full = store.load('a');
+    expect(full.parts.map((p) => p.instrument)).toEqual(['drums', 'violin']);
+    expect(getByLabelText('Instrumento').value).toBe(full.parts[1].id);
+    expect(getByLabelText('Instrumento 2').value).toBe('violin'); // and it is in the band list
+  });
+  it('"This instrument only" moves just the edited part', async () => {
+    const store = createStore(memoryStorage());
+    store.save(newScore({ id: 'a', title: 'T' }));
+    const { container, getByLabelText, getByText } = render(Editor, { store, id: 'a', onBack: () => {}, onPrint: () => {} });
+    const sp = spOf(container);
+    await tapAt(container, 5.5 * sp + 20, yOf(-2, sp)); // kick in bar 1 (drums)
+    await fireEvent.click(getByLabelText('Adicionar compasso no fim'));
+    await fireEvent.click(getByText('+ Adicionar instrumento'));            // congas, now being edited
+    await fireEvent.change(getByLabelText('Instrumento'), { target: { value: 'p1' } }); // back to drums
+    await fireEvent.click(getByLabelText('Selecionar compassos'));
+    await fireEvent.click(getByLabelText('Só este instrumento'));
+    await fireEvent.click(getByLabelText('Ir ao compasso 1'));
+    await fireEvent.click(getByLabelText('Mover a seleção um compasso para a direita'));
+    const full = store.load('a');
+    expect(partView(full, 'p1').bars[1].beats[0].cells[0].notes[0].slotId).toBe('kick');
+    expect(full.bars.length).toBe(2);
   });
 });

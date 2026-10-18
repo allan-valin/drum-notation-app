@@ -15,7 +15,8 @@
   --danger: #c62828;
   --focus: #fff3c4;
   --focus-ring: #e0a800;
-  --toolbar: #e4e9f1;
+  --toolbar: #cfd8e6;
+  --toolbar-deep: #bcc7da;
   --card-a: #f4f6fa;
   --card-b: #e9edf4;
   --card-line: #c9d0dc;
@@ -36,6 +37,7 @@
     --focus: #3a3410;
     --focus-ring: #e0a800;
     --toolbar: #23272f;
+    --toolbar-deep: #1a1d24;
     --card-a: #1d2027;
     --card-b: #252a33;
     --card-line: #3a404c;
@@ -52,6 +54,7 @@
     --focus: #3a3410;
     --focus-ring: #e0a800;
     --toolbar: #23272f;
+    --toolbar-deep: #1a1d24;
     --card-a: #1d2027;
     --card-b: #252a33;
     --card-line: #3a404c;
