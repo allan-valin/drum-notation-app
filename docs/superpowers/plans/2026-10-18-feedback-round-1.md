@@ -169,12 +169,17 @@ Verified in headless Chromium with real Web Audio: 136 voices started over two b
 bar 1 framed as playing at 1.3 s, palette inert while playing, "Parado" at the end. The
 transport BPM is a practice tempo and does not change the score.
 
-### C6 — sampled kit (small, after C5 works) — [ ]
+### C6 — sampled kit (small, after C5 works) — [x] 2026-10-18
 
-- [ ] Find a CC0 (or CC-BY) one-shot drum kit on Freesound or similar; record source + licence
+- [x] Find a CC0 (or CC-BY) one-shot drum kit on Freesound or similar; record source + licence
   in `docs/SOUNDS.md`; ~10 short OGG files in `public/sounds/`, under 400 KB total.
-- [ ] `src/audio/samples.js` same interface as `kit.js`; settings toggle "Som: sintético /
+- [x] `src/audio/samples.js` same interface as `kit.js`; settings toggle "Som: sintético /
   amostras"; synth stays as fallback while samples load.
+
+Chose Hydrogen's GMRockKit (GPL v3+, Allan: open licence OK); no CC0 acoustic kit covering
+every sound was found. 18 WAV files, 648 KB: WAV not MP3/OGG because MP3 adds a decode lead-in
+and Ogg Opus is missing on older iPhones. Details in docs/SOUNDS.md. Verified: 18 × HTTP 200
+under the Pages base, recorded kit plays.
 
 ### C7 — phone pass and docs — [ ]
 

@@ -5,9 +5,10 @@
   import { performance } from '../core/schedule.js';
   import { createPlayer } from '../audio/player.js';
   import { createKit } from '../audio/kit.js';
+  import { createSampleKit } from '../audio/samples.js';
 
   let {
-    score, currentBar, range = null,
+    score, currentBar, range = null, store = null,
     mode = $bindable('bar'),
     onPlayhead = () => {}, onPlaying = () => {}, onStatus = () => {},
   } = $props();
@@ -17,6 +18,8 @@
   let metronome = $state(false);
   let countIn = $state(false);
   let playing = $state(false);
+  let sound = $state(store?.loadSettings().sound === 'synth' ? 'synth' : 'samples');
+  let kits = null;
   let ctx = null;
   let player = null;
 
@@ -35,11 +38,14 @@
     const AC = globalThis.AudioContext ?? globalThis.webkitAudioContext;
     if (!AC) { onStatus(t('play.noAudio')); return false; }
     ctx = new AC();
-    const kit = createKit(ctx);
+    const synth = createKit(ctx);
+    const samples = createSampleKit(ctx, { base: import.meta.env.BASE_URL, fallback: synth });
+    samples.ready.catch(() => { if (sound === 'samples') onStatus(t('play.loadFailed')); });
+    kits = { synth, samples };
     player = createPlayer({
       clock: () => ctx.currentTime,
-      play: kit.play,
-      click: kit.click,
+      play: (name, when, v) => kits[sound].play(name, when, v),
+      click: synth.click,
       onPlayhead,
       onStop: () => { playing = false; onPlaying(false); onStatus(t('play.stopped')); },
     });
@@ -54,7 +60,8 @@
     player.start(performance(score, from, to), { bpm, loop, metronome, countIn });
     playing = true;
     onPlaying(true);
-    onStatus(t(loop ? 'play.looping' : 'play.playing', { from: from + 1, to: to + 1, bpm }));
+    onStatus(t(loop ? 'play.looping' : 'play.playing', { from: from + 1, to: to + 1, bpm })
+      + (sound === 'samples' && !kits.samples.loaded ? ` · ${t('play.loading')}` : ''));
   }
 
   function setBpm(v) {
@@ -80,6 +87,12 @@
     <button class:on={loop} aria-pressed={loop} disabled={playing} onclick={() => (loop = !loop)}>⟲ {t('play.loop')}</button>
     <button class:on={metronome} aria-pressed={metronome} disabled={playing} onclick={() => (metronome = !metronome)}>{t('play.metronome')}</button>
     <button class:on={countIn} aria-pressed={countIn} disabled={playing} onclick={() => (countIn = !countIn)}>{t('play.countIn')}</button>
+    <span class="sound" role="radiogroup" aria-label={t('play.sound')}>
+      <span class="lbl">{t('play.sound')}</span>
+      {#each ['samples', 'synth'] as k}
+        <button role="radio" aria-checked={sound === k} class:on={sound === k} onclick={() => { sound = k; store?.saveSettings({ ...store.loadSettings(), sound: k }); }}>{t(`play.${k}`)}</button>
+      {/each}
+    </span>
     <span class="bpm">
       <button aria-label={t('play.slower')} disabled={playing} onclick={() => setBpm(bpm - 5)}>−</button>
       <label>{t('play.bpm')} <input type="number" min="20" max="300" value={bpm} disabled={playing} onchange={(e) => setBpm(e.target.value)} /></label>
@@ -103,5 +116,8 @@
   .bpm { display: inline-flex; gap: 4px; align-items: center; }
   .bpm label { display: inline-flex; gap: 4px; align-items: center; font-size: 13px; color: var(--muted); }
   .bpm input { width: 64px; }
+  .sound { display: inline-flex; align-items: center; gap: 0; border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; }
+  .sound .lbl { font-size: 12px; color: var(--muted); padding: 0 8px; }
+  .sound button { border: none; border-radius: 0; font-size: 14px; }
   .hint { width: 100%; margin: 0; font-size: 12px; color: var(--muted); }
 </style>

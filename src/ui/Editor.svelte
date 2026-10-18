@@ -176,7 +176,7 @@
 
       <div class="bars-area"><BarRow score={st.score} barIndex={st.cursor.bar} onAction={dispatch} /></div>
 
-      <div class="transport-area"><Transport score={st.score} currentBar={st.cursor.bar} {range} bind:mode={playMode}
+      <div class="transport-area"><Transport score={st.score} currentBar={st.cursor.bar} {range} {store} bind:mode={playMode}
         onPlayhead={(p) => (playhead = p)} onPlaying={(on) => { playing = on; if (!on) playhead = null; }} onStatus={(m) => (status = m)} /></div>
 
       <div class="full-area"><FullScore {range} playingBar={playing ? playhead?.bar : null} score={st.score} {staff} {colours} current={st.cursor.bar} onOpen={openBar} /></div>

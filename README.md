@@ -8,12 +8,20 @@ noteheads, beams, flags, rests and tuplets are drawn for you, which is the whole
 entering a bar must be faster than writing it on paper.
 
 Live: https://allan-valin.github.io/drum-notation-app/ — nothing to install, works offline
-after the first load, scores stay in the browser (export JSON to back them up).
+after the first load, scores stay in the browser (export JSON to back them up). pt-BR, English
+and German; light and dark.
+
+Also: cells split further one at a time ("Cell" mode), time signature per bar, `%` and repeat
+barlines, drum noteheads and technique marks with a legend of what other authors use them for,
+a help overlay with examples, and playback (this bar, from the start, from here, or a looped
+selection) with a recorded kit or a synthesized one.
 
 - Design: `docs/superpowers/specs/2026-08-03-score-editor-design.md`
 - Web platform decision: `docs/superpowers/specs/2026-10-18-web-platform.md`
 - Plan and checklist: `docs/superpowers/plans/2026-10-18-v1-web-editor.md`
 - Import from a photo via an AI assistant: `docs/SCORE_IMPORT_PROMPT.md`
+- Feedback round 1 (theme, languages, nesting, symbols, playback): `docs/superpowers/plans/2026-10-18-feedback-round-1.md`
+- Sounds and their licence: `docs/SOUNDS.md`
 
 ## Development
 
@@ -30,4 +38,5 @@ npm run build            # static bundle in dist/
 positions, so it is unit-tested and the print page uses the very same layout as the editor.
 
 The music font is [Bravura](https://github.com/steinbergmedia/bravura) (SIL Open Font License,
-`docs/BRAVURA-LICENSE.txt`).
+`docs/BRAVURA-LICENSE.txt`). The recorded drums are Hydrogen's GMRockKit (GPL v3 or later,
+`docs/SOUNDS.md`).

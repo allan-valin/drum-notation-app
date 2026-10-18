@@ -18,6 +18,7 @@ export function format(s, params = {}) {
 export const STRINGS = {
   pt: {
     play: {
+      sound: 'Som', samples: 'Gravado', synth: 'Sintético', loading: 'Carregando os sons gravados… (o sintético toca enquanto isso)', loadFailed: 'Os sons gravados não carregaram; tocando o sintético',
       heading: 'Ouvir', play: 'Tocar', stop: 'Parar', what: 'O que tocar',
       bar: 'Este compasso', all: 'Do início', fromHere: 'Daqui em diante', selection: 'Seleção',
       loop: 'Repetir', metronome: 'Metrônomo', countIn: 'Contagem', bpm: 'BPM', slower: 'Mais devagar', faster: 'Mais rápido',
@@ -73,7 +74,7 @@ export const STRINGS = {
       s5t: '5. Compassos',
       s5: 'Abaixo do editor: + e − compasso, a fórmula de compasso (só deste compasso em diante), % para repetir o anterior, ||: e :|| para repetições, e um texto livre (ex.: "vassouras"). A partitura inteira fica abaixo; toque num compasso para editá-lo.',
       s7t: '7. Ouvir',
-      s7: 'Em "Ouvir": escolha este compasso, do início, daqui em diante, ou uma seleção (toque no primeiro e no último compasso da partitura inteira). "Repetir" toca em loop, "Metrônomo" marca os tempos, "Contagem" dá um compasso de cliques antes. O BPM daqui não muda a partitura. Enquanto toca, o editor fica travado e acompanha o compasso tocado; % e repetições ||: :|| são tocados como escritos. Os sons são sintetizados no navegador.',
+      s7: 'Em "Ouvir": escolha este compasso, do início, daqui em diante, ou uma seleção (toque no primeiro e no último compasso da partitura inteira). "Repetir" toca em loop, "Metrônomo" marca os tempos, "Contagem" dá um compasso de cliques antes. O BPM daqui não muda a partitura. Enquanto toca, o editor fica travado e acompanha o compasso tocado; % e repetições ||: :|| são tocados como escritos. Em "Som", escolha a bateria gravada ou a sintetizada.',
       s6t: '6. Salvar, PDF e foto',
       s6: 'Tudo é salvo neste navegador a cada mudança. "PDF" abre a página de impressão. No arquivo, "JSON" exporta uma cópia. Para importar de uma foto, use o link "Como importar de uma foto".',
     },
@@ -170,6 +171,7 @@ export const STRINGS = {
 
   en: {
     play: {
+      sound: 'Sound', samples: 'Recorded', synth: 'Synthesized', loading: 'Loading the recorded sounds… (the synth plays meanwhile)', loadFailed: 'The recorded sounds did not load; playing the synth',
       heading: 'Listen', play: 'Play', stop: 'Stop', what: 'What to play',
       bar: 'This bar', all: 'From the start', fromHere: 'From here on', selection: 'Selection',
       loop: 'Loop', metronome: 'Metronome', countIn: 'Count-in', bpm: 'BPM', slower: 'Slower', faster: 'Faster',
@@ -225,7 +227,7 @@ export const STRINGS = {
       s5t: '5. Bars',
       s5: 'Below the editor: + and − bar, the time signature (this bar onwards), % to repeat the previous bar, ||: and :|| for repeats, and free text (e.g. "brushes"). The whole score is below; tap a bar to edit it.',
       s7t: '7. Listen',
-      s7: 'Under "Listen": choose this bar, from the start, from here on, or a selection (tap the first and the last bar in the whole score). "Loop" repeats, "Metronome" clicks the beats, "Count-in" gives one bar of clicks first. The BPM here does not change the score. While playing, the editor is locked and follows the bar being played; % and ||: :|| repeats play as written. The sounds are synthesized in the browser.',
+      s7: 'Under "Listen": choose this bar, from the start, from here on, or a selection (tap the first and the last bar in the whole score). "Loop" repeats, "Metronome" clicks the beats, "Count-in" gives one bar of clicks first. The BPM here does not change the score. While playing, the editor is locked and follows the bar being played; % and ||: :|| repeats play as written. Under "Sound", choose the recorded or the synthesized kit.',
       s6t: '6. Saving, PDF and photos',
       s6: 'Every change is saved in this browser. "PDF" opens the print page. In the library, "JSON" exports a copy. To import from a photo, follow "How to import from a photo".',
     },
@@ -322,6 +324,7 @@ export const STRINGS = {
 
   de: {
     play: {
+      sound: 'Klang', samples: 'Aufgenommen', synth: 'Synthetisch', loading: 'Aufgenommene Klänge werden geladen… (solange spielt der Synth)', loadFailed: 'Aufgenommene Klänge nicht geladen; Synth spielt',
       heading: 'Anhören', play: 'Abspielen', stop: 'Stopp', what: 'Was spielen',
       bar: 'Dieser Takt', all: 'Von Anfang an', fromHere: 'Ab hier', selection: 'Auswahl',
       loop: 'Schleife', metronome: 'Metronom', countIn: 'Einzählen', bpm: 'BPM', slower: 'Langsamer', faster: 'Schneller',
@@ -377,7 +380,7 @@ export const STRINGS = {
       s5t: '5. Takte',
       s5: 'Unter dem Editor: + und − Takt, die Taktart (ab diesem Takt), % für die Wiederholung des vorherigen Takts, ||: und :|| für Wiederholungen und freier Text (z. B. "Besen"). Darunter die ganze Partitur; einen Takt antippen, um ihn zu bearbeiten.',
       s7t: '7. Anhören',
-      s7: 'Unter "Anhören": diesen Takt, von Anfang an, ab hier oder eine Auswahl (ersten und letzten Takt in der ganzen Partitur antippen). "Schleife" wiederholt, "Metronom" klickt die Schläge, "Einzählen" gibt vorher einen Takt Klicks. Das BPM hier ändert die Partitur nicht. Während der Wiedergabe ist der Editor gesperrt und folgt dem gespielten Takt; % und ||: :|| werden wie notiert gespielt. Die Klänge werden im Browser erzeugt.',
+      s7: 'Unter "Anhören": diesen Takt, von Anfang an, ab hier oder eine Auswahl (ersten und letzten Takt in der ganzen Partitur antippen). "Schleife" wiederholt, "Metronom" klickt die Schläge, "Einzählen" gibt vorher einen Takt Klicks. Das BPM hier ändert die Partitur nicht. Während der Wiedergabe ist der Editor gesperrt und folgt dem gespielten Takt; % und ||: :|| werden wie notiert gespielt. Unter "Klang" zwischen aufgenommenem und synthetischem Set wählen.',
       s6t: '6. Speichern, PDF und Fotos',
       s6: 'Jede Änderung wird in diesem Browser gespeichert. "PDF" öffnet die Druckseite. In der Bibliothek exportiert "JSON" eine Kopie. Zum Import aus einem Foto dem Link "Aus einem Foto importieren" folgen.',
     },
