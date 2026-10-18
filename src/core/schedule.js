@@ -135,6 +135,7 @@ export function performance(score, a, b, instrument = score.profileId ?? 'drums'
   let open = []; // pitched notes still sounding, lengthened by continuation cells
   const marks = []; // { tick, dyn?, wedge? } in played order, for loudness
   let chord = null; // the chord symbol in force, for rhythm slashes
+  let repeating = []; // trills and tremolos still going: held cells keep repeating them
   for (const shown of playOrder(score, a, b)) {
     let src = shown;
     while (src > 0 && score.bars[src].simile) src -= 1;
@@ -152,8 +153,13 @@ export function performance(score, a, b, instrument = score.profileId ?? 'drums'
         if (leaf.leaf.dyn || leaf.leaf.wedge) marks.push({ tick: at, dyn: leaf.leaf.dyn, wedge: leaf.leaf.wedge });
         if (leaf.leaf.chord) chord = parseChord(leaf.leaf.chord);
         if (pitchedStaff) {
-          if (leaf.leaf.cont) { open.forEach((h) => { h.length += leaf.length; }); continue; }
+          if (leaf.leaf.cont) {
+            open.forEach((h) => { h.length += leaf.length; });
+            repeating.forEach((r) => r.emit(at, leaf.length, shown, beat, leaf.path));
+            continue;
+          }
           open = [];
+          repeating = [];
         }
         for (const note of leaf.leaf.notes) {
           if (pitchedStaff && note.head === 'slash') {
@@ -170,8 +176,33 @@ export function performance(score, a, b, instrument = score.profileId ?? 'drums'
           if (pitchedStaff) {
             // a pitched note: its own voice, at its frequency, for its written length
             const freq = frequencyOf(midiOf(note, { clef: pitchedStaff.clef, transpose: profile.transpose }));
-            const bend = (note.marks ?? []).find((m) => ['fall', 'doit', 'scoop', 'plop'].includes(m)) ?? null;
-            const hit = { bar: shown, beat, path: leaf.path, slotId: note.slotId, sound: `voice:${profile.voice}`, freq, length: leaf.length, tick: at, ahead: 0, velocity: velocityOf(note), ...(bend ? { bend } : {}) };
+            const marksOf = note.marks ?? [];
+            const bend = marksOf.find((m) => ['fall', 'doit', 'scoop', 'plop'].includes(m)) ?? null;
+            // strings: pizz. plucks, a harmonic sounds an octave up with a flute-like tone
+            let voice = profile.voice;
+            let f = freq;
+            if (marksOf.includes('pizz')) voice = 'pizz';
+            if (marksOf.includes('harmonic')) { voice = 'harmonic'; f = freq * 2; }
+            const sound = `voice:${voice}`;
+            if (marksOf.includes('trill') || note.roll === 'tremolo') {
+              // trill: alternate with a tone above; tremolo: repeat the note; 32nds either way
+              const step = PPQ / 8;
+              const trill = marksOf.includes('trill');
+              let k = 0;
+              const r = {
+                emit: (from, length, barShown, beatIndex, path) => {
+                  const count = Math.max(1, Math.round(length / step));
+                  for (let j = 0; j < count; j++, k++) {
+                    const up = trill && k % 2 === 1;
+                    hits.push({ bar: barShown, beat: beatIndex, path, slotId: note.slotId, sound, freq: up ? f * 2 ** (2 / 12) : f, length: step, tick: from + Math.round(j * step), ahead: 0, velocity: velocityOf(note) * 0.85 });
+                  }
+                },
+              };
+              r.emit(at, leaf.length, shown, beat, leaf.path);
+              repeating.push(r);
+              continue;
+            }
+            const hit = { bar: shown, beat, path: leaf.path, slotId: note.slotId, sound, freq: f, length: leaf.length, tick: at, ahead: 0, velocity: velocityOf(note), ...(bend ? { bend } : {}) };
             hits.push(hit);
             open.push(hit);
             continue;

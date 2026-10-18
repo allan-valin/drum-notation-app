@@ -19,6 +19,7 @@ export const STRINGS = {
   pt: {
     noteNames: { C: 'Dó', D: 'Ré', E: 'Mi', F: 'Fá', G: 'Sol', A: 'Lá', B: 'Si' },
     instrument: {
+      piano: 'Piano', harp: 'Harpa', pianoRH: 'Piano (mão direita)', pianoLH: 'Piano (mão esquerda)', harpRH: 'Harpa (mão direita)', harpLH: 'Harpa (mão esquerda)', violin: 'Violino', viola: 'Viola', cello: 'Violoncelo', contrabass: 'Contrabaixo (orquestra)', flute: 'Flauta', oboe: 'Oboé', clarinet: 'Clarinete (Si♭)', bassoon: 'Fagote', horn: 'Trompa (Fá)', tuba: 'Tuba', timpani: 'Tímpanos', glockenspiel: 'Glockenspiel', xylophone: 'Xilofone', marimba: 'Marimba',
       trumpet: 'Trompete (Si♭)', altoSax: 'Sax alto (Mi♭)', tenorSax: 'Sax tenor (Si♭)', trombone: 'Trombone', doubleBass: 'Contrabaixo', vibraphone: 'Vibrafone',
       soprano: 'Soprano', alto: 'Contralto', tenor: 'Tenor', bass: 'Baixo (voz)',
       electricGuitar: 'Guitarra elétrica', bassGuitar: 'Baixo elétrico', keys: 'Teclado', vocal: 'Voz',
@@ -232,6 +233,7 @@ export const STRINGS = {
   en: {
     noteNames: { C: 'C', D: 'D', E: 'E', F: 'F', G: 'G', A: 'A', B: 'B' },
     instrument: {
+      piano: 'Piano', harp: 'Harp', pianoRH: 'Piano (right hand)', pianoLH: 'Piano (left hand)', harpRH: 'Harp (right hand)', harpLH: 'Harp (left hand)', violin: 'Violin', viola: 'Viola', cello: 'Cello', contrabass: 'Double bass (orchestra)', flute: 'Flute', oboe: 'Oboe', clarinet: 'Clarinet (B♭)', bassoon: 'Bassoon', horn: 'Horn (F)', tuba: 'Tuba', timpani: 'Timpani', glockenspiel: 'Glockenspiel', xylophone: 'Xylophone', marimba: 'Marimba',
       trumpet: 'Trumpet (B♭)', altoSax: 'Alto sax (E♭)', tenorSax: 'Tenor sax (B♭)', trombone: 'Trombone', doubleBass: 'Double bass', vibraphone: 'Vibraphone',
       soprano: 'Soprano', alto: 'Alto', tenor: 'Tenor', bass: 'Bass (voice)',
       electricGuitar: 'Electric guitar', bassGuitar: 'Bass guitar', keys: 'Keyboard', vocal: 'Vocals',
@@ -445,6 +447,7 @@ export const STRINGS = {
   de: {
     noteNames: { C: 'C', D: 'D', E: 'E', F: 'F', G: 'G', A: 'A', B: 'H' },
     instrument: {
+      piano: 'Klavier', harp: 'Harfe', pianoRH: 'Klavier (rechte Hand)', pianoLH: 'Klavier (linke Hand)', harpRH: 'Harfe (rechte Hand)', harpLH: 'Harfe (linke Hand)', violin: 'Violine', viola: 'Bratsche', cello: 'Violoncello', contrabass: 'Kontrabass (Orchester)', flute: 'Flöte', oboe: 'Oboe', clarinet: 'Klarinette (B)', bassoon: 'Fagott', horn: 'Horn (F)', tuba: 'Tuba', timpani: 'Pauken', glockenspiel: 'Glockenspiel', xylophone: 'Xylophon', marimba: 'Marimba',
       trumpet: 'Trompete (B)', altoSax: 'Altsaxophon (Es)', tenorSax: 'Tenorsaxophon (B)', trombone: 'Posaune', doubleBass: 'Kontrabass', vibraphone: 'Vibraphon',
       soprano: 'Sopran', alto: 'Alt', tenor: 'Tenor', bass: 'Bass (Stimme)',
       electricGuitar: 'E-Gitarre', bassGuitar: 'E-Bass', keys: 'Keyboard', vocal: 'Gesang',

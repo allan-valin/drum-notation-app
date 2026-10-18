@@ -20,6 +20,8 @@ export const Mark = Object.freeze({
   OPEN: 'open', CLOSED: 'closed', HALF_OPEN: 'halfOpen', CHOKE: 'choke',
   // jazz horn effects
   FALL: 'fall', DOIT: 'doit', SCOOP: 'scoop', PLOP: 'plop',
+  // strings and ornaments
+  PIZZ: 'pizz', ARCO: 'arco', DOWN_BOW: 'downBow', UP_BOW: 'upBow', HARMONIC: 'harmonic', TRILL: 'trill',
 });
 export const Roll = Object.freeze({ BUZZ: 'buzz', TREMOLO: 'tremolo' });
 export const Grace = Object.freeze({ FLAM: 'flam', DRAG: 'drag' });

@@ -229,6 +229,20 @@ export function layoutBar(bar, staff, config) {
         markY -= 1.3 * sp;
       }
       const MARK_GLYPH = { [Mark.OPEN]: Glyphs.OPEN, [Mark.CLOSED]: Glyphs.CLOSED, [Mark.HALF_OPEN]: Glyphs.HALF_OPEN, [Mark.CHOKE]: Glyphs.CHOKE };
+      // strings and ornaments: bowings, harmonic and trill signs above, pizz./arco as words
+      if (pitched) {
+        const ORN = { [Mark.DOWN_BOW]: Glyphs.DOWN_BOW, [Mark.UP_BOW]: Glyphs.UP_BOW, [Mark.HARMONIC]: Glyphs.HARMONIC, [Mark.TRILL]: Glyphs.TRILL };
+        let oy = Math.min(-1.2 * sp, (down ? topY : stemEnd) - 1.4 * sp);
+        for (const m of new Set(notes.flatMap((nn) => nn.marks ?? []))) {
+          if (ORN[m]) { glyphs.push({ ...base, kind: 'orn', glyph: ORN[m], x: centreX(i) - 0.6 * sp, y: oy }); oy -= 1.6 * sp; }
+          if (m === Mark.PIZZ || m === Mark.ARCO) { texts.push({ kind: 'wedge', text: m === Mark.PIZZ ? 'pizz.' : 'arco', x: headX(i), y: oy, beat: beatIndex, cell: span.unit.idx }); oy -= 1.5 * sp; }
+        }
+        const trem = notes.some((nn) => nn.roll === 'tremolo');
+        if (trem && value !== NoteValue.WHOLE) {
+          const mid = down ? topY + (stemEnd - topY) * 0.55 : stemEnd + (bottomY - stemEnd) * 0.45;
+          glyphs.push({ ...base, kind: 'roll', glyph: Glyphs.TREMOLO3, x: stemX(i) - 0.6 * sp, y: mid });
+        }
+      }
       // horn effects: a fall or doit after the head, a scoop or plop before it
       const HORN = { [Mark.FALL]: [Glyphs.FALL, 1], [Mark.DOIT]: [Glyphs.DOIT, 1], [Mark.SCOOP]: [Glyphs.SCOOP, -1], [Mark.PLOP]: [Glyphs.PLOP, -1] };
       for (const n of notes) for (const m of n.marks ?? []) {

@@ -155,6 +155,53 @@ export const ALTO_PROFILE = pitchedProfile('alto', 'choir', 'treble', 'E3', 'F5'
 export const TENOR_PROFILE = pitchedProfile('tenor', 'choir', 'treble8vb', 'A3', 'C6', 'voice', VOICE_EXTRA);
 export const BASS_PROFILE = pitchedProfile('bass', 'choir', 'bass', 'C2', 'F4', 'voice', VOICE_EXTRA);
 
+/**
+ * Grand-staff instruments are two linked parts, one per hand, so each hand keeps its own
+ * rhythm: right hand on a treble staff, left hand on a bass staff.
+ */
+const KEYBOARD_EXTRA = { palette: [...PITCHED_PALETTE, 'chords', 'phrasing'], articulations: [...PITCHED_ARTS], legend: [...PITCHED_LEGEND, 'chord', 'slur'] };
+export const PIANO_RH_PROFILE = pitchedProfile('pianoRH', 'orchestra', 'treble', 'A3', 'C8', 'piano', KEYBOARD_EXTRA);
+export const PIANO_LH_PROFILE = pitchedProfile('pianoLH', 'orchestra', 'bass', 'A0', 'E4', 'piano', KEYBOARD_EXTRA);
+export const HARP_RH_PROFILE = pitchedProfile('harpRH', 'orchestra', 'treble', 'A3', 'G7', 'harp', KEYBOARD_EXTRA);
+export const HARP_LH_PROFILE = pitchedProfile('harpLH', 'orchestra', 'bass', 'C1', 'E4', 'harp', KEYBOARD_EXTRA);
+
+/**
+ * Orchestra. Strings bow (down/up), pluck (pizz.) and return (arco), play harmonics, tremolo and
+ * trills; winds and brass trill and breathe; mallets and timpani roll. Clarinet (B♭) and horn
+ * (F) are written transposed; glockenspiel sounds two octaves and xylophone one octave above
+ * the written note.
+ */
+const STRINGS_EXTRA = {
+  palette: [...PITCHED_PALETTE, 'phrasing', 'technique'],
+  articulations: [...PITCHED_ARTS],
+  techniques: ['pizz', 'arco', 'downBow', 'upBow', 'harmonic', 'tremolo', 'trill'],
+  legend: [...PITCHED_LEGEND, 'slur', 'pizz', 'downBow', 'upBow', 'harmonic', 'stringTremolo', 'trill'],
+};
+const WIND_EXTRA = {
+  palette: [...PITCHED_PALETTE, 'phrasing', 'technique'],
+  articulations: [...PITCHED_ARTS, 'breath'],
+  techniques: ['trill', 'tremolo'],
+  legend: [...PITCHED_LEGEND, 'breath', 'slur', 'trill'],
+};
+const MALLET_EXTRA = { palette: [...PITCHED_PALETTE, 'technique'], techniques: ['tremolo'], legend: [...PITCHED_LEGEND, 'stringTremolo'] };
+export const VIOLIN_PROFILE = pitchedProfile('violin', 'orchestra', 'treble', 'G3', 'E7', 'strings', STRINGS_EXTRA);
+export const VIOLA_PROFILE = pitchedProfile('viola', 'orchestra', 'alto', 'C3', 'E6', 'strings', STRINGS_EXTRA);
+export const CELLO_PROFILE = pitchedProfile('cello', 'orchestra', 'bass', 'C2', 'A5', 'strings', STRINGS_EXTRA);
+export const CONTRABASS_PROFILE = pitchedProfile('contrabass', 'orchestra', 'bass8vb', 'E2', 'G4', 'strings', STRINGS_EXTRA);
+export const FLUTE_PROFILE = pitchedProfile('flute', 'orchestra', 'treble', 'C4', 'C7', 'flute', WIND_EXTRA);
+export const OBOE_PROFILE = pitchedProfile('oboe', 'orchestra', 'treble', 'A3', 'A6', 'oboe', WIND_EXTRA);
+export const CLARINET_PROFILE = pitchedProfile('clarinet', 'orchestra', 'treble', 'E3', 'C7', 'clarinet', { ...WIND_EXTRA, transpose: -2, keyShift: 2 });
+export const BASSOON_PROFILE = pitchedProfile('bassoon', 'orchestra', 'bass', 'B1', 'E5', 'bassoon', WIND_EXTRA);
+export const HORN_PROFILE = pitchedProfile('horn', 'orchestra', 'treble', 'F3', 'C6', 'horn', { ...WIND_EXTRA, transpose: -7, keyShift: 1 });
+export const TUBA_PROFILE = pitchedProfile('tuba', 'orchestra', 'bass', 'D1', 'F4', 'tuba', WIND_EXTRA);
+export const TIMPANI_PROFILE = pitchedProfile('timpani', 'orchestra', 'bass', 'D2', 'A3', 'timpani', MALLET_EXTRA);
+export const GLOCKENSPIEL_PROFILE = pitchedProfile('glockenspiel', 'orchestra', 'treble', 'G3', 'C6', 'glock', { ...MALLET_EXTRA, transpose: 24 });
+export const XYLOPHONE_PROFILE = pitchedProfile('xylophone', 'orchestra', 'treble', 'F3', 'C7', 'xylo', { ...MALLET_EXTRA, transpose: 12 });
+export const MARIMBA_PROFILE = pitchedProfile('marimba', 'orchestra', 'treble', 'C3', 'C7', 'marimba', MALLET_EXTRA);
+
+/** Instruments made of several linked parts, by the name offered in the dropdowns. */
+export const GROUPS = Object.freeze({ piano: ['pianoRH', 'pianoLH'], harp: ['harpRH', 'harpLH'] });
+
 export const PROFILES = Object.freeze({
   drums: DRUM_PROFILE,
   congas: CONGAS_PROFILE,
@@ -172,10 +219,37 @@ export const PROFILES = Object.freeze({
   trombone: TROMBONE_PROFILE,
   doubleBass: DOUBLE_BASS_PROFILE,
   vibraphone: VIBRAPHONE_PROFILE,
+  pianoRH: PIANO_RH_PROFILE,
+  pianoLH: PIANO_LH_PROFILE,
+  harpRH: HARP_RH_PROFILE,
+  harpLH: HARP_LH_PROFILE,
+  violin: VIOLIN_PROFILE,
+  viola: VIOLA_PROFILE,
+  cello: CELLO_PROFILE,
+  contrabass: CONTRABASS_PROFILE,
+  flute: FLUTE_PROFILE,
+  oboe: OBOE_PROFILE,
+  clarinet: CLARINET_PROFILE,
+  bassoon: BASSOON_PROFILE,
+  horn: HORN_PROFILE,
+  tuba: TUBA_PROFILE,
+  timpani: TIMPANI_PROFILE,
+  glockenspiel: GLOCKENSPIEL_PROFILE,
+  xylophone: XYLOPHONE_PROFILE,
+  marimba: MARIMBA_PROFILE,
 });
 
-/** Instruments offered in the dropdowns, in order. */
-export const INSTRUMENTS = Object.freeze(Object.keys(PROFILES));
+/** Instruments offered in the dropdowns, in order: hands of a grand staff come as their instrument. */
+const GROUPED = new Set(Object.values(GROUPS).flat());
+export const INSTRUMENTS = Object.freeze([
+  ...Object.keys(PROFILES).filter((id) => !GROUPED.has(id) && !id.startsWith('piano') && !id.startsWith('harp')),
+  ...Object.keys(GROUPS),
+]);
+
+/** The group name ("piano") whose members are exactly these instruments, if any. */
+export function groupName(instruments) {
+  return Object.keys(GROUPS).find((g) => GROUPS[g].length === instruments.length && GROUPS[g].every((m, i) => m === instruments[i])) ?? null;
+}
 
 export function profileById(id) {
   return PROFILES[id] ?? DRUM_PROFILE;

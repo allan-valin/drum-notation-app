@@ -1,6 +1,6 @@
 import { emptyBar, barTimeSig } from './score.js';
 import { leafSpans } from './tree.js';
-import { profileById } from './profile.js';
+import { profileById, GROUPS, groupName } from './profile.js';
 
 /**
  * A full score holds parts (one per instrument) that share bars: signatures and repeats live
@@ -88,30 +88,66 @@ function newPartId(full) {
   return `p${n}`;
 }
 
-/** Append an empty part for `instrument`, shaped like the bars it joins. */
+/** Append an empty part for `instrument` (both hands for a piano or harp), shaped like the bars it joins. */
 export function addPart(full, instrument) {
-  const id = newPartId(full);
+  return insertParts(full, full.parts.length, instrument);
+}
+
+function insertParts(full, index, instrument) {
+  const members = GROUPS[instrument] ?? [instrument];
   const probe = partView(full, full.parts[0].id);
+  let next = full;
+  const group = members.length > 1 ? newGroupId(full) : null;
+  const added = [];
+  for (const m of members) {
+    const id = newPartId({ ...next, parts: [...next.parts, ...added] });
+    added.push({ id, instrument: m, muted: false, ...(group ? { group } : {}) });
+  }
   return touch({
     ...full,
-    parts: [...full.parts, { id, instrument, muted: false }],
+    parts: [...full.parts.slice(0, index), ...added, ...full.parts.slice(index)],
     bars: full.bars.map((b, i) => {
       const [num, den] = barTimeSig(probe, i);
-      return { ...b, parts: { ...b.parts, [id]: content(emptyBar(num, den)) } };
+      return { ...b, parts: { ...b.parts, ...Object.fromEntries(added.map((p) => [p.id, content(emptyBar(num, den))])) } };
     }),
   });
 }
 
-/** Remove a part. A score always keeps one. */
+function newGroupId(full) {
+  const used = new Set(full.parts.map((p) => p.group).filter(Boolean));
+  let n = 1;
+  while (used.has(`g${n}`)) n += 1;
+  return `g${n}`;
+}
+
+/** The parts played as one instrument with `partId` (both hands of a piano), or just that part. */
+export function groupOf(full, partId) {
+  const part = full.parts.find((p) => p.id === partId);
+  if (!part) return [];
+  return part.group ? full.parts.filter((p) => p.group === part.group) : [part];
+}
+
+/** One row per instrument for the band list: a grouped instrument shows once, by its group name. */
+export function bandRows(full) {
+  const seen = new Set();
+  const rows = [];
+  for (const p of full.parts) {
+    if (p.group && seen.has(p.group)) continue;
+    if (p.group) seen.add(p.group);
+    const members = groupOf(full, p.id);
+    rows.push({ id: p.id, instrument: p.group ? groupName(members.map((m) => m.instrument)) ?? p.instrument : p.instrument, muted: members.every((m) => m.muted), parts: members.map((m) => m.id) });
+  }
+  return rows;
+}
+
+/** Remove a part (both hands of a grouped instrument). A score always keeps one part. */
 export function removePart(full, partId) {
-  if (full.parts.length <= 1) return full;
+  const ids = new Set(groupOf(full, partId).map((p) => p.id));
+  if (full.parts.length - ids.size < 1) return full;
   return touch({
     ...full,
-    parts: full.parts.filter((p) => p.id !== partId),
-    bars: full.bars.map((b) => {
-      const { [partId]: _, ...rest } = b.parts;
-      return { ...b, parts: rest };
-    }),
+    parts: full.parts.filter((p) => !ids.has(p.id)),
+    bars: full.bars.map((b) => ({ ...b, parts: Object.fromEntries(Object.entries(b.parts).filter(([id]) => !ids.has(id))) })),
   });
 }
 
@@ -126,6 +162,24 @@ export function isEmptyPart(full, partId) {
 export function setInstrument(full, partId, instrument) {
   const part = full.parts.find((p) => p.id === partId);
   if (!part || part.instrument === instrument) return full;
+  // to or from a grouped instrument: replace the whole instrument in place, empty
+  if (part.group || GROUPS[instrument]) {
+    const members = groupOf(full, partId);
+    if (members.length > 1 && groupName(members.map((m) => m.instrument)) === instrument) return full;
+    const index = full.parts.indexOf(members[0]);
+    const ids = new Set(members.map((m) => m.id));
+    const without = {
+      ...full,
+      parts: full.parts.filter((p) => !ids.has(p.id)),
+      bars: full.bars.map((b) => ({ ...b, parts: Object.fromEntries(Object.entries(b.parts).filter(([id]) => !ids.has(id))) })),
+    };
+    if (!without.parts.length) {
+      // the only instrument: keep a placeholder long enough to shape the new parts' bars
+      const shaped = insertParts(full, index, instrument);
+      return removeIds(shaped, ids);
+    }
+    return insertParts(without, index, instrument);
+  }
   const sameStaff = profileById(part.instrument).staves[0] === profileById(instrument).staves[0];
   const parts = full.parts.map((p) => (p.id === partId ? { ...p, instrument } : p));
   if (sameStaff || isEmptyPart(full, partId)) return touch({ ...full, parts });
@@ -141,7 +195,17 @@ export function setInstrument(full, partId, instrument) {
 }
 
 export function toggleMute(full, partId) {
-  return { ...full, parts: full.parts.map((p) => (p.id === partId ? { ...p, muted: !p.muted } : p)) };
+  const ids = new Set(groupOf(full, partId).map((p) => p.id));
+  const muted = !full.parts.find((p) => p.id === partId)?.muted;
+  return { ...full, parts: full.parts.map((p) => (ids.has(p.id) ? { ...p, muted } : p)) };
+}
+
+function removeIds(full, ids) {
+  return {
+    ...full,
+    parts: full.parts.filter((p) => !ids.has(p.id)),
+    bars: full.bars.map((b) => ({ ...b, parts: Object.fromEntries(Object.entries(b.parts).filter(([id]) => !ids.has(id))) })),
+  };
 }
 
 /** 1, 2 … when an instrument appears more than once ("Bateria 2"); null when it is alone. */
@@ -168,7 +232,7 @@ export function fromViews(parts, views) {
   const lead = views[parts[0].id];
   return {
     ...pick(lead),
-    parts: parts.map((p) => ({ id: p.id, instrument: p.instrument, muted: !!p.muted })),
+    parts: parts.map((p) => ({ id: p.id, instrument: p.instrument, muted: !!p.muted, ...(p.group ? { group: p.group } : {}) })),
     bars: lead.bars.map((b, i) => ({
       timeSig: b.timeSig ?? null,
       key: b.key ?? null,

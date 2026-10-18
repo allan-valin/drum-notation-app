@@ -25,7 +25,7 @@ export function encode(score) {
       ...(full.swing ? { swing: true } : {}),
       createdAt: full.createdAt,
       updatedAt: full.updatedAt,
-      parts: full.parts.map((p) => ({ id: p.id, instrument: p.instrument, ...(p.muted ? { muted: true } : {}) })),
+      parts: full.parts.map((p) => ({ id: p.id, instrument: p.instrument, ...(p.muted ? { muted: true } : {}), ...(p.group ? { group: p.group } : {}) })),
       bars: full.bars.map((b) => ({
         ...(b.timeSig ? { timeSig: b.timeSig } : {}),
         ...(b.key !== null && b.key !== undefined ? { key: b.key } : {}),
@@ -87,7 +87,7 @@ export function decodeFull(text) {
   if (j.parts.length === 0) throw new Error('parts precisa ter pelo menos um instrumento');
   const parts = j.parts.map((p, i) => {
     if (!PROFILES[p.instrument]) throw new Error(`instrumento ${i + 1}: "${p.instrument}" desconhecido (válidos: ${Object.keys(PROFILES).join(', ')})`);
-    return { id: String(p.id ?? `p${i + 1}`), instrument: p.instrument, muted: !!p.muted };
+    return { id: String(p.id ?? `p${i + 1}`), instrument: p.instrument, muted: !!p.muted, ...(typeof p.group === 'string' ? { group: p.group } : {}) };
   });
   if (!Array.isArray(j.bars) || j.bars.length === 0) throw new Error('bars precisa ser uma lista com pelo menos um compasso');
   const views = Object.fromEntries(parts.map((p) => {

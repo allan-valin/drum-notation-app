@@ -79,7 +79,7 @@ und 3):
 
 Für eine Partitur mit mehr als einem Instrument `"schema_version": 3` verwenden:
 
-- `parts` listet die Instrumente: `{ "id": "p1", "instrument": "drums" }`. Instrumente: `drums`, `congas`, `electricGuitar`, `bassGuitar`, `keys`, `vocal`, `soprano`, `alto`, `tenor`, `bass`, `trumpet`, `altoSax`, `tenorSax`, `trombone`, `doubleBass`, `vibraphone`.
+- `parts` listet die Instrumente: `{ "id": "p1", "instrument": "drums" }`. Instrumente: `drums`, `congas`, `electricGuitar`, `bassGuitar`, `keys`, `vocal`, `soprano`, `alto`, `tenor`, `bass`, `trumpet`, `altoSax`, `tenorSax`, `trombone`, `doubleBass`, `vibraphone`, `piano`, `harp`, `violin`, `viola`, `cello`, `contrabass`, `flute`, `oboe`, `clarinet`, `bassoon`, `horn`, `tuba`, `timpani`, `glockenspiel`, `xylophone`, `marimba` (`piano`/`harp`: two parts, `pianoRH` + `pianoLH` / `harpRH` + `harpLH`, same `group`).
 - Jeder Takt hat die gemeinsamen Zeichen (`timeSig`, `key`, `repeatStart`, `repeatEnd`) und unter
   `parts` den Inhalt jedes Instruments nach `id`: `{ "beats": [...] }` (optional `simile`, `text`).
 - `key` ist die Tonart in Quinten: `2` = zwei Kreuze (D-Dur), `-3` = drei Be. Die klingende Tonart
@@ -94,6 +94,7 @@ Für eine Partitur mit mehr als einem Instrument `"schema_version": 3` verwenden
 - Zeichen der Zelle, in der Objektform `{ "notes": [...], ... }`: `dyn` (`pp p mp mf f ff fp sfz`),
   `wedge` (`cresc`/`dim`), `lyric` (eine Silbe; mit `-` enden für den Trennstrich), `slur`
   (`start`/`end`), `chord` (Akkordsymbol: `C7`, `Bbmaj7`, `F#m7b5`, `C/E`).
+- Streicher und Verzierungen: `"marks": ["pizz"]` (auch `arco`, `downBow`, `upBow`, `harmonic`, `trill`); Tremolo: `"roll": "tremolo"`.
 - `"swing": true` oben spielt die Achtel geswingt.
 - Rhythmusgruppe: `"head": "slash"` auf der Mittellinie = das Akkordsymbol in diesem Rhythmus
   spielen. Blechbläser und Saxophone: `"marks": ["fall"]` (auch `doit`, `scoop`, `plop`).

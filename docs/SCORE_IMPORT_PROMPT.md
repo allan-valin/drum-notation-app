@@ -79,7 +79,7 @@ nos tempos 1 e 3):
 
 Para uma partitura com mais de um instrumento use `"schema_version": 3`:
 
-- `parts` lista os instrumentos: `{ "id": "p1", "instrument": "drums" }`. Instrumentos: `drums`, `congas`, `electricGuitar`, `bassGuitar`, `keys`, `vocal`, `soprano`, `alto`, `tenor`, `bass`, `trumpet`, `altoSax`, `tenorSax`, `trombone`, `doubleBass`, `vibraphone`.
+- `parts` lista os instrumentos: `{ "id": "p1", "instrument": "drums" }`. Instrumentos: `drums`, `congas`, `electricGuitar`, `bassGuitar`, `keys`, `vocal`, `soprano`, `alto`, `tenor`, `bass`, `trumpet`, `altoSax`, `tenorSax`, `trombone`, `doubleBass`, `vibraphone`, `piano`, `harp`, `violin`, `viola`, `cello`, `contrabass`, `flute`, `oboe`, `clarinet`, `bassoon`, `horn`, `tuba`, `timpani`, `glockenspiel`, `xylophone`, `marimba` (`piano`/`harp`: two parts, `pianoRH` + `pianoLH` / `harpRH` + `harpLH`, same `group`).
 - Cada compasso tem as marcas comuns (`timeSig`, `key`, `repeatStart`, `repeatEnd`) e, em
   `parts`, o conteúdo de cada instrumento pelo `id`: `{ "beats": [...] }` (opcionais
   `simile` e `text`).
@@ -94,6 +94,7 @@ Para uma partitura com mais de um instrumento use `"schema_version": 3`:
 - Marcas da célula, na forma de objeto `{ "notes": [...], ... }`: `dyn` (`pp p mp mf f ff fp sfz`),
   `wedge` (`cresc`/`dim`), `lyric` (uma sílaba; termine com `-` para hífen), `slur`
   (`start`/`end`), `chord` (cifra: `C7`, `Bbmaj7`, `F#m7b5`, `C/E`).
+- Cordas e ornamentos: `"marks": ["pizz"]` (também `arco`, `downBow`, `upBow`, `harmonic`, `trill`); trêmolo: `"roll": "tremolo"`.
 - `"swing": true` no topo toca as colcheias suingadas.
 - Base rítmica: cabeça `"head": "slash"` no meio da pauta = toque o acorde da cifra nesse ritmo.
   Metais e saxofones: `"marks": ["fall"]` (também `doit`, `scoop`, `plop`).

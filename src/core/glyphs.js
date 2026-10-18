@@ -61,6 +61,11 @@ export const Glyphs = Object.freeze({
   DOIT: cp(0xe5d4),   // brassDoitShort
   SCOOP: cp(0xe5d0),  // brassScoop
   PLOP: cp(0xe5e0),   // brassPlop
+  DOWN_BOW: cp(0xe610),
+  UP_BOW: cp(0xe612),
+  HARMONIC: cp(0xe614),
+  TRILL: cp(0xe566),
+  BRACE: cp(0xe000),
   BARLINE: cp(0xe030),
   PERCUSSION_CLEF: cp(0xe069),
   ACCENT: cp(0xe4a0),

@@ -76,7 +76,7 @@ Example, one bar of basic rock (eighths on the hi-hat, snare on 2 and 4, bass dr
 
 For a score with more than one instrument use `"schema_version": 3`:
 
-- `parts` lists the instruments: `{ "id": "p1", "instrument": "drums" }`. Instruments: `drums`, `congas`, `electricGuitar`, `bassGuitar`, `keys`, `vocal`, `soprano`, `alto`, `tenor`, `bass`, `trumpet`, `altoSax`, `tenorSax`, `trombone`, `doubleBass`, `vibraphone`.
+- `parts` lists the instruments: `{ "id": "p1", "instrument": "drums" }`. Instruments: `drums`, `congas`, `electricGuitar`, `bassGuitar`, `keys`, `vocal`, `soprano`, `alto`, `tenor`, `bass`, `trumpet`, `altoSax`, `tenorSax`, `trombone`, `doubleBass`, `vibraphone`, `piano`, `harp`, `violin`, `viola`, `cello`, `contrabass`, `flute`, `oboe`, `clarinet`, `bassoon`, `horn`, `tuba`, `timpani`, `glockenspiel`, `xylophone`, `marimba` (`piano`/`harp`: two parts, `pianoRH` + `pianoLH` / `harpRH` + `harpLH`, same `group`).
 - Each bar has the shared marks (`timeSig`, `key`, `repeatStart`, `repeatEnd`) and, under
   `parts`, each instrument's content by `id`: `{ "beats": [...] }` (optional `simile`, `text`).
 - `key` is the key signature in fifths: `2` = two sharps (D major), `-3` = three flats. Write the
@@ -90,6 +90,7 @@ For a score with more than one instrument use `"schema_version": 3`:
 - Cell marks, in the object form `{ "notes": [...], ... }`: `dyn` (`pp p mp mf f ff fp sfz`),
   `wedge` (`cresc`/`dim`), `lyric` (one syllable; end with `-` for a hyphen), `slur`
   (`start`/`end`), `chord` (chord symbol: `C7`, `Bbmaj7`, `F#m7b5`, `C/E`).
+- Strings and ornaments: `"marks": ["pizz"]` (also `arco`, `downBow`, `upBow`, `harmonic`, `trill`); tremolo: `"roll": "tremolo"`.
 - `"swing": true` at the top plays the eighths swung.
 - Rhythm section: `"head": "slash"` on the middle line = play the chord symbol in this rhythm.
   Brass and saxophones: `"marks": ["fall"]` (also `doit`, `scoop`, `plop`).
