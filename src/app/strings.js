@@ -18,6 +18,7 @@ export function format(s, params = {}) {
 export const STRINGS = {
   pt: {
     play: {
+      metronomeSound: 'Som do metrônomo', voice_beep: 'Bipe', voice_woodblock: 'Bloco de madeira', voice_click: 'Clique', voice_cowbell: 'Cowbell', voice_sidestick: 'Aro (cross-stick)', voice_hihat: 'Chimbal fechado', voiceSet: 'Metrônomo: {voice}',
       selectBars: 'Selecionar compassos', moveLeft: 'Mover a seleção um compasso para a esquerda', moveRight: 'Mover a seleção um compasso para a direita', dragHint: 'Toque nos compassos para selecionar. Arraste um compasso (ou a seleção) e solte onde aparecer a barra |.', moved: 'Compassos movidos: agora {from}–{to}', cantMove: 'A seleção já está na ponta',
       sound: 'Som', samples: 'Gravado', synth: 'Sintético', none: 'Sem som', noneHint: 'Sem som: a bateria fica muda, os destaques andam e o metrônomo toca se estiver ligado', loading: 'Carregando os sons gravados… (o sintético toca enquanto isso)', loadFailed: 'Os sons gravados não carregaram; tocando o sintético',
       heading: 'Ouvir', play: 'Tocar', stop: 'Parar', what: 'O que tocar',
@@ -178,6 +179,7 @@ export const STRINGS = {
 
   en: {
     play: {
+      metronomeSound: 'Metronome sound', voice_beep: 'Beep', voice_woodblock: 'Wood block', voice_click: 'Click', voice_cowbell: 'Cowbell', voice_sidestick: 'Side stick', voice_hihat: 'Closed hi-hat', voiceSet: 'Metronome: {voice}',
       selectBars: 'Select bars', moveLeft: 'Move the selection one bar left', moveRight: 'Move the selection one bar right', dragHint: 'Tap bars to select them. Drag a bar (or the selection) and drop it where the | appears.', moved: 'Bars moved: now {from}–{to}', cantMove: 'The selection is already at the end',
       sound: 'Sound', samples: 'Recorded', synth: 'Synthesized', none: 'Silent', noneHint: 'Silent: the drums are muted, the highlights move and the metronome clicks if it is on', loading: 'Loading the recorded sounds… (the synth plays meanwhile)', loadFailed: 'The recorded sounds did not load; playing the synth',
       heading: 'Listen', play: 'Play', stop: 'Stop', what: 'What to play',
@@ -338,6 +340,7 @@ export const STRINGS = {
 
   de: {
     play: {
+      metronomeSound: 'Metronomklang', voice_beep: 'Piep', voice_woodblock: 'Holzblock', voice_click: 'Klick', voice_cowbell: 'Cowbell', voice_sidestick: 'Side Stick', voice_hihat: 'Geschlossene Hi-Hat', voiceSet: 'Metronom: {voice}',
       selectBars: 'Takte auswählen', moveLeft: 'Auswahl einen Takt nach links', moveRight: 'Auswahl einen Takt nach rechts', dragHint: 'Takte antippen, um sie auszuwählen. Einen Takt (oder die Auswahl) ziehen und dort loslassen, wo der Strich | erscheint.', moved: 'Takte verschoben: jetzt {from}–{to}', cantMove: 'Die Auswahl ist schon am Rand',
       sound: 'Klang', samples: 'Aufgenommen', synth: 'Synthetisch', none: 'Stumm', noneHint: 'Stumm: das Schlagzeug schweigt, die Markierungen laufen mit und das Metronom klickt, wenn es an ist', loading: 'Aufgenommene Klänge werden geladen… (solange spielt der Synth)', loadFailed: 'Aufgenommene Klänge nicht geladen; Synth spielt',
       heading: 'Anhören', play: 'Abspielen', stop: 'Stopp', what: 'Was spielen',

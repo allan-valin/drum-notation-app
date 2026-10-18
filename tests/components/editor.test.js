@@ -257,3 +257,16 @@ describe('silent practice', () => {
     delete window.AudioContext;
   });
 });
+
+describe('metronome sound', () => {
+  it('the dropdown lists every voice, remembers the choice and says it', async () => {
+    const store = createStore(memoryStorage());
+    store.save(newScore({ id: 'a', title: 'T' }));
+    const { container, getByLabelText } = render(Editor, { store, id: 'a', onBack: () => {}, onPrint: () => {} });
+    const select = getByLabelText('Som do metrônomo');
+    expect([...select.options].map((o) => o.textContent)).toEqual(['Bipe', 'Bloco de madeira', 'Clique', 'Cowbell', 'Aro (cross-stick)', 'Chimbal fechado']);
+    await fireEvent.change(select, { target: { value: 'woodblock' } });
+    expect(store.loadSettings().metronomeVoice).toBe('woodblock');
+    expect(container.querySelector('.status').textContent).toContain('Metrônomo: Bloco de madeira');
+  });
+});

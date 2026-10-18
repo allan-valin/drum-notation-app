@@ -35,3 +35,19 @@ describe('synth kit', () => {
     expect(() => kit.click(true, 0.2)).not.toThrow();
   });
 });
+
+import { METRONOME_VOICES } from '../src/audio/kit.js';
+
+describe('metronome voices', () => {
+  it('every voice builds for a normal and an accented beat', () => {
+    expect(METRONOME_VOICES).toEqual(['beep', 'woodblock', 'click', 'cowbell', 'sidestick', 'hihat']);
+    const kit = createKit(fakeContext());
+    for (const v of METRONOME_VOICES) {
+      expect(() => kit.click(true, 0.1, v)).not.toThrow();
+      expect(() => kit.click(false, 0.2, v)).not.toThrow();
+    }
+  });
+  it('an unknown voice falls back to the beep', () => {
+    expect(() => createKit(fakeContext()).click(false, 0.1, 'gong')).not.toThrow();
+  });
+});

@@ -4,6 +4,9 @@
  * (808/909 style). Recognisable, not realistic; samples can replace it behind the same
  * `play(sound, when, velocity)` interface.
  */
+/** Metronome sounds, in the order the dropdown lists them. */
+export const METRONOME_VOICES = ['beep', 'woodblock', 'click', 'cowbell', 'sidestick', 'hihat'];
+
 export function createKit(ctx) {
   const out = ctx.createDynamicsCompressor();
   out.threshold.value = -10;
@@ -97,8 +100,24 @@ export function createKit(ctx) {
     play(sound, when, velocity = 0.75) {
       (SOUNDS[sound] ?? SOUNDS.snare)(Math.max(when, ctx.currentTime), velocity);
     },
-    click(accent, when) {
-      tone(Math.max(when, ctx.currentTime), accent ? 0.5 : 0.3, 0.03, accent ? 2000 : 1400, accent ? 2000 : 1400, 'sine');
+    /** One metronome tick; `accent` is the first beat of the bar: brighter and louder. */
+    click(accent, when, voice = 'beep') {
+      const t = Math.max(when, ctx.currentTime);
+      const v = accent ? 0.9 : 0.6;
+      switch (voice) {
+        case 'woodblock':
+          tone(t, v * 0.7, 0.06, accent ? 1250 : 880, accent ? 1150 : 800, 'sine', 0.03);
+          noiseHit(t, v * 0.25, 0.015, [['bandpass', accent ? 2400 : 1800, 3]]);
+          break;
+        case 'click':
+          noiseHit(t, v * 0.8, 0.012, [['highpass', accent ? 5000 : 3500]]);
+          break;
+        case 'cowbell': SOUNDS.cowbell(t, v * (accent ? 1 : 0.7)); break;
+        case 'sidestick': SOUNDS.crossStick(t, v * (accent ? 1 : 0.75)); break;
+        case 'hihat': (accent ? SOUNDS.hihatHalf : SOUNDS.hihatClosed)(t, v); break;
+        default:
+          tone(t, accent ? 0.5 : 0.3, 0.03, accent ? 2000 : 1400, accent ? 2000 : 1400, 'sine');
+      }
     },
     sounds: Object.keys(SOUNDS),
   };

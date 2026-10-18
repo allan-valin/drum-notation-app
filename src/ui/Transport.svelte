@@ -4,7 +4,7 @@
   import { t } from '../app/prefs.svelte.js';
   import { performance } from '../core/schedule.js';
   import { createPlayer } from '../audio/player.js';
-  import { createKit } from '../audio/kit.js';
+  import { createKit, METRONOME_VOICES } from '../audio/kit.js';
   import { createSampleKit } from '../audio/samples.js';
 
   let {
@@ -23,6 +23,7 @@
   const SOUNDS = ['samples', 'synth', 'none'];
   let sound = $state(SOUNDS.includes(store?.loadSettings().sound) ? store.loadSettings().sound : 'samples');
   let kits = null;
+  let voice = $state(METRONOME_VOICES.includes(store?.loadSettings().metronomeVoice) ? store.loadSettings().metronomeVoice : 'beep');
   let ctx = null;
   let player = null;
 
@@ -49,7 +50,7 @@
     player = createPlayer({
       clock: () => ctx.currentTime,
       play: (name, when, v) => kits[sound].play(name, when, v),
-      click: synth.click,
+      click: (accent, when) => synth.click(accent, when, voice),
       onPlayhead,
       onStop: () => { playing = false; onPlaying(false); onStatus(t('play.stopped')); },
     });
@@ -67,6 +68,20 @@
     onStatus(t(loop ? 'play.looping' : 'play.playing', { from: from + 1, to: to + 1, bpm })
       + (sound === 'none' ? ` · ${t('play.none')}` : '')
       + (sound === 'samples' && !kits.samples.loaded ? ` · ${t('play.loading')}` : ''));
+  }
+
+  /** Choosing a metronome sound plays it once (accent, then a normal beat), so you hear it first. */
+  function chooseVoice(v) {
+    voice = v;
+    store?.saveSettings({ ...store.loadSettings(), metronomeVoice: v });
+    onStatus(t('play.voiceSet', { voice: t(`play.voice_${v}`) }));
+    // a preview is a nicety: without Web Audio it stays quiet instead of replacing the status
+    if (!playing && (globalThis.AudioContext ?? globalThis.webkitAudioContext) && ensureAudio()) {
+      ctx.resume?.();
+      const now = ctx.currentTime + 0.05;
+      kits.synth.click(true, now, v);
+      kits.synth.click(false, now + 0.35, v);
+    }
   }
 
   function setBpm(v) {
@@ -97,6 +112,11 @@
   <div class="opts">
     <button class:on={loop} aria-pressed={loop} disabled={playing} onclick={() => (loop = !loop)}>⟲ {t('play.loop')}</button>
     <button class:on={metronome} aria-pressed={metronome} disabled={playing} onclick={() => (metronome = !metronome)}>{t('play.metronome')}</button>
+    <label class="voice">{t('play.metronomeSound')}
+      <select value={voice} onchange={(e) => chooseVoice(e.target.value)}>
+        {#each METRONOME_VOICES as v}<option value={v}>{t(`play.voice_${v}`)}</option>{/each}
+      </select>
+    </label>
     <button class:on={countIn} aria-pressed={countIn} disabled={playing} onclick={() => (countIn = !countIn)}>{t('play.countIn')}</button>
     <span class="sound" role="radiogroup" aria-label={t('play.sound')}>
       <span class="lbl">{t('play.sound')}</span>
@@ -137,5 +157,7 @@
   .selbox .arrow { border: none; border-radius: 0; font-size: 22px; min-width: 44px; }
   .selbox .check { display: inline-flex; align-items: center; gap: 6px; padding: 0 10px; font-size: 14px; border-left: 1px solid var(--line); border-right: 1px solid var(--line); cursor: pointer; }
   .selbox input { width: 20px; height: 20px; }
+  .voice { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--muted); }
+  .voice select { font: inherit; font-size: 14px; color: var(--ink); background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); min-height: var(--tap); padding: 0 8px; }
   .hint { width: 100%; margin: 0; font-size: 12px; color: var(--muted); }
 </style>

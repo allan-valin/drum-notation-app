@@ -50,7 +50,7 @@ export function createSampleKit(ctx, { base = '/', fetch: get = globalThis.fetch
 
   return {
     play,
-    click: fallback.click,
+    click: (...a) => fallback.click(...a),
     ready,
     get loaded() { return loaded; },
   };
