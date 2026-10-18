@@ -17,6 +17,6 @@ describe('ticks', () => {
     expect(cellTicks(emptyBeat(NoteValue.SIXTEENTH, 4, 5), 4)).toEqual([0, 192, 384, 576, 768]);
   });
   it('a 4/4 bar is four quarters of ticks', () => {
-    expect(barTicks(newScore({ title: 't' }))).toBe(PPQ * 4);
+    expect(barTicks(newScore({ title: 't' }), 0)).toBe(PPQ * 4);
   });
 });

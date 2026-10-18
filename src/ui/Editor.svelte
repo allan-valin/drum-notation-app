@@ -6,7 +6,8 @@
   import { DEFAULT_COLOURS, INK, normaliseColours, overridesOnly } from '../core/colours.js';
   import { t } from '../app/prefs.svelte.js';
   import Prefs from './Prefs.svelte';
-  import { cursor as mkCursor } from '../core/cursor.js';
+  import { cursor as mkCursor, leafAt, posLabel } from '../core/cursor.js';
+  import { barTimeSig, showsTimeSig } from '../core/score.js';
   import { NOTE_VALUES } from '../core/noteValue.js';
   import { newScore } from '../core/score.js';
 
@@ -27,12 +28,12 @@
   const staff = $derived(profileById(st.score.profileId).staves[0]);
   const bar = $derived(st.score.bars[st.cursor.bar]);
   const slotName = (id) => t(`slot.${id}`);
-  const pos = () => `${st.cursor.bar + 1}.${st.cursor.beat + 1}.${st.cursor.cell + 1}`;
+  const pos = () => `${st.cursor.bar + 1}.${posLabel(st.cursor)}`;
 
   function dispatch(action) {
     const before = st;
     st = reduce(st, action);
-    status = describe(action, before, st);
+    status = st.refused ? t(`refused.${st.refused}`) : describe(action, before, st);
     if (st.score !== before.score) {
       store.save(st.score);
       savedAt = new Date().toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', second: '2-digit' });
@@ -40,11 +41,11 @@
   }
 
   function describe(a, before, after) {
-    const cell = after.score.bars[after.cursor.bar].beats[after.cursor.beat].cells[after.cursor.cell];
+    const cell = leafAt(after.score, after.cursor);
     const notes = cell.notes.map((n) => slotName(n.slotId)).join(' + ') || t('status.empty');
     const p = pos();
     switch (a.type) {
-      case 'tap':
+      case 'tap': case 'tapAt':
         if (after.score === before.score) return t('status.nothingToDelete', { pos: p });
         return before.tool.delete ? t('status.deleted', { pos: p, notes }) : t('status.placed', { pos: p, notes });
       case 'selectValue': return t('status.split', { pos: `${after.cursor.bar + 1}.${after.cursor.beat + 1}`, value: t(`valuePlural.${a.value.id}`) });
@@ -67,12 +68,8 @@
     }
   }
 
-  function onTap({ beat, cell, staffPosition }) {
-    if (beat !== st.cursor.beat || cell !== st.cursor.cell) {
-      status = t('status.notFocused', { pos: `${beat + 1}.${cell + 1}` });
-      return;
-    }
-    dispatch({ type: 'tap', staffPosition });
+  function onTap({ beat, path, staffPosition }) {
+    dispatch({ type: 'tapAt', beat, path, staffPosition });
   }
 
   function setColour(valueId, colour) {
@@ -120,9 +117,9 @@
           width={Math.max(300, width - (landscape ? 210 : 0) - 8)}
           staffSpacing={sp}
           focusedBeat={st.cursor.beat}
-          focusedCell={st.cursor.cell}
+          focusedPath={st.cursor.path}
           {colours}
-          timeSig={[st.score.timeSigNum, st.score.timeSigDen]}
+          timeSig={barTimeSig(st.score, st.cursor.bar)}
           showGuides={true}
           deleteMode={st.tool.delete}
           {onTap}
@@ -133,7 +130,7 @@
         <button onclick={() => dispatch({ type: 'goTo', cursor: mkCursor(st.cursor.bar - 1, 0, 0) })} disabled={st.cursor.bar === 0} aria-label={t('editor.prevBar')} title={t('editor.prevBar')}>«</button>
         <button class="big" onclick={() => dispatch({ type: 'prev' })} aria-label={t('editor.prevPos')}>‹</button>
         <div class="status" aria-live="polite">
-          <div class="where">{t('editor.where', { bar: st.cursor.bar + 1, total: st.score.bars.length, beat: `${st.cursor.beat + 1}${bar.beats[st.cursor.beat].cells.length > 1 ? `.${st.cursor.cell + 1}` : ''}` })}</div>
+          <div class="where">{t('editor.where', { bar: st.cursor.bar + 1, total: st.score.bars.length, beat: posLabel(st.cursor) })}</div>
           <div>{status}</div>
           <div class="saved">{savedAt ? t('editor.saved', { time: savedAt }) : t('editor.notSaved')}</div>
         </div>
@@ -147,7 +144,7 @@
           {#each st.score.bars as b, i}
             <button class="barthumb" class:current={i === st.cursor.bar} onclick={() => dispatch({ type: 'goTo', cursor: mkCursor(i, 0, 0) })} aria-label={t('editor.goToBar', { n: i + 1 })}>
               <span class="n">{i + 1}</span>
-              <ScoreSvg bar={b} {staff} width={220} staffSpacing={6} showClef={i === 0} timeSig={i === 0 ? [st.score.timeSigNum, st.score.timeSigDen] : null} {colours} fixedRange={[8, 10]} />
+              <ScoreSvg bar={b} {staff} width={220} staffSpacing={6} showClef={i === 0} timeSig={showsTimeSig(st.score, i) ? barTimeSig(st.score, i) : null} {colours} fixedRange={[8, 10]} />
             </button>
           {/each}
         </div>

@@ -38,6 +38,9 @@ export const Glyphs = Object.freeze({
   FF: cp(0xe52f),
   PP: cp(0xe52b),
   CRESCENDO: cp(0xe53e),
+  SIMILE: cp(0xe500),        // repeat1Bar
+  REPEAT_LEFT: cp(0xe040),   // repeatLeft  ||:
+  REPEAT_RIGHT: cp(0xe041),  // repeatRight :||
 
   notehead(head, value) {
     const set = NOTEHEAD[head] ?? NOTEHEAD[Notehead.NORMAL];

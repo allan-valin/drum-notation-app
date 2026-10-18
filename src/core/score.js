@@ -15,30 +15,53 @@ export function note(slotId, { articulations = [], sticking = null } = {}) {
   return { slotId, articulations: [...articulations], sticking };
 }
 
-/** One point in time. Several notes here sound together: kick plus hi-hat. */
-export function cell(notes = []) {
+/**
+ * A cell is either a leaf (one point in time: the notes in it sound together) or a group
+ * (a span split into equal cells, each of which can be split again). A beat is a group.
+ */
+export function leaf(notes = []) {
   return { notes: [...notes] };
 }
 
-/**
- * One beat, carrying its own subdivision. Subdivision is per beat and not a bar-wide grid,
- * because that is how a page reads: a triplet on beat 1 and two eighths on beat 2.
- */
-export function beat(division, tuplet, cells) {
+export function group(division, tuplet, cells) {
   return { division, tuplet: tuplet ?? null, cells: [...cells] };
 }
 
-export function bar(beats) {
-  return { beats: [...beats] };
+/** Old names, kept because a beat is a group and a flat cell is a leaf. */
+export const cell = leaf;
+export const beat = group;
+
+export function bar(beats, { timeSig = null, simile = false, repeatStart = false, repeatEnd = false } = {}) {
+  return { beats: [...beats], timeSig, simile, repeatStart, repeatEnd };
 }
 
 export function emptyBeat(division, beatUnit, tuplet = null) {
-  return beat(division, tuplet, Array.from({ length: cellsPerBeat(division, beatUnit, tuplet) }, () => cell()));
+  return group(division, tuplet, Array.from({ length: cellsPerBeat(division, beatUnit, tuplet) }, () => leaf()));
 }
 
-/** A fresh bar: one cell per beat, nothing written yet. */
-export function emptyBar(timeSigNum, timeSigDen) {
-  return bar(Array.from({ length: timeSigNum }, () => emptyBeat(noteValueFor(timeSigDen), timeSigDen)));
+/** A fresh bar: one cell per beat, nothing written yet, inheriting its time signature. */
+export function emptyBar(timeSigNum, timeSigDen, opts) {
+  return bar(Array.from({ length: timeSigNum }, () => emptyBeat(noteValueFor(timeSigDen), timeSigDen)), opts);
+}
+
+/**
+ * The signature in force at bar `index`: its own, else the nearest earlier explicit one,
+ * else the score's.
+ */
+export function barTimeSig(score, index) {
+  for (let i = index; i >= 0; i--) {
+    const ts = score.bars[i]?.timeSig;
+    if (ts) return ts;
+  }
+  return [score.timeSigNum, score.timeSigDen];
+}
+
+/** True where the printed signature must appear: the first bar, and wherever it changes. */
+export function showsTimeSig(score, index) {
+  if (index === 0) return true;
+  const a = barTimeSig(score, index - 1);
+  const b = barTimeSig(score, index);
+  return a[0] !== b[0] || a[1] !== b[1];
 }
 
 function newId() {

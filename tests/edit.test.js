@@ -1,11 +1,11 @@
 import { describe, it, expect } from 'vitest';
 import { NoteValue } from '../src/core/noteValue.js';
 import { note, emptyBar, newScore, Articulation } from '../src/core/score.js';
-import { cursor, beatAt } from '../src/core/cursor.js';
-import { placeNote, deleteNote, subdivide, addBar, removeBar } from '../src/core/edit.js';
+import { cursor, beatAt, leafAt } from '../src/core/cursor.js';
+import { placeNote, deleteNote, splitBeat as subdivide, addBar, removeBar } from '../src/core/edit.js';
 
 const score = () => ({ ...newScore({ title: 't' }), bars: [emptyBar(4, 4)] });
-const notesAt = (s, c) => beatAt(s, c).cells[c.cell].notes;
+const notesAt = (s, c) => leafAt(s, c).notes;
 const c0 = cursor(0, 0, 0);
 
 describe('editing rules', () => {

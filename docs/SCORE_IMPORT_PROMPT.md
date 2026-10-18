@@ -13,9 +13,13 @@ sem comentários.
 
 Regras:
 
-- `schema_version` é sempre `1`.
-- `timeSigNum`/`timeSigDen` é a fórmula de compasso (4/4 → 4 e 4).
-- `bars` é a lista de compassos; cada compasso tem `beats` com exatamente `timeSigNum` tempos.
+- `schema_version` é sempre `2`.
+- `timeSigNum`/`timeSigDen` é a fórmula de compasso do início (4/4 → 4 e 4).
+- `bars` é a lista de compassos. Um compasso que muda a fórmula leva `"timeSig": [3, 4]`; os
+  seguintes herdam até a próxima mudança. Cada compasso tem exatamente tantos `beats` quanto o
+  numerador da fórmula em vigor.
+- Marcas de compasso opcionais: `"simile": true` (o sinal %, repete o compasso anterior; os
+  tempos continuam presentes, vazios), `"repeatStart": true` (`||:`), `"repeatEnd": true` (`:||`).
 - Cada tempo tem `division` (a figura em que ele está subdividido) e `cells`, uma lista com
   **uma célula por subdivisão**. Número de células obrigatório por `division` num compasso x/4:
   `quarter` → 1, `eighth` → 2, `sixteenth` → 4, `thirtySecond` → 8. Com `tuplet: 3` são 3 células,
@@ -24,6 +28,11 @@ Regras:
   Um tempo "colcheia + duas semicolcheias" é escrito como quatro semicolcheias com a segunda
   célula vazia: `{ "division": "sixteenth", "cells": [["snare"], [], ["snare"], ["snare"]] }`.
 - Cada célula é a lista das peças tocadas **ao mesmo tempo**. Célula vazia `[]` é pausa.
+- Uma célula pode ser subdividida de novo, sem mexer nas outras: no lugar da lista vai um
+  objeto `{ "division": "sixteenth", "cells": [[...], [...]] }`. O número de células é a figura
+  interna dividida pela figura do grupo de fora (colcheia → semicolcheias = 2), ou o `tuplet`.
+  Exemplo, tempo "colcheia + duas semicolcheias":
+  `{ "division": "eighth", "cells": [["snare"], { "division": "sixteenth", "cells": [["snare"], ["snare"]] }] }`.
 - Peças (posição na pauta → id):
   - `crash` (acima da pauta, cabeça em X), `ride` (espaço acima da 5ª linha, X),
     `hihat` (5ª linha ou logo acima, X),
@@ -40,7 +49,7 @@ nos tempos 1 e 3):
 
 ```json
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "title": "Rock básico",
   "timeSigNum": 4,
   "timeSigDen": 4,

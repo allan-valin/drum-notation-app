@@ -7,6 +7,7 @@
   import { Glyphs, Metrics } from '../core/glyphs.js';
   import { colourFor } from '../core/colours.js';
   import { t } from '../app/prefs.svelte.js';
+  import { samePath } from '../core/tree.js';
 
   let {
     bar,
@@ -14,7 +15,7 @@
     width = 800,
     staffSpacing = 20,
     focusedBeat = null,
-    focusedCell = null,
+    focusedPath = null,
     colours = undefined,
     showClef = true,
     timeSig = null,
@@ -46,12 +47,10 @@
     pt.y = e.clientY;
     const p = pt.matrixTransform(svg.getScreenCTM().inverse());
     const x = p.x - lead;
-    const beatIndex = layout.beatBounds.findIndex(([a, b]) => x >= a && x < b);
-    if (beatIndex < 0) return;
-    const [a, b] = layout.beatBounds[beatIndex];
-    const cells = bar.beats[beatIndex].cells.length;
-    const cellIndex = Math.min(cells - 1, Math.max(0, Math.floor(((x - a) / (b - a)) * cells)));
-    onTap({ beat: beatIndex, cell: cellIndex, staffPosition: staffPositionAt(p.y, sp) });
+    const hit = layout.leaves.find((l) => x >= l.x0 && x < l.x1)
+      ?? (x < 0 ? layout.leaves[0] : layout.leaves[layout.leaves.length - 1]);
+    if (!hit) return;
+    onTap({ beat: hit.beat, path: hit.path, staffPosition: staffPositionAt(p.y, sp) });
   }
 </script>
 
@@ -69,10 +68,10 @@
   {#if focusedBeat !== null && layout.beatBounds[focusedBeat]}
     {@const [a, b] = layout.beatBounds[focusedBeat]}
     <rect class="focus" x={lead + a} y={top} width={b - a} height={height} />
-    {#if focusedCell !== null}
-      {@const cells = bar.beats[focusedBeat].cells.length}
-      {@const cw = (b - a) / cells}
-      <rect class="cell" x={lead + a + cw * focusedCell} y={top} width={cw} height={height} />
+    {#if focusedPath}
+      {#each layout.leaves.filter((l) => l.beat === focusedBeat && samePath(l.path, focusedPath)) as l}
+        <rect class="cell" x={lead + l.x0} y={top} width={l.x1 - l.x0} height={height} />
+      {/each}
     {/if}
   {/if}
 

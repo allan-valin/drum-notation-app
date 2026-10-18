@@ -2,7 +2,8 @@ import { Glyphs, Metrics } from './glyphs.js';
 import { NoteValue } from './noteValue.js';
 import { Articulation } from './score.js';
 import { slotById } from './profile.js';
-import { beamGroups } from './beaming.js';
+import { beams as beamsOf, beamLevel } from './beaming.js';
+import { leafSpans, groupSpans } from './tree.js';
 
 /** Vertical centre of a staff position, measured down from the top line; 0 is the bottom line. */
 export function yOf(staffPosition, spacing) {
@@ -14,22 +15,14 @@ export function staffPositionAt(y, spacing) {
   return Math.round((4 - y / spacing) * 2);
 }
 
-/** How many beams (or flag strokes) a value carries. */
-function beamLevels(value) {
-  if (value === NoteValue.EIGHTH) return 1;
-  if (value === NoteValue.SIXTEENTH) return 2;
-  if (value === NoteValue.THIRTY_SECOND) return 3;
-  return 0;
-}
-
 /**
  * Turn a bar into glyphs and positions. Pure: no DOM, no SVG, so the whole of engraving is
  * unit-testable, and the print page reuses it unchanged.
  *
- * Glyph `x` is the glyph origin (its left edge for noteheads). Noteheads also carry
- * `beat`, `cell`, `slotId` and `value`, so a tap can be traced back and a colour chosen.
- * `focusedBeat` gets `focusScale` times the width of an ordinary beat, which is what makes one
- * beat large enough to edit on a phone while its neighbours stay visible.
+ * Glyph `x` is the glyph origin (left edge for noteheads). Noteheads carry `beat`, `cell`
+ * (leaf index in the beat), `path`, `slotId` and `value`, so taps trace back and colours apply.
+ * `leaves` lists every leaf's horizontal span for hit-testing. `focusedBeat` gets `focusScale`
+ * times the width of an ordinary beat, so one beat is big enough to edit on a phone.
  */
 export function layoutBar(bar, staff, config) {
   const sp = config.staffSpacing;
@@ -39,97 +32,111 @@ export function layoutBar(bar, staff, config) {
   const beams = [];
   const texts = [];
   const beatBounds = [];
+  const leaves = [];
   const headW = Metrics.noteheadWidth * sp;
+  const lead = bar.repeatStart ? 1.8 * sp : 0;
+  const tail = bar.repeatEnd ? 1.8 * sp : 0;
+  const inner = config.width - lead - tail;
   const weights = bar.beats.map((_, i) => (i === config.focusedBeat ? focusScale : 1));
-  const unit = config.width / weights.reduce((a, b) => a + b, 0);
-  let x = 0;
+  const unit = inner / weights.reduce((a, b) => a + b, 0);
+  let x = lead;
+
+  if (bar.repeatStart) glyphs.push({ kind: 'barline', glyph: Glyphs.REPEAT_LEFT, x: 0, y: yOf(0, sp) });
 
   bar.beats.forEach((beat, beatIndex) => {
     const beatWidth = unit * weights[beatIndex];
     beatBounds.push([x, x + beatWidth]);
-    const cellWidth = beatWidth / beat.cells.length;
-    const centreX = (i) => x + cellWidth * i + cellWidth / 2;
+    const spans = leafSpans(beat);
+    spans.forEach((l, i) => leaves.push({ beat: beatIndex, index: i, path: l.path, x0: x + l.start * beatWidth, x1: x + (l.start + l.size) * beatWidth }));
+    if (bar.simile) { x += beatWidth; return; }
+
+    const centreX = (i) => x + (spans[i].start + spans[i].size / 2) * beatWidth;
     const headX = (i) => centreX(i) - headW / 2;
     const stemX = (i) => headX(i) + Metrics.stemUpSE.x * sp - (Metrics.stemThickness * sp) / 2;
-    const levels = beamLevels(beat.division);
-    const groups = beamGroups(beat);
-    const groupOf = (i) => groups.find(([a, b]) => i >= a && i <= b);
-    const beamY = {};
-    // a beam sits above the highest head in its group, at stem length
-    groups.forEach(([a, b]) => {
+    const valueOf = (i) => spans[i].parent.division;
+    const topOf = (i) => Math.min(...spans[i].leaf.notes.map((n) => yOf(slotById(staff, n.slotId).staffPosition, sp)));
+
+    const beatBeams = beamsOf(beat);
+    const hosts = beatBeams.filter((b) => b.level === 1);
+    const hostOf = (i) => hosts.find((h) => i >= h.from && i <= h.to);
+    const beamY = new Map();
+    hosts.forEach((h) => {
       let top = Infinity;
-      for (let i = a; i <= b; i++) {
-        beat.cells[i].notes.forEach((n) => {
-          top = Math.min(top, yOf(slotById(staff, n.slotId).staffPosition, sp));
-        });
-      }
-      beamY[a] = top - Metrics.stemLength * sp;
+      for (let i = h.from; i <= h.to; i++) if (spans[i].leaf.notes.length) top = Math.min(top, topOf(i));
+      beamY.set(h, top - Metrics.stemLength * sp);
     });
 
-    beat.cells.forEach((cell, cellIndex) => {
-      if (cell.notes.length === 0) {
-        const restY = beat.division === NoteValue.WHOLE ? sp : 2 * sp;
-        glyphs.push({ kind: 'rest', glyph: Glyphs.rest(beat.division), x: centreX(cellIndex) - 0.5 * sp, y: restY, beat: beatIndex, cell: cellIndex, value: beat.division });
+    spans.forEach((span, i) => {
+      const value = valueOf(i);
+      const notes = span.leaf.notes;
+      const base = { beat: beatIndex, cell: i, path: span.path, value };
+      if (notes.length === 0) {
+        const restY = value === NoteValue.WHOLE ? sp : 2 * sp;
+        glyphs.push({ ...base, kind: 'rest', glyph: Glyphs.rest(value), x: centreX(i) - 0.5 * sp, y: restY });
         return;
       }
       let topY = Infinity;
       let bottomY = -Infinity;
-      cell.notes.forEach((n) => {
+      notes.forEach((n) => {
         const slot = slotById(staff, n.slotId);
         const y = yOf(slot.staffPosition, sp);
         topY = Math.min(topY, y);
         bottomY = Math.max(bottomY, y);
-        glyphs.push({
-          kind: 'note', glyph: Glyphs.notehead(slot.notehead, beat.division),
-          x: headX(cellIndex), y, slotId: slot.id, beat: beatIndex, cell: cellIndex, value: beat.division,
-          staffPosition: slot.staffPosition,
-        });
+        glyphs.push({ ...base, kind: 'note', glyph: Glyphs.notehead(slot.notehead, value), x: headX(i), y, slotId: slot.id, staffPosition: slot.staffPosition });
         if (n.articulations.includes(Articulation.GHOST)) {
-          glyphs.push({ kind: 'paren', glyph: Glyphs.PAREN_LEFT, x: headX(cellIndex) - 0.5 * sp, y, beat: beatIndex, cell: cellIndex, value: beat.division, slotRef: slot.id });
-          glyphs.push({ kind: 'paren', glyph: Glyphs.PAREN_RIGHT, x: headX(cellIndex) + headW + 0.1 * sp, y, beat: beatIndex, cell: cellIndex, value: beat.division, slotRef: slot.id });
+          glyphs.push({ ...base, kind: 'paren', glyph: Glyphs.PAREN_LEFT, x: headX(i) - 0.5 * sp, y, slotRef: slot.id });
+          glyphs.push({ ...base, kind: 'paren', glyph: Glyphs.PAREN_RIGHT, x: headX(i) + headW + 0.1 * sp, y, slotRef: slot.id });
         }
       });
-      // stem: up, from the lowest head to the beam or to stem length above the highest head
-      const group = groupOf(cellIndex);
-      const beamed = group && group[0] !== group[1];
-      const stemTop = beamed ? beamY[group[0]] : topY - Metrics.stemLength * sp;
-      if (beat.division !== NoteValue.WHOLE) {
-        stems.push({ x: stemX(cellIndex), y1: bottomY - Metrics.stemUpSE.y * sp, y2: stemTop, beat: beatIndex, cell: cellIndex });
+      const host = hostOf(i);
+      const beamed = host && host.from !== host.to;
+      const stemTop = beamed ? beamY.get(host) : topY - Metrics.stemLength * sp;
+      if (value !== NoteValue.WHOLE) {
+        stems.push({ x: stemX(i), y1: bottomY - Metrics.stemUpSE.y * sp, y2: stemTop, beat: beatIndex, cell: i, value });
       }
-      if (!beamed && levels > 0) {
-        glyphs.push({ kind: 'flag', glyph: Glyphs.flag(beat.division), x: stemX(cellIndex) - (Metrics.stemThickness * sp) / 2, y: stemTop, beat: beatIndex, cell: cellIndex, value: beat.division });
+      if (!beamed && beamLevel(value) > 0) {
+        glyphs.push({ ...base, kind: 'flag', glyph: Glyphs.flag(value), x: stemX(i) - (Metrics.stemThickness * sp) / 2, y: stemTop });
       }
-      const accented = cell.notes.some((n) => n.articulations.includes(Articulation.ACCENT));
-      if (accented) {
-        glyphs.push({ kind: 'accent', glyph: Glyphs.ACCENT, x: centreX(cellIndex) - 0.68 * sp, y: stemTop - 0.5 * sp, beat: beatIndex, cell: cellIndex, value: beat.division });
+      if (notes.some((n) => n.articulations.includes(Articulation.ACCENT))) {
+        glyphs.push({ ...base, kind: 'accent', glyph: Glyphs.ACCENT, x: centreX(i) - 0.68 * sp, y: stemTop - 0.5 * sp });
       }
-      const sticking = cell.notes.map((n) => n.sticking).find((s) => s);
-      if (sticking) {
-        texts.push({ kind: 'sticking', text: sticking, x: centreX(cellIndex), y: yOf(-6, sp), beat: beatIndex, cell: cellIndex });
-      }
+      const sticking = notes.map((n) => n.sticking).find((s) => s);
+      if (sticking) texts.push({ kind: 'sticking', text: sticking, x: centreX(i), y: yOf(-6, sp), beat: beatIndex, cell: i });
     });
 
-    groups.filter(([a, b]) => a !== b).forEach(([a, b]) => {
-      for (let level = 0; level < levels; level++) {
-        const y = beamY[a] + level * (Metrics.beamThickness + Metrics.beamSpacing) * sp;
-        beams.push({ x1: stemX(a) - (Metrics.stemThickness * sp) / 2, x2: stemX(b) + (Metrics.stemThickness * sp) / 2, y1: y, y2: y, level, beat: beatIndex });
-      }
+    const stemHalf = (Metrics.stemThickness * sp) / 2;
+    const stub = 1.1 * sp;
+    beatBeams.forEach((b) => {
+      const host = b.level === 1 ? b : hostOf(b.from);
+      const y = beamY.get(host) + (b.level - 1) * (Metrics.beamThickness + Metrics.beamSpacing) * sp;
+      let x1 = stemX(b.from) - stemHalf;
+      let x2 = stemX(b.to) + stemHalf;
+      if (b.stub === 'left') x1 = x2 - stub;
+      if (b.stub === 'right') x2 = x1 + stub;
+      beams.push({ x1, x2, y1: y, y2: y, level: b.level, beat: beatIndex, value: valueOf(b.from) });
     });
 
+    const tupletY = () => Math.min(0, ...stems.filter((s) => s.beat === beatIndex).map((s) => s.y2)) - 0.6 * sp;
     if (beat.tuplet) {
-      const tops = [...stems.filter((s) => s.beat === beatIndex).map((s) => s.y2), 0];
-      const y = Math.min(...tops) - 0.6 * sp;
-      glyphs.push({ kind: 'tuplet', glyph: Glyphs.tupletDigit(beat.tuplet), x: x + beatWidth / 2 - 0.4 * sp, y, beat: beatIndex });
+      glyphs.push({ kind: 'tuplet', glyph: Glyphs.tupletDigit(beat.tuplet), x: x + beatWidth / 2 - 0.4 * sp, y: tupletY(), beat: beatIndex });
     }
+    groupSpans(beat).filter((g) => g.group.tuplet).forEach((g) => {
+      glyphs.push({ kind: 'tuplet', glyph: Glyphs.tupletDigit(g.group.tuplet), x: x + (g.start + g.size / 2) * beatWidth - 0.4 * sp, y: tupletY() + (g.depth * 0.4 - 0.4) * sp, beat: beatIndex });
+    });
     x += beatWidth;
   });
 
-  glyphs.push({ kind: 'barline', glyph: Glyphs.BARLINE, x: config.width - Metrics.barlineThickness * sp, y: yOf(0, sp) });
+  if (bar.simile) {
+    glyphs.push({ kind: 'simile', glyph: Glyphs.SIMILE, x: lead + inner / 2 - 1.06 * sp, y: yOf(4, sp) });
+  }
+  glyphs.push(bar.repeatEnd
+    ? { kind: 'barline', glyph: Glyphs.REPEAT_RIGHT, x: config.width - 1.47 * sp, y: yOf(0, sp) }
+    : { kind: 'barline', glyph: Glyphs.BARLINE, x: config.width - Metrics.barlineThickness * sp, y: yOf(0, sp) });
 
   const ys = [...glyphs.map((g) => g.y), ...stems.map((s) => s.y2), ...texts.map((t) => t.y), 0, 4 * sp];
   const top = Math.min(...ys) - sp;
   const bottom = Math.max(...ys) + sp;
-  return { glyphs, stems, beams, texts, beatBounds, top, bottom };
+  return { glyphs, stems, beams, texts, beatBounds, leaves, top, bottom };
 }
 
 /** Leger lines a notehead needs: positions outside 0..8 on even half-steps up to its own. */

@@ -99,3 +99,41 @@ describe('staffPositionAt', () => {
     expect(staffPositionAt(yOf(4, 10) - 3, 10)).toBe(5);
   });
 });
+
+describe('layout over nested cells and bar marks', () => {
+  const nestedBar = () => bar([
+    beat(NoteValue.EIGHTH, null, [cell([note('snare')]), beat(NoteValue.SIXTEENTH, null, [cell([note('snare')]), cell([note('snare')])])]),
+  ]);
+  it('places leaves at the centre of their share of the beat', () => {
+    const r = layoutBar(nestedBar(), staff, config);
+    const xs = r.leaves.map((l) => (l.x0 + l.x1) / 2);
+    expect(xs[1] - xs[0]).toBeCloseTo(1.5 * (xs[2] - xs[1]));
+  });
+  it('reports each leaf with its path for hit-testing', () => {
+    const r = layoutBar(nestedBar(), staff, config);
+    expect(r.leaves.map((l) => l.path)).toEqual([[0], [1, 0], [1, 1]]);
+  });
+  it('draws a long beam and a short one', () => {
+    const r = layoutBar(nestedBar(), staff, config);
+    expect(r.beams.map((b) => b.level).sort()).toEqual([1, 2]);
+    const [l1, l2] = [r.beams.find((b) => b.level === 1), r.beams.find((b) => b.level === 2)];
+    expect(l1.x2 - l1.x1).toBeGreaterThan(l2.x2 - l2.x1);
+  });
+  it('noteheads take the value of their own group', () => {
+    const r = layoutBar(nestedBar(), staff, config);
+    expect(r.glyphs.filter((g) => g.kind === 'note').map((g) => g.value)).toEqual([NoteValue.EIGHTH, NoteValue.SIXTEENTH, NoteValue.SIXTEENTH]);
+  });
+  it('a simile bar shows the % sign and no notes or rests', () => {
+    const b = { ...bar([snareBeat(NoteValue.QUARTER, 1)]), simile: true };
+    const r = layoutBar(b, staff, config);
+    expect(r.glyphs.some((g) => g.glyph === Glyphs.SIMILE)).toBe(true);
+    expect(r.glyphs.some((g) => g.kind === 'note' || g.kind === 'rest')).toBe(false);
+  });
+  it('repeat marks replace the plain bar lines', () => {
+    const b = { ...emptyBar(4, 4), repeatStart: true, repeatEnd: true };
+    const r = layoutBar(b, staff, config);
+    expect(r.glyphs.some((g) => g.glyph === Glyphs.REPEAT_LEFT)).toBe(true);
+    expect(r.glyphs.some((g) => g.glyph === Glyphs.REPEAT_RIGHT)).toBe(true);
+    expect(r.glyphs.some((g) => g.glyph === Glyphs.BARLINE)).toBe(false);
+  });
+});

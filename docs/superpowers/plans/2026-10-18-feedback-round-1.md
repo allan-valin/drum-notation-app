@@ -45,7 +45,12 @@ action writes a status line, open-source only.
   button; headings and labels via `t()`.
 - [x] Print page stays light regardless of theme.
 
-### C2 — nested subdivision + per-bar time signature (large, the core pass) — [ ]
+### C2 — nested subdivision + per-bar time signature (large, the core pass) — [x] 2026-10-18
+
+Done: model, tree helpers, cursor paths, splitCell/splitBeat/mergeCell, setTimeSig with
+inheritance, simile/repeat flags, nested beaming with stubs, layout over the tree with `%` and
+repeat barlines, JSON v2 (v1 still read), reducer (`tapAt`, `setSplitMode`, `merge`, bar marks,
+`refused` reasons), import prompt v2. The UI for the toggle and bar row is C3.
 
 Model (`src/core/score.js`), schema v2:
 

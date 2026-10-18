@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { encode, decode, SCHEMA_VERSION } from '../src/core/json.js';
 import { newScore, note, emptyBar, Articulation, Sticking } from '../src/core/score.js';
 import { NoteValue } from '../src/core/noteValue.js';
-import { placeNote, subdivide } from '../src/core/edit.js';
+import { placeNote, splitBeat as subdivide } from '../src/core/edit.js';
 import { cursor } from '../src/core/cursor.js';
 
 function sample() {
@@ -63,5 +63,49 @@ describe('score JSON', () => {
     expect(s.bars[0].beats[2].tuplet).toBe(3);
     expect(s.bars[0].beats[2].cells[1].notes).toEqual([]);
     expect(s.timeSigNum).toBe(4);
+  });
+});
+
+describe('score JSON v2', () => {
+  it('round-trips nested cells, per-bar signatures and bar marks', async () => {
+    const { splitCell, setTimeSig, addBar, toggleSimile, toggleRepeatStart, toggleRepeatEnd } = await import('../src/core/edit.js');
+    let s = sample();
+    s = splitCell(subdivide(s, cursor(0, 2, 0), NoteValue.EIGHTH, null), cursor(0, 2, 1), NoteValue.SIXTEENTH, null);
+    s = placeNote(s, cursor(0, 2, 1, 1), note('snare'));
+    s = addBar(addBar(s));
+    s = setTimeSig(s, 1, [3, 4]);
+    s = toggleSimile(s, 2);
+    s = toggleRepeatEnd(toggleRepeatStart(s, 0), 2);
+    s = { ...s, updatedAt: 2 };
+    expect(decode(encode(s))).toEqual(s);
+  });
+  it('writes a nested cell as an object with division and cells', () => {
+    const j = {
+      schema_version: 2, title: 'n', bars: [{ beats: [
+        { division: 'eighth', cells: [['kick'], { division: 'sixteenth', cells: [['snare'], ['snare']] }] },
+        { division: 'quarter', cells: [[]] }, { division: 'quarter', cells: [[]] }, { division: 'quarter', cells: [[]] },
+      ] }],
+    };
+    const s = decode(JSON.stringify(j));
+    expect(s.bars[0].beats[0].cells[1].cells.length).toBe(2);
+    expect(JSON.parse(encode(s)).bars[0].beats[0].cells[1]).toEqual({ division: 'sixteenth', cells: [['snare'], ['snare']] });
+  });
+  it('rejects a nested group whose cell count does not fit its division', () => {
+    const j = { schema_version: 2, bars: [{ beats: [
+      { division: 'eighth', cells: [[], { division: 'sixteenth', cells: [[], [], []] }] },
+      { division: 'quarter', cells: [[]] }, { division: 'quarter', cells: [[]] }, { division: 'quarter', cells: [[]] },
+    ] }] };
+    expect(() => decode(JSON.stringify(j))).toThrow(/2/);
+  });
+  it('checks beat counts against the bar signature', () => {
+    const j = { schema_version: 2, bars: [{ timeSig: [3, 4], beats: [
+      { division: 'quarter', cells: [[]] }, { division: 'quarter', cells: [[]] },
+    ] }] };
+    expect(() => decode(JSON.stringify(j))).toThrow(/3/);
+  });
+  it('still reads version 1 files', () => {
+    const j = JSON.parse(encode(sample()));
+    j.schema_version = 1;
+    expect(decode(JSON.stringify(j)).bars[0].beats[0].cells.length).toBe(4);
   });
 });

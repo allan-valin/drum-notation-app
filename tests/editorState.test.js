@@ -2,12 +2,12 @@ import { describe, it, expect } from 'vitest';
 import { initialState, reduce } from '../src/core/editorState.js';
 import { newScore, Articulation, Sticking } from '../src/core/score.js';
 import { NoteValue } from '../src/core/noteValue.js';
-import { cursor, beatAt } from '../src/core/cursor.js';
+import { cursor, beatAt, leafAt } from '../src/core/cursor.js';
 
 const snarePos = 4;
 const kickPos = -2;
 const start = () => initialState(newScore({ id: 'a', title: 't' }));
-const notes = (st) => beatAt(st.score, st.cursor).cells[st.cursor.cell].notes;
+const notes = (st) => leafAt(st.score, st.cursor).notes;
 const run = (st, ...actions) => actions.reduce((s, a) => reduce(s, a), st);
 
 describe('editor state', () => {
@@ -96,5 +96,47 @@ describe('editor state', () => {
     expect(st.tool.value).toBe(NoteValue.QUARTER);
     st = reduce(st, { type: 'goTo', cursor: cursor(0, 1, 1) });
     expect(st.tool.value).toBe(NoteValue.EIGHTH);
+  });
+});
+
+describe('editor state, round 1 feedback', () => {
+  it('starts in Tempo mode', () => {
+    expect(start().tool.splitMode).toBe('beat');
+  });
+  it('in Célula mode a value splits only the focused cell', () => {
+    let st = run(start(), { type: 'selectValue', value: NoteValue.EIGHTH }, { type: 'next' }, { type: 'setSplitMode', mode: 'cell' });
+    st = reduce(st, { type: 'selectValue', value: NoteValue.SIXTEENTH });
+    const b = beatAt(st.score, st.cursor);
+    expect(b.division).toBe(NoteValue.EIGHTH);
+    expect(b.cells[1].cells.length).toBe(2);
+    expect(st.cursor).toEqual(cursor(0, 0, 1, 0));
+    expect(st.tool.value).toBe(NoteValue.SIXTEENTH);
+  });
+  it('in Célula mode a value that is not shorter is refused and says so', () => {
+    const st = run(start(), { type: 'selectValue', value: NoteValue.EIGHTH }, { type: 'setSplitMode', mode: 'cell' });
+    const after = reduce(st, { type: 'selectValue', value: NoteValue.EIGHTH });
+    expect(after.score).toBe(st.score);
+    expect(after.refused).toBe('notShorter');
+  });
+  it('tapping another cell selects it and places the note there', () => {
+    const st = run(start(), { type: 'tapAt', beat: 2, path: [0], staffPosition: snarePos });
+    expect(st.cursor).toEqual(cursor(0, 2, 0));
+    expect(notes(st).map((n) => n.slotId)).toEqual(['snare']);
+  });
+  it('a time signature on the current bar reshapes it', () => {
+    const st = run(start(), { type: 'setTimeSig', sig: [3, 4] });
+    expect(st.score.bars[0].beats.length).toBe(3);
+  });
+  it('simile, repeat start and repeat end toggle on the current bar', () => {
+    let st = run(start(), { type: 'addBar' }, { type: 'toggleSimile' }, { type: 'toggleRepeatEnd' });
+    expect(st.score.bars[1]).toMatchObject({ simile: true, repeatEnd: true });
+    st = run(st, { type: 'goTo', cursor: cursor(0, 0, 0) }, { type: 'toggleRepeatStart' });
+    expect(st.score.bars[0].repeatStart).toBe(true);
+  });
+  it('merge undoes a cell split', () => {
+    let st = run(start(), { type: 'selectValue', value: NoteValue.EIGHTH }, { type: 'next' }, { type: 'setSplitMode', mode: 'cell' }, { type: 'selectValue', value: NoteValue.SIXTEENTH });
+    st = reduce(st, { type: 'merge' });
+    expect(beatAt(st.score, st.cursor).cells[1].cells).toBeUndefined();
+    expect(st.cursor).toEqual(cursor(0, 0, 1));
   });
 });

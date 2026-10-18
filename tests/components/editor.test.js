@@ -49,14 +49,14 @@ describe('Editor', () => {
     expect(store.load('a').bars[0].beats[0].cells[0].notes[0].slotId).toBe('snare');
   });
 
-  it('refuses a tap outside the focused beat and says why', async () => {
+  it('a tap on another beat selects it and places the note there', async () => {
     const store = createStore(memoryStorage());
     store.save(newScore({ id: 'a', title: 'T' }));
     const { container } = render(Editor, { store, id: 'a', onBack: () => {}, onPrint: () => {} });
     const sp = spOf(container);
-    await tapAt(container, 5.5 * sp + (300 - 6 * sp) * 0.95, yOf(4, sp)); // far right = last beat, not focused
-    expect(heads(container).length).toBe(0);
-    expect(container.querySelector('.status').textContent).toContain('não está em foco');
+    await tapAt(container, 5.5 * sp + (300 - 6 * sp) * 0.95, yOf(4, sp)); // far right = last beat
+    expect(store.load('a').bars[0].beats[3].cells[0].notes[0].slotId).toBe('snare');
+    expect(container.querySelector('.where').textContent).toContain('4');
   });
 
   it('selecting a value subdivides, › walks the cells, delete toggle removes', async () => {

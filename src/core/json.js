@@ -1,9 +1,10 @@
-import { newScore, note, cell, beat, bar } from './score.js';
+import { newScore, note, leaf, group, bar } from './score.js';
+import { isGroup } from './tree.js';
 import { noteValueById, cellsPerBeat } from './noteValue.js';
 import { profileById } from './profile.js';
 
 /** Bump when the shape changes. docs/SCORE_IMPORT_PROMPT.md targets this schema. */
-export const SCHEMA_VERSION = 1;
+export const SCHEMA_VERSION = 2;
 
 export function encode(score) {
   return JSON.stringify(
@@ -18,16 +19,24 @@ export function encode(score) {
       createdAt: score.createdAt,
       updatedAt: score.updatedAt,
       bars: score.bars.map((b) => ({
-        beats: b.beats.map((bt) => ({
-          division: bt.division.id,
-          ...(bt.tuplet ? { tuplet: bt.tuplet } : {}),
-          cells: bt.cells.map((c) => c.notes.map(encodeNote)),
-        })),
+        ...(b.timeSig ? { timeSig: b.timeSig } : {}),
+        ...(b.simile ? { simile: true } : {}),
+        ...(b.repeatStart ? { repeatStart: true } : {}),
+        ...(b.repeatEnd ? { repeatEnd: true } : {}),
+        beats: b.beats.map(encodeGroup),
       })),
     },
     null,
     2,
   );
+}
+
+function encodeGroup(g) {
+  return {
+    division: g.division.id,
+    ...(g.tuplet ? { tuplet: g.tuplet } : {}),
+    cells: g.cells.map((c) => (isGroup(c) ? encodeGroup(c) : c.notes.map(encodeNote))),
+  };
 }
 
 function encodeNote(n) {
@@ -57,28 +66,23 @@ export function decode(text) {
   const timeSigDen = int(j.timeSigDen ?? 4, 'timeSigDen');
   if (!Array.isArray(j.bars) || j.bars.length === 0) throw new Error('bars precisa ser uma lista com pelo menos um compasso');
 
+  let sig = [timeSigNum, timeSigDen];
   const bars = j.bars.map((b, bi) => {
-    const beats = b.beats ?? b;
+    const beats = Array.isArray(b) ? b : b.beats;
     if (!Array.isArray(beats)) throw new Error(`compasso ${bi + 1}: beats precisa ser uma lista`);
+    const timeSig = Array.isArray(b.timeSig) ? [int(b.timeSig[0], `compasso ${bi + 1}: timeSig`), int(b.timeSig[1], `compasso ${bi + 1}: timeSig`)] : null;
+    if (timeSig) sig = timeSig;
+    if (beats.length !== sig[0]) {
+      throw new Error(`compasso ${bi + 1}: ${sig[0]}/${sig[1]} precisa de ${sig[0]} tempos, veio ${beats.length}`);
+    }
     return bar(
       beats.map((bt, ti) => {
         const where = `compasso ${bi + 1}, tempo ${ti + 1}`;
         const division = noteValueById(bt.division ?? 'quarter');
         const tuplet = bt.tuplet ? int(bt.tuplet, `${where}: tuplet`) : null;
-        const expected = cellsPerBeat(division, timeSigDen, tuplet);
-        if (!Array.isArray(bt.cells)) throw new Error(`${where}: cells precisa ser uma lista`);
-        if (bt.cells.length !== expected) {
-          throw new Error(`${where}: ${division.id}${tuplet ? ` (quiáltera ${tuplet})` : ''} precisa de ${expected} cells, veio ${bt.cells.length}`);
-        }
-        return beat(
-          division,
-          tuplet,
-          bt.cells.map((c, ci) => {
-            const notes = Array.isArray(c) ? c : (c?.notes ?? []);
-            return cell(notes.map((n) => decodeNote(n, staff, `${where}, célula ${ci + 1}`)));
-          }),
-        );
+        return decodeGroup(bt, cellsPerBeat(division, sig[1], tuplet), staff, where);
       }),
+      { timeSig, simile: b.simile === true && bi > 0, repeatStart: b.repeatStart === true, repeatEnd: b.repeatEnd === true },
     );
   });
 
@@ -93,6 +97,26 @@ export function decode(text) {
     createdAt: typeof j.createdAt === 'number' ? j.createdAt : undefined,
     updatedAt: typeof j.updatedAt === 'number' ? j.updatedAt : undefined,
   });
+}
+
+function decodeGroup(g, expected, staff, where) {
+  const division = noteValueById(g.division ?? 'quarter');
+  const tuplet = g.tuplet ? int(g.tuplet, `${where}: tuplet`) : null;
+  if (!Array.isArray(g.cells)) throw new Error(`${where}: cells precisa ser uma lista`);
+  if (g.cells.length !== expected) {
+    throw new Error(`${where}: ${division.id}${tuplet ? ` (quiáltera ${tuplet})` : ''} precisa de ${expected} cells, veio ${g.cells.length}`);
+  }
+  return group(division, tuplet, g.cells.map((c, ci) => {
+    const here = `${where}.${ci + 1}`;
+    if (c && !Array.isArray(c) && Array.isArray(c.cells)) {
+      const inner = noteValueById(c.division ?? 'sixteenth');
+      const count = c.tuplet ? int(c.tuplet, `${here}: tuplet`) : inner.divisionsPerWhole / division.divisionsPerWhole;
+      if (!Number.isInteger(count) || count < 2) throw new Error(`${here}: ${inner.id} não cabe dentro de ${division.id}`);
+      return decodeGroup(c, count, staff, here);
+    }
+    const notes = Array.isArray(c) ? c : (c?.notes ?? []);
+    return leaf(notes.map((n) => decodeNote(n, staff, here)));
+  }));
 }
 
 function decodeNote(n, staff, where) {

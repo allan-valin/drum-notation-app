@@ -3,6 +3,7 @@
   import ScoreSvg from './ScoreSvg.svelte';
   import { profileById } from '../core/profile.js';
   import { paginate } from '../core/pagination.js';
+  import { barTimeSig, showsTimeSig } from '../core/score.js';
   import { normaliseColours } from '../core/colours.js';
   import { t } from '../app/prefs.svelte.js';
 
@@ -28,13 +29,13 @@
     <section class="page">
       {#if pi === 0}
         <h1>{score.title || t('app.untitled')}</h1>
-        <p class="meta">{score.timeSigNum}/{score.timeSigDen} · ♩ = {score.defaultBpm}</p>
+        <p class="meta">{barTimeSig(score, 0).join('/')} · ♩ = {score.defaultBpm}</p>
       {/if}
       {#each page as line}
         <div class="line">
           {#each line as bi, k}
             <div class="bar" style="flex: {k === 0 ? 1.25 : 1}">
-              <ScoreSvg bar={score.bars[bi]} {staff} width={k === 0 ? LINE * 1.25 / line.length : LINE / line.length} staffSpacing={9} showClef={k === 0} timeSig={bi === 0 ? [score.timeSigNum, score.timeSigDen] : null} {colours} fixedRange={[8, 10]} />
+              <ScoreSvg bar={score.bars[bi]} {staff} width={k === 0 ? LINE * 1.25 / line.length : LINE / line.length} staffSpacing={9} showClef={k === 0} timeSig={showsTimeSig(score, bi) ? barTimeSig(score, bi) : null} {colours} fixedRange={[8, 10]} />
             </div>
           {/each}
         </div>

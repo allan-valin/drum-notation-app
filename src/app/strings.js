@@ -17,6 +17,11 @@ export function format(s, params = {}) {
 
 export const STRINGS = {
   pt: {
+    refused: {
+      notShorter: 'Escolha uma figura menor que a da célula para dividi-la (ou use o modo Tempo)',
+      nothingToMerge: 'Esta célula não está dividida', lastBar: 'A partitura precisa de pelo menos um compasso',
+      simileFirstBar: 'O primeiro compasso não tem um anterior para repetir', simileBar: 'Este compasso repete o anterior (%). Desligue o % para escrever nele.',
+    },
     app: { title: 'Partitura de bateria', untitled: 'Sem título' },
     lang: { pt: 'PT', en: 'EN', de: 'DE', choose: 'Idioma' },
     theme: { light: 'Tema claro', dark: 'Tema escuro', toggle: 'Alternar tema claro/escuro' },
@@ -84,6 +89,11 @@ export const STRINGS = {
   },
 
   en: {
+    refused: {
+      notShorter: 'Pick a value shorter than the cell to split it (or use Beat mode)',
+      nothingToMerge: 'This cell is not split', lastBar: 'A score needs at least one bar',
+      simileFirstBar: 'The first bar has no previous bar to repeat', simileBar: 'This bar repeats the previous one (%). Turn % off to write in it.',
+    },
     app: { title: 'Drum notation', untitled: 'Untitled' },
     lang: { pt: 'PT', en: 'EN', de: 'DE', choose: 'Language' },
     theme: { light: 'Light theme', dark: 'Dark theme', toggle: 'Switch light/dark theme' },
@@ -151,6 +161,11 @@ export const STRINGS = {
   },
 
   de: {
+    refused: {
+      notShorter: 'Einen kürzeren Notenwert als die Zelle wählen, um sie zu teilen (oder Schlag-Modus nutzen)',
+      nothingToMerge: 'Diese Zelle ist nicht geteilt', lastBar: 'Eine Partitur braucht mindestens einen Takt',
+      simileFirstBar: 'Der erste Takt hat keinen vorherigen zum Wiederholen', simileBar: 'Dieser Takt wiederholt den vorherigen (%). % ausschalten, um hineinzuschreiben.',
+    },
     app: { title: 'Schlagzeugnoten', untitled: 'Ohne Titel' },
     lang: { pt: 'PT', en: 'EN', de: 'DE', choose: 'Sprache' },
     theme: { light: 'Helles Design', dark: 'Dunkles Design', toggle: 'Hell/Dunkel umschalten' },
