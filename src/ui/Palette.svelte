@@ -8,6 +8,7 @@
   let { tool, onAction, canUndo = false, canMerge = false, onLegend = () => {}, onHelp = () => {} } = $props();
   const HEADS = [Notehead.CROSS, Notehead.DIAMOND, Notehead.TRIANGLE, Notehead.CIRCLE_X, Notehead.SLASHED];
   const MARKS = [[Mark.OPEN, Glyphs.OPEN], [Mark.CLOSED, Glyphs.CLOSED], [Mark.HALF_OPEN, Glyphs.HALF_OPEN], [Mark.CHOKE, Glyphs.CHOKE]];
+  const tech = (x) => onAction({ type: 'setTech', tech: x });
   const TUPLETS = [3, 5, 6, 7];
 </script>
 
@@ -59,6 +60,16 @@
     </div>
   </section>
 
+  <div class="symbols">
+  <section>
+    <h3>{t('tech.tapDoes')}</h3>
+    <div class="mode" role="radiogroup" aria-label={t('tech.tapDoes')}>
+      <button role="radio" aria-checked={tool.withNote} class:on={tool.withNote} onclick={() => onAction({ type: 'setWithNote', on: true })}>{t('tech.withNote')}</button>
+      <button role="radio" aria-checked={!tool.withNote} class:on={!tool.withNote} onclick={() => onAction({ type: 'setWithNote', on: false })}>{t('tech.symbolOnly')}</button>
+    </div>
+    <p class="hint">{tool.withNote ? t('tech.withNoteHint') : t('tech.symbolOnlyHint')}</p>
+  </section>
+
   <section>
     <h3>{t('palette.articulation')}</h3>
     <div class="grid">
@@ -107,25 +118,25 @@
     <h3>{t('tech.technique')}</h3>
     <div class="grid">
       {#each MARKS as [m, g]}
-        <button class:on={tool.mark === m} aria-label={t(`tech.${m}`)} onclick={() => onAction({ type: 'setMark', mark: m })}>
+        <button class:on={tool.tech === m} aria-label={t(`tech.${m}`)} onclick={() => tech(m)}>
           <span class="smufl glyph mark">{g}</span><span class="label">{t(`tech.${m}`)}</span>
         </button>
       {/each}
-      <button class:on={tool.roll === Roll.BUZZ} aria-label={t('tech.buzz')} onclick={() => onAction({ type: 'setRoll', roll: Roll.BUZZ })}>
+      <button class:on={tool.tech === Roll.BUZZ} aria-label={t('tech.buzz')} onclick={() => tech(Roll.BUZZ)}>
         <span class="smufl glyph mark">{Glyphs.BUZZ}</span><span class="label">{t('tech.buzz')}</span>
       </button>
-      <button class:on={tool.roll === Roll.TREMOLO} aria-label={t('tech.tremolo')} onclick={() => onAction({ type: 'setRoll', roll: Roll.TREMOLO })}>
+      <button class:on={tool.tech === Roll.TREMOLO} aria-label={t('tech.tremolo')} onclick={() => tech(Roll.TREMOLO)}>
         <span class="smufl glyph small">{Glyphs.TREMOLO3}</span><span class="label">{t('tech.tremolo')}</span>
       </button>
-      <button class:on={tool.grace === Grace.FLAM} aria-label={t('tech.flam')} onclick={() => onAction({ type: 'setGrace', grace: Grace.FLAM })}>
+      <button class:on={tool.tech === Grace.FLAM} aria-label={t('tech.flam')} onclick={() => tech(Grace.FLAM)}>
         <span class="smufl glyph small">{Glyphs.GRACE_SLASH}{Glyphs.notehead(Notehead.NORMAL, NoteValue.QUARTER)}</span><span class="label">{t('tech.flam')}</span>
       </button>
-      <button class:on={tool.grace === Grace.DRAG} aria-label={t('tech.drag')} onclick={() => onAction({ type: 'setGrace', grace: Grace.DRAG })}>
+      <button class:on={tool.tech === Grace.DRAG} aria-label={t('tech.drag')} onclick={() => tech(Grace.DRAG)}>
         <span class="smufl glyph small">{Glyphs.GRACE}{Glyphs.GRACE}{Glyphs.notehead(Notehead.NORMAL, NoteValue.QUARTER)}</span><span class="label">{t('tech.drag')}</span>
       </button>
     </div>
   </section>
-
+  </div>
 </div>
 
 <style>
@@ -136,6 +147,8 @@
   .small-text { font-size: 18px; height: auto; }
   .glyph.mark { font-size: 36px; align-items: center; padding-top: 14px; }
   .glyph.head { font-size: 44px; align-items: center; height: 30px; }
+  .symbols { display: flex; flex-direction: column; gap: 8px; border-left: 3px solid var(--accent); padding-left: 6px; margin-left: -2px; }
+  .mode button + button { border-left: 1px solid var(--line); }
   .mode { display: grid; grid-template-columns: 1fr 1fr; border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; margin-bottom: 3px; }
   .mode button { min-height: 36px; border: none; border-radius: 0; flex-direction: row; justify-content: center; font-size: 14px; font-weight: 600; }
   .hint { margin: 0 0 5px; font-size: 11px; color: var(--muted); line-height: 1.25; }

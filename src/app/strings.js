@@ -28,6 +28,7 @@ export const STRINGS = {
       editLocked: 'Tocando: pare para editar',
     },
     tech: {
+      tapDoes: 'Ao tocar na pauta', withNote: 'Nota + símbolo', symbolOnly: 'Só símbolo', withNoteHint: 'Cada toque escreve uma nota com os símbolos escolhidos abaixo', symbolOnlyHint: 'Cada toque põe (ou tira) os símbolos escolhidos na nota que já está ali',
       head: 'Cabeça', technique: 'Técnica', headDefault: 'Padrão', headDefaultHint: 'A cabeça normal do instrumento',
       cross: 'X', diamond: 'Losango', triangle: 'Triângulo', circleX: 'X no círculo', slashed: 'Cortada',
       open: 'Aberto', closed: 'Fechado', halfOpen: 'Meio aberto', choke: 'Abafar',
@@ -61,13 +62,13 @@ export const STRINGS = {
     help: {
       open: 'Ajuda', title: 'Como usar', close: 'Fechar',
       s1t: '1. Escrever um compasso',
-      s1: 'Escolha a figura em "Figura" (por exemplo Colcheia): o tempo em foco se divide. Toque na pauta na altura do instrumento (os nomes aparecem em cinza no tempo em foco). Tocar em outra altura na mesma célula soma uma nota ao mesmo tempo, como bumbo + chimbal. Avance com › ou toque em outro tempo.',
+      s1: 'Escolha a figura em "Figura" (por exemplo Colcheia): o tempo em foco se divide. Toque numa célula para selecioná-la; toque de novo na altura do instrumento para escrever (os nomes aparecem em cinza no tempo em foco). Tocar em outra altura na mesma célula soma uma nota ao mesmo tempo, como bumbo + chimbal. Avance com › ou toque em outro tempo.',
       s1e: 'Exemplo: rock básico, colcheias no chimbal, caixa nos tempos 2 e 4.',
       s2t: '2. Tempo ou Célula',
       s2: 'Em "Tempo", a figura divide o tempo inteiro. Em "Célula", divide só a célula selecionada: com o tempo em colcheias, selecione a segunda colcheia e escolha Semicolcheia para ter colcheia + duas semicolcheias. "Juntar" desfaz.',
       s2e: 'Exemplo: colcheia + duas semicolcheias, e uma quiáltera.',
       s3t: '3. Acentos, mãos, cabeças e técnicas',
-      s3: 'Acento, Fantasma, R/L, Cabeça e Técnica valem para as próximas notas que você tocar, até desligar. Tocar de novo na mesma altura troca a nota existente.',
+      s3: 'Em "Ao tocar na pauta": com "Nota + símbolo", cada toque escreve uma nota com o Acento, Fantasma, Mão, Cabeça e Técnica escolhidos. Com "Só símbolo", o toque põe esses símbolos na nota que já está naquela altura, sem nota nova; tocar de novo tira. Técnica é uma de cada vez.',
       s3e: 'Exemplo: chimbal aberto e fechado, cúpula do ride, flam e buzz na caixa.',
       s4t: '4. Apagar e desfazer',
       s4: '"Apagar" fica ligado: cada toque remove a nota naquela altura. "Pausa" esvazia a célula. "Desfazer" volta um passo.',
@@ -92,6 +93,7 @@ export const STRINGS = {
       continue: 'Continuar: {title}', or: 'ou escolha uma partitura',
     },
     refused: {
+      noNoteThere: 'Não há nota nessa altura para receber o símbolo', nothingToApply: 'Escolha antes um símbolo (acento, mão, cabeça ou técnica)',
       sameValue: 'A célula já tem essa figura', wouldLoseNotes: 'Juntar apagaria notas. Apague-as antes (ou use Desfazer depois).', notInThisBeat: 'Essa figura não cabe neste tempo',
       notShorter: 'Escolha uma figura menor que a da célula para dividi-la (ou use o modo Tempo)',
       nothingToMerge: 'Esta célula não está dividida', lastBar: 'A partitura precisa de pelo menos um compasso',
@@ -130,6 +132,7 @@ export const STRINGS = {
       colourReset: 'Padrão', landscapeHint: 'Na horizontal o tempo em foco fica maior.', ok: 'ok', barAria: 'Compasso',
     },
     status: {
+      symbolsAdded: 'Símbolos postos em {pos}: {notes}', symbolsRemoved: 'Símbolos tirados em {pos}: {notes}',
       selected: 'Posição {pos} selecionada. Toque de novo para escrever.', merged2: 'Célula {pos} agora é {value}',
       techOn: 'Próximas notas: {what}', techOff: '{what} desligado', barTextSet: 'Texto do compasso {n}: {text}', barTextCleared: 'Texto do compasso {n} removido',
       splitCell: 'Célula {pos} dividida em {value}', mode: 'Modo: {mode}', merged: 'Célula {pos} juntada',
@@ -183,6 +186,7 @@ export const STRINGS = {
       editLocked: 'Playing: stop to edit',
     },
     tech: {
+      tapDoes: 'Tapping the staff', withNote: 'Note + symbol', symbolOnly: 'Symbol only', withNoteHint: 'Each tap writes a note carrying the symbols chosen below', symbolOnlyHint: 'Each tap puts (or takes) the chosen symbols on the note already there',
       head: 'Notehead', technique: 'Technique', headDefault: 'Default', headDefaultHint: 'The instrument\'s normal head',
       cross: 'X', diamond: 'Diamond', triangle: 'Triangle', circleX: 'Circled X', slashed: 'Slashed',
       open: 'Open', closed: 'Closed', halfOpen: 'Half open', choke: 'Choke',
@@ -222,7 +226,7 @@ export const STRINGS = {
       s2: 'In "Beat" mode a value splits the whole beat. In "Cell" mode it splits only the selected cell: with the beat in eighths, select the second eighth and pick Sixteenth to get an eighth + two sixteenths. "Merge" undoes it.',
       s2e: 'Example: eighth + two sixteenths, and a triplet.',
       s3t: '3. Accents, hands, heads and techniques',
-      s3: 'Accent, Ghost, R/L, Notehead and Technique apply to the next notes you tap, until you switch them off. Tapping the same height again replaces the note there.',
+      s3: 'Under "Tapping the staff": with "Note + symbol" each tap writes a note carrying the chosen Accent, Ghost, Hand, Notehead and Technique. With "Symbol only" a tap puts those symbols on the note already at that height, no new note; tapping again takes them off. One technique at a time.',
       s3e: 'Example: open and closed hi-hat, ride bell, flam and buzz on the snare.',
       s4t: '4. Delete and undo',
       s4: '"Delete" stays on: each tap removes the note at that height. "Rest" empties the cell. "Undo" goes back one step.',
@@ -247,6 +251,7 @@ export const STRINGS = {
       continue: 'Continue: {title}', or: 'or pick a score',
     },
     refused: {
+      noNoteThere: 'There is no note at that height to take the symbol', nothingToApply: 'Choose a symbol first (accent, hand, head or technique)',
       sameValue: 'The cell already has that value', wouldLoseNotes: 'Merging would delete notes. Delete them first (or Undo afterwards).', notInThisBeat: 'That value does not fit this beat',
       notShorter: 'Pick a value shorter than the cell to split it (or use Beat mode)',
       nothingToMerge: 'This cell is not split', lastBar: 'A score needs at least one bar',
@@ -285,6 +290,7 @@ export const STRINGS = {
       colourReset: 'Default', landscapeHint: 'Turn the phone sideways for a bigger beat.', ok: 'ok', barAria: 'Bar',
     },
     status: {
+      symbolsAdded: 'Symbols added at {pos}: {notes}', symbolsRemoved: 'Symbols removed at {pos}: {notes}',
       selected: 'Position {pos} selected. Tap again to write.', merged2: 'Cell {pos} is now {value}',
       techOn: 'Next notes: {what}', techOff: '{what} off', barTextSet: 'Bar {n} text: {text}', barTextCleared: 'Bar {n} text removed',
       splitCell: 'Cell {pos} split into {value}', mode: 'Mode: {mode}', merged: 'Cell {pos} merged',
@@ -338,6 +344,7 @@ export const STRINGS = {
       editLocked: 'Wiedergabe läuft: zum Bearbeiten stoppen',
     },
     tech: {
+      tapDoes: 'Tippen ins System', withNote: 'Note + Zeichen', symbolOnly: 'Nur Zeichen', withNoteHint: 'Jedes Tippen schreibt eine Note mit den unten gewählten Zeichen', symbolOnlyHint: 'Jedes Tippen setzt (oder entfernt) die gewählten Zeichen an der Note, die schon dort steht',
       head: 'Notenkopf', technique: 'Technik', headDefault: 'Standard', headDefaultHint: 'Der normale Kopf des Instruments',
       cross: 'X', diamond: 'Raute', triangle: 'Dreieck', circleX: 'X im Kreis', slashed: 'Durchgestrichen',
       open: 'Offen', closed: 'Geschlossen', halfOpen: 'Halboffen', choke: 'Abstoppen',
@@ -377,7 +384,7 @@ export const STRINGS = {
       s2: 'Im Modus "Schlag" teilt der Wert den ganzen Schlag. Im Modus "Zelle" nur die gewählte Zelle: Schlag in Achteln, zweite Achtel wählen, dann Sechzehntel: Achtel + zwei Sechzehntel. "Verbinden" macht es rückgängig.',
       s2e: 'Beispiel: Achtel + zwei Sechzehntel und eine Triole.',
       s3t: '3. Akzente, Hände, Köpfe und Techniken',
-      s3: 'Akzent, Ghost, R/L, Notenkopf und Technik gelten für die nächsten getippten Noten, bis man sie ausschaltet. Erneutes Tippen auf dieselbe Höhe ersetzt die Note dort.',
+      s3: 'Unter "Tippen ins System": mit "Note + Zeichen" schreibt jedes Tippen eine Note mit gewähltem Akzent, Ghost, Hand, Notenkopf und Technik. Mit "Nur Zeichen" setzt ein Tippen diese Zeichen an die Note auf dieser Höhe, ohne neue Note; nochmal tippen entfernt sie. Eine Technik auf einmal.',
       s3e: 'Beispiel: offene und geschlossene Hi-Hat, Ride-Glocke, Flam und Buzz auf der Snare.',
       s4t: '4. Löschen und rückgängig',
       s4: '"Löschen" bleibt an: jedes Tippen entfernt die Note auf dieser Höhe. "Pause" leert die Zelle. "Rückgängig" geht einen Schritt zurück.',
@@ -402,6 +409,7 @@ export const STRINGS = {
       continue: 'Weiter: {title}', or: 'oder eine Partitur wählen',
     },
     refused: {
+      noNoteThere: 'Auf dieser Höhe steht keine Note für das Zeichen', nothingToApply: 'Erst ein Zeichen wählen (Akzent, Hand, Kopf oder Technik)',
       sameValue: 'Die Zelle hat diesen Wert schon', wouldLoseNotes: 'Verbinden würde Noten löschen. Erst löschen (oder danach Rückgängig).', notInThisBeat: 'Dieser Wert passt nicht in diesen Schlag',
       notShorter: 'Einen kürzeren Notenwert als die Zelle wählen, um sie zu teilen (oder Schlag-Modus nutzen)',
       nothingToMerge: 'Diese Zelle ist nicht geteilt', lastBar: 'Eine Partitur braucht mindestens einen Takt',
@@ -440,6 +448,7 @@ export const STRINGS = {
       colourReset: 'Standard', landscapeHint: 'Im Querformat wird der Schlag größer.', ok: 'ok', barAria: 'Takt',
     },
     status: {
+      symbolsAdded: 'Zeichen gesetzt bei {pos}: {notes}', symbolsRemoved: 'Zeichen entfernt bei {pos}: {notes}',
       selected: 'Position {pos} gewählt. Nochmals tippen zum Schreiben.', merged2: 'Zelle {pos} ist jetzt {value}',
       techOn: 'Nächste Noten: {what}', techOff: '{what} aus', barTextSet: 'Text von Takt {n}: {text}', barTextCleared: 'Text von Takt {n} entfernt',
       splitCell: 'Zelle {pos} in {value} geteilt', mode: 'Modus: {mode}', merged: 'Zelle {pos} verbunden',

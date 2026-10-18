@@ -189,3 +189,20 @@ describe('play mode', () => {
     delete window.AudioContext;
   });
 });
+
+describe('symbol only, in the page', () => {
+  it('adds an accent to an existing note without writing a new one', async () => {
+    const store = createStore(memoryStorage());
+    store.save(newScore({ id: 'a', title: 'T' }));
+    const { container, getByLabelText, getByRole } = render(Editor, { store, id: 'a', onBack: () => {}, onPrint: () => {} });
+    const sp = spOf(container);
+    await tapAt(container, 5.5 * sp + 20, yOf(4, sp));
+    await fireEvent.click(getByRole('radio', { name: 'Só símbolo' }));
+    await fireEvent.click(getByLabelText('Acento'));
+    await tapAt(container, 5.5 * sp + 20, yOf(4, sp));
+    const notes = store.load('a').bars[0].beats[0].cells[0].notes;
+    expect(notes.length).toBe(1);
+    expect(notes[0].articulations).toEqual(['accent']);
+    expect(container.querySelector('.status').textContent).toContain('Símbolos postos');
+  });
+});

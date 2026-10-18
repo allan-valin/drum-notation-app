@@ -61,6 +61,7 @@
     switch (a.type) {
       case 'tap': case 'tapAt':
         if (after.selectedOnly) return t('status.selected', { pos: p });
+        if (after.symbolsRemoved !== undefined) return t(after.symbolsRemoved ? 'status.symbolsRemoved' : 'status.symbolsAdded', { pos: p, notes });
         if (after.score === before.score) return t('status.nothingToDelete', { pos: p });
         return before.tool.delete ? t('status.deleted', { pos: p, notes }) : t('status.placed', { pos: p, notes });
       case 'selectValue': case 'selectTuplet':
@@ -91,9 +92,8 @@
       case 'toggleRepeatEnd': return b.repeatEnd ? t('status.repeatEndOn', { n }) : t('status.repeatEndOff', { n });
       case 'undo': return after.score === before.score ? t('status.nothingToUndo') : t('status.undone');
       case 'setHead': return after.tool.head ? t('status.techOn', { what: t(`tech.${after.tool.head}`) }) : t('status.techOff', { what: t(`tech.${before.tool.head}`) });
-      case 'setMark': return after.tool.mark ? t('status.techOn', { what: t(`tech.${after.tool.mark}`) }) : t('status.techOff', { what: t(`tech.${before.tool.mark}`) });
-      case 'setRoll': return after.tool.roll ? t('status.techOn', { what: t(`tech.${after.tool.roll}`) }) : t('status.techOff', { what: t(`tech.${before.tool.roll}`) });
-      case 'setGrace': return after.tool.grace ? t('status.techOn', { what: t(`tech.${after.tool.grace}`) }) : t('status.techOff', { what: t(`tech.${before.tool.grace}`) });
+      case 'setTech': return after.tool.tech ? t('status.techOn', { what: t(`tech.${after.tool.tech}`) }) : t('status.techOff', { what: t(`tech.${before.tool.tech}`) });
+      case 'setWithNote': return after.tool.withNote ? t('tech.withNoteHint') : t('tech.symbolOnlyHint');
       case 'setBarText': return b.text ? t('status.barTextSet', { n, text: b.text }) : t('status.barTextCleared', { n });
       case 'setTitle': return t('status.titleSet');
       case 'setBpm': return t('status.bpmSet', { bpm: after.score.defaultBpm });

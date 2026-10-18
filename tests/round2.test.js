@@ -73,3 +73,56 @@ describe('tap rules', () => {
     expect(leafPaths(st.score.bars[0].beats[0]).length).toBe(3);
   });
 });
+
+import { Mark, Roll, Grace, Articulation, Sticking } from '../src/core/score.js';
+import { Notehead } from '../src/core/profile.js';
+
+describe('symbol-only mode', () => {
+  const start = () => initialState(s0());
+  const notes = (st) => leafAt(st.score, st.cursor).notes;
+  const run = (st, ...a) => a.reduce(reduce, st);
+  it('starts in note + symbol mode', () => {
+    expect(start().tool.withNote).toBe(true);
+  });
+  it('adds the accent to the note already there, without a new note', () => {
+    const st = run(start(), { type: 'tap', staffPosition: 4 }, { type: 'setWithNote', on: false }, { type: 'toggleAccent' }, { type: 'tap', staffPosition: 4 });
+    expect(notes(st).length).toBe(1);
+    expect(notes(st)[0].articulations).toEqual([Articulation.ACCENT]);
+  });
+  it('a second tap with the same symbol removes it again', () => {
+    const st = run(start(), { type: 'tap', staffPosition: 4 }, { type: 'setWithNote', on: false }, { type: 'toggleAccent' }, { type: 'tap', staffPosition: 4 }, { type: 'tap', staffPosition: 4 });
+    expect(notes(st)[0].articulations).toEqual([]);
+  });
+  it('applies hand, head and technique the same way, and keeps the rest of the note', () => {
+    let st = run(start(), { type: 'tap', staffPosition: 9 }, { type: 'setWithNote', on: false });
+    st = run(st, { type: 'setSticking', sticking: Sticking.L }, { type: 'setHead', head: Notehead.DIAMOND }, { type: 'setTech', tech: Mark.OPEN }, { type: 'tap', staffPosition: 9 });
+    expect(notes(st)[0]).toMatchObject({ slotId: 'hihat', sticking: 'L', head: 'diamond', marks: ['open'] });
+  });
+  it('with no note at that height it does nothing and says so', () => {
+    const st = run(start(), { type: 'setWithNote', on: false }, { type: 'toggleAccent' }, { type: 'tap', staffPosition: 4 });
+    expect(notes(st)).toEqual([]);
+    expect(st.refused).toBe('noNoteThere');
+  });
+  it('with nothing chosen it says so', () => {
+    const st = run(start(), { type: 'tap', staffPosition: 4 }, { type: 'setWithNote', on: false }, { type: 'tap', staffPosition: 4 });
+    expect(st.refused).toBe('nothingToApply');
+  });
+});
+
+describe('one technique at a time', () => {
+  const start = () => initialState(s0());
+  it('choosing a technique replaces the previous one', () => {
+    let st = reduce(start(), { type: 'setTech', tech: Mark.OPEN });
+    st = reduce(st, { type: 'setTech', tech: Roll.BUZZ });
+    expect(st.tool.tech).toBe(Roll.BUZZ);
+    st = reduce(st, { type: 'setTech', tech: Grace.FLAM });
+    expect(st.tool.tech).toBe(Grace.FLAM);
+    expect(reduce(st, { type: 'setTech', tech: Grace.FLAM }).tool.tech).toBe(null);
+  });
+  it('the placed note carries it in the right field', () => {
+    for (const [tech, field, value] of [[Mark.CHOKE, 'marks', [Mark.CHOKE]], [Roll.TREMOLO, 'roll', Roll.TREMOLO], [Grace.DRAG, 'grace', Grace.DRAG]]) {
+      const st = [{ type: 'setTech', tech }, { type: 'tap', staffPosition: 4 }].reduce(reduce, start());
+      expect(leafAt(st.score, st.cursor).notes[0][field]).toEqual(value);
+    }
+  });
+});

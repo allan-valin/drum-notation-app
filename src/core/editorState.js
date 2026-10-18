@@ -1,5 +1,5 @@
 import { NoteValue, NOTE_VALUES } from './noteValue.js';
-import { note, Articulation } from './score.js';
+import { note, Articulation, Mark, Roll, Grace } from './score.js';
 import { cursor as mkCursor, next, prev, leafAt, clamp } from './cursor.js';
 import { parentOf, leafPaths, getAt } from './tree.js';
 import {
@@ -18,7 +18,7 @@ export function initialState(score) {
   const st = {
     score,
     cursor: mkCursor(0, 0, 0),
-    tool: { value: NoteValue.QUARTER, tuplet: null, delete: false, accent: false, ghost: false, sticking: null, splitMode: 'beat', head: null, mark: null, roll: null, grace: null },
+    tool: { value: NoteValue.QUARTER, tuplet: null, delete: false, accent: false, ghost: false, sticking: null, splitMode: 'beat', head: null, tech: null, withNote: true },
     history: [],
     refused: null,
   };
@@ -26,7 +26,7 @@ export function initialState(score) {
 }
 
 export function reduce(state, action) {
-  const st = state.refused || state.selectedOnly ? { ...state, refused: null, selectedOnly: false } : state;
+  const st = state.refused || state.selectedOnly || state.symbolsRemoved !== undefined ? { ...state, refused: null, selectedOnly: false, symbolsRemoved: undefined } : state;
   switch (action.type) {
     case 'tap': return tap(st, action.staffPosition);
     case 'tapAt': {
@@ -56,9 +56,8 @@ export function reduce(state, action) {
     case 'toggleGhost': return tool(st, { ghost: !st.tool.ghost });
     case 'setSticking': return tool(st, { sticking: st.tool.sticking === action.sticking ? null : action.sticking });
     case 'setHead': return tool(st, { head: st.tool.head === action.head ? null : action.head });
-    case 'setMark': return tool(st, { mark: st.tool.mark === action.mark ? null : action.mark });
-    case 'setRoll': return tool(st, { roll: st.tool.roll === action.roll ? null : action.roll });
-    case 'setGrace': return tool(st, { grace: st.tool.grace === action.grace ? null : action.grace });
+    case 'setTech': return tool(st, { tech: st.tool.tech === action.tech ? null : action.tech });
+    case 'setWithNote': return tool(st, { withNote: action.on !== false });
     case 'setBarText': return edit(st, (s) => setBarText(s, st.cursor.bar, action.text));
     case 'addBar': {
       const s = addBar(st.score);
@@ -94,11 +93,55 @@ function tap(st, staffPosition) {
   const slot = slotNearest(staff, staffPosition);
   if (st.score.bars[st.cursor.bar].simile) return { ...st, refused: 'simileBar' };
   if (st.tool.delete) return edit(st, (s) => deleteNote(s, st.cursor, slot.id));
+  const { head, tech, sticking, accent, ghost } = st.tool;
+  const techFields = {
+    marks: Object.values(Mark).includes(tech) ? [tech] : [],
+    roll: Object.values(Roll).includes(tech) ? tech : null,
+    grace: Object.values(Grace).includes(tech) ? tech : null,
+  };
+  if (!st.tool.withNote) return applySymbols(st, slot.id, techFields);
   const articulations = [];
-  if (st.tool.accent) articulations.push(Articulation.ACCENT);
-  if (st.tool.ghost) articulations.push(Articulation.GHOST);
-  const { head, mark, roll, grace, sticking } = st.tool;
-  return edit(st, (s) => placeNote(s, st.cursor, note(slot.id, { articulations, sticking, head, marks: mark ? [mark] : [], roll, grace })));
+  if (accent) articulations.push(Articulation.ACCENT);
+  if (ghost) articulations.push(Articulation.GHOST);
+  return edit(st, (s) => placeNote(s, st.cursor, note(slot.id, { articulations, sticking, head, ...techFields })));
+}
+
+/**
+ * "Só símbolo": add the chosen symbols to the note already at that height, no new note. If the
+ * note already carries all of them, they come off again, so a second tap undoes the first.
+ */
+function applySymbols(st, slotId, techFields) {
+  const { head, tech, sticking, accent, ghost } = st.tool;
+  if (!accent && !ghost && !sticking && !head && !tech) return { ...st, refused: 'nothingToApply' };
+  const existing = leafAt(st.score, st.cursor).notes.find((n) => n.slotId === slotId);
+  if (!existing) return { ...st, refused: 'noNoteThere' };
+  const arts = [accent && Articulation.ACCENT, ghost && Articulation.GHOST].filter(Boolean);
+  const has = arts.every((a) => existing.articulations.includes(a))
+    && (!sticking || existing.sticking === sticking)
+    && (!head || existing.head === head)
+    && (!techFields.marks.length || (existing.marks ?? []).includes(techFields.marks[0]))
+    && (!techFields.roll || existing.roll === techFields.roll)
+    && (!techFields.grace || existing.grace === techFields.grace);
+  const next = has
+    ? {
+      ...existing,
+      articulations: existing.articulations.filter((a) => !arts.includes(a)),
+      sticking: sticking ? null : existing.sticking,
+      head: head ? null : existing.head,
+      marks: techFields.marks.length ? [] : existing.marks,
+      roll: techFields.roll ? null : existing.roll,
+      grace: techFields.grace ? null : existing.grace,
+    }
+    : {
+      ...existing,
+      articulations: [...new Set([...existing.articulations, ...arts])],
+      sticking: sticking ?? existing.sticking,
+      head: head ?? existing.head,
+      marks: techFields.marks.length ? techFields.marks : existing.marks,
+      roll: techFields.roll ?? existing.roll,
+      grace: techFields.grace ?? existing.grace,
+    };
+  return { ...edit(st, (s) => placeNote(s, st.cursor, next)), symbolsRemoved: has };
 }
 
 function split(st, value, tuplet) {

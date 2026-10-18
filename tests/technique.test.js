@@ -75,14 +75,12 @@ describe('JSON and editor state carry techniques', () => {
     const j = { schema_version: 2, timeSigNum: 1, bars: [{ beats: [{ division: 'quarter', cells: [[{ slot: 'snare', head: 'star' }]] }] }] };
     expect(() => decode(JSON.stringify(j))).toThrow(/star/);
   });
-  it('head, mark, roll and grace toggles ride on the next placed note', () => {
+  it('head and technique ride on the next placed note', () => {
     let st = initialState(newScore({ title: 't' }));
     st = reduce(st, { type: 'setHead', head: Notehead.TRIANGLE });
-    st = reduce(st, { type: 'setMark', mark: Mark.OPEN });
-    st = reduce(st, { type: 'setRoll', roll: Roll.BUZZ });
-    st = reduce(st, { type: 'setGrace', grace: Grace.DRAG });
+    st = reduce(st, { type: 'setTech', tech: Mark.OPEN });
     st = reduce(st, { type: 'tap', staffPosition: 9 });
-    expect(leafAt(st.score, st.cursor).notes[0]).toMatchObject({ slotId: 'hihat', head: Notehead.TRIANGLE, marks: [Mark.OPEN], roll: Roll.BUZZ, grace: Grace.DRAG });
+    expect(leafAt(st.score, st.cursor).notes[0]).toMatchObject({ slotId: 'hihat', head: Notehead.TRIANGLE, marks: [Mark.OPEN], roll: null, grace: null });
   });
   it('choosing the same head again clears it back to the slot default', () => {
     let st = initialState(newScore({ title: 't' }));
