@@ -2,14 +2,20 @@
   import { NOTE_VALUES, NoteValue } from '../core/noteValue.js';
   import { Glyphs } from '../core/glyphs.js';
   import { Notehead } from '../core/profile.js';
-  import { Sticking } from '../core/score.js';
+  import { Sticking, Mark, Roll, Grace } from '../core/score.js';
   import { t } from '../app/prefs.svelte.js';
 
-  let { tool, onAction, canUndo = false, canMerge = false } = $props();
+  let { tool, onAction, canUndo = false, canMerge = false, onLegend = () => {}, onHelp = () => {} } = $props();
+  const HEADS = [Notehead.CROSS, Notehead.DIAMOND, Notehead.TRIANGLE, Notehead.CIRCLE_X, Notehead.SLASHED];
+  const MARKS = [[Mark.OPEN, Glyphs.OPEN], [Mark.CLOSED, Glyphs.CLOSED], [Mark.HALF_OPEN, Glyphs.HALF_OPEN], [Mark.CHOKE, Glyphs.CHOKE]];
   const TUPLETS = [3, 5, 6, 7];
 </script>
 
 <div class="palette">
+  <div class="top">
+    <button class="aux" onclick={onLegend} aria-label={t('legend.title')}><span class="glyph text small-text">☰</span><span class="label">{t('legend.open')}</span></button>
+    <button class="aux" onclick={onHelp} aria-label={t('help.title')}><span class="glyph text small-text">?</span><span class="label">{t('help.open')}</span></button>
+  </div>
   <section>
     <h3>{t('palette.figure')}</h3>
     <div class="mode" role="radiogroup" aria-label={t('palette.figure')}>
@@ -70,6 +76,43 @@
   </section>
 
   <section>
+    <h3>{t('tech.head')}</h3>
+    <div class="grid">
+      <button class:on={!tool.head} aria-label={t('tech.headDefault')} title={t('tech.headDefaultHint')} onclick={() => tool.head && onAction({ type: 'setHead', head: tool.head })}>
+        <span class="smufl glyph head">{Glyphs.notehead(Notehead.NORMAL, NoteValue.QUARTER)}</span><span class="label">{t('tech.headDefault')}</span>
+      </button>
+      {#each HEADS as h}
+        <button class:on={tool.head === h} aria-label={t(`tech.${h}`)} onclick={() => onAction({ type: 'setHead', head: h })}>
+          <span class="smufl glyph head">{Glyphs.notehead(h, NoteValue.QUARTER)}</span><span class="label">{t(`tech.${h}`)}</span>
+        </button>
+      {/each}
+    </div>
+  </section>
+
+  <section>
+    <h3>{t('tech.technique')}</h3>
+    <div class="grid">
+      {#each MARKS as [m, g]}
+        <button class:on={tool.mark === m} aria-label={t(`tech.${m}`)} onclick={() => onAction({ type: 'setMark', mark: m })}>
+          <span class="smufl glyph mark">{g}</span><span class="label">{t(`tech.${m}`)}</span>
+        </button>
+      {/each}
+      <button class:on={tool.roll === Roll.BUZZ} aria-label={t('tech.buzz')} onclick={() => onAction({ type: 'setRoll', roll: Roll.BUZZ })}>
+        <span class="smufl glyph mark">{Glyphs.BUZZ}</span><span class="label">{t('tech.buzz')}</span>
+      </button>
+      <button class:on={tool.roll === Roll.TREMOLO} aria-label={t('tech.tremolo')} onclick={() => onAction({ type: 'setRoll', roll: Roll.TREMOLO })}>
+        <span class="smufl glyph small">{Glyphs.TREMOLO3}</span><span class="label">{t('tech.tremolo')}</span>
+      </button>
+      <button class:on={tool.grace === Grace.FLAM} aria-label={t('tech.flam')} onclick={() => onAction({ type: 'setGrace', grace: Grace.FLAM })}>
+        <span class="smufl glyph small">{Glyphs.GRACE_SLASH}{Glyphs.notehead(Notehead.NORMAL, NoteValue.QUARTER)}</span><span class="label">{t('tech.flam')}</span>
+      </button>
+      <button class:on={tool.grace === Grace.DRAG} aria-label={t('tech.drag')} onclick={() => onAction({ type: 'setGrace', grace: Grace.DRAG })}>
+        <span class="smufl glyph small">{Glyphs.GRACE}{Glyphs.GRACE}{Glyphs.notehead(Notehead.NORMAL, NoteValue.QUARTER)}</span><span class="label">{t('tech.drag')}</span>
+      </button>
+    </div>
+  </section>
+
+  <section>
     <h3>{t('palette.edit')}</h3>
     <div class="grid">
       <button class="danger" class:on={tool.delete} aria-label={t('palette.delete')} title={t('palette.deleteHint')} onclick={() => onAction({ type: 'toggleDelete' })}>
@@ -87,6 +130,12 @@
 
 <style>
   .palette { display: flex; flex-direction: column; gap: 8px; }
+  .top { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; }
+  .aux { min-height: 44px; flex-direction: row; gap: 6px; justify-content: center; }
+  .aux .label { font-size: 13px; font-weight: 600; }
+  .small-text { font-size: 18px; height: auto; }
+  .glyph.mark { font-size: 36px; align-items: center; padding-top: 14px; }
+  .glyph.head { font-size: 44px; align-items: center; height: 30px; }
   .mode { display: grid; grid-template-columns: 1fr 1fr; border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; margin-bottom: 3px; }
   .mode button { min-height: 36px; border: none; border-radius: 0; flex-direction: row; justify-content: center; font-size: 14px; font-weight: 600; }
   .hint { margin: 0 0 5px; font-size: 11px; color: var(--muted); line-height: 1.25; }

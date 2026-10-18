@@ -13,6 +13,10 @@ const cp = (hex) => String.fromCodePoint(hex);
 const NOTEHEAD = {
   [Notehead.NORMAL]: { whole: cp(0xe0a2), half: cp(0xe0a3), black: cp(0xe0a4) },
   [Notehead.CROSS]: { whole: cp(0xe0a7), half: cp(0xe0a8), black: cp(0xe0a9) },
+  [Notehead.DIAMOND]: { whole: cp(0xe0d8), half: cp(0xe0d9), black: cp(0xe0db) },
+  [Notehead.TRIANGLE]: { whole: cp(0xe0bb), half: cp(0xe0bc), black: cp(0xe0be) },
+  [Notehead.CIRCLE_X]: { whole: cp(0xe0b1), half: cp(0xe0b2), black: cp(0xe0b3) },
+  [Notehead.SLASHED]: { whole: cp(0xe0d3), half: cp(0xe0d1), black: cp(0xe0cf) },
 };
 
 const REST = {
@@ -39,6 +43,14 @@ export const Glyphs = Object.freeze({
   PP: cp(0xe52b),
   CRESCENDO: cp(0xe53e),
   SIMILE: cp(0xe500),        // repeat1Bar
+  OPEN: cp(0xe5e7),          // brassMuteOpen: open hi-hat
+  CLOSED: cp(0xe5e5),        // brassMuteClosed: closed hi-hat
+  HALF_OPEN: cp(0xe5e6),     // brassMuteHalfClosed
+  CHOKE: cp(0xe805),         // pictChokeCymbal
+  BUZZ: cp(0xe217),          // stemBuzzRoll: z on the stem
+  TREMOLO3: cp(0xe222),      // tremolo3: three strokes
+  GRACE_SLASH: cp(0xe560),   // graceNoteAcciaccaturaStemUp: flam
+  GRACE: cp(0xe562),         // graceNoteAppoggiaturaStemUp: each note of a drag
   REPEAT_LEFT: cp(0xe040),   // repeatLeft  ||:
   REPEAT_RIGHT: cp(0xe041),  // repeatRight :||
 

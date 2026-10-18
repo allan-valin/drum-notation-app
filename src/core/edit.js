@@ -114,6 +114,13 @@ export function toggleSimile(score, index) {
   return mapBar(score, index, (b) => ({ ...b, simile: !b.simile }));
 }
 
+/** Free text above a bar: stick changes and other instructions real scores write in words. */
+export function setBarText(score, index, text) {
+  const clean = String(text ?? '').slice(0, 80);
+  if ((score.bars[index].text ?? '') === clean) return score;
+  return mapBar(score, index, (b) => ({ ...b, text: clean }));
+}
+
 export function toggleRepeatStart(score, index) {
   return mapBar(score, index, (b) => ({ ...b, repeatStart: !b.repeatStart }));
 }

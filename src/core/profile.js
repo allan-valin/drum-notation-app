@@ -1,4 +1,7 @@
-export const Notehead = Object.freeze({ NORMAL: 'normal', CROSS: 'cross' });
+export const Notehead = Object.freeze({
+  NORMAL: 'normal', CROSS: 'cross', DIAMOND: 'diamond', TRIANGLE: 'triangle', CIRCLE_X: 'circleX', SLASHED: 'slashed',
+});
+export const NOTEHEADS = Object.freeze(Object.values(Notehead));
 
 /**
  * One instrument's place on the staff. `staffPosition` counts half-steps from the bottom

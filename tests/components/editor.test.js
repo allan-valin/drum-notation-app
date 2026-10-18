@@ -115,3 +115,36 @@ describe('Editor', () => {
     expect(beat.cells[1].cells.length).toBe(2);
   });
 });
+
+describe('legend and help overlays', () => {
+  it('the legend lists every symbol with its default and alternatives', async () => {
+    const store = createStore(memoryStorage());
+    store.save(newScore({ id: 'a', title: 'T' }));
+    const { getByLabelText, getByRole, queryByRole } = render(Editor, { store, id: 'a', onBack: () => {}, onPrint: () => {} });
+    await fireEvent.click(getByLabelText('Legenda dos símbolos'));
+    const dialog = getByRole('dialog', { name: 'Legenda dos símbolos' });
+    expect(dialog.querySelectorAll('tbody tr').length).toBe(18);
+    expect(dialog.textContent).toContain('Outros autores usam para');
+    await fireEvent.click(getByLabelText('Fechar'));
+    expect(queryByRole('dialog')).toBeNull();
+  });
+  it('help shows its sections with drawn examples', async () => {
+    const store = createStore(memoryStorage());
+    store.save(newScore({ id: 'a', title: 'T' }));
+    const { getByLabelText, getByRole } = render(Editor, { store, id: 'a', onBack: () => {}, onPrint: () => {} });
+    await fireEvent.click(getByLabelText('Como usar'));
+    const dialog = getByRole('dialog', { name: 'Como usar' });
+    expect(dialog.querySelectorAll('section').length).toBe(6);
+    expect(dialog.querySelectorAll('figure svg').length).toBe(3);
+  });
+  it('a technique toggle rides on the next note', async () => {
+    const store = createStore(memoryStorage());
+    store.save(newScore({ id: 'a', title: 'T' }));
+    const { container, getByLabelText } = render(Editor, { store, id: 'a', onBack: () => {}, onPrint: () => {} });
+    await fireEvent.click(getByLabelText('Aberto'));
+    expect(container.querySelector('.status').textContent).toContain('Próximas notas: Aberto');
+    const sp = spOf(container);
+    await tapAt(container, 5.5 * sp + 20, yOf(9, sp));
+    expect(store.load('a').bars[0].beats[0].cells[0].notes[0]).toMatchObject({ slotId: 'hihat', marks: ['open'] });
+  });
+});

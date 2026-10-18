@@ -1,7 +1,8 @@
 import { newScore, note, leaf, group, bar } from './score.js';
 import { isGroup } from './tree.js';
 import { noteValueById, cellsPerBeat } from './noteValue.js';
-import { profileById } from './profile.js';
+import { profileById, NOTEHEADS } from './profile.js';
+import { Mark, Roll, Grace } from './score.js';
 
 /** Bump when the shape changes. docs/SCORE_IMPORT_PROMPT.md targets this schema. */
 export const SCHEMA_VERSION = 2;
@@ -23,6 +24,7 @@ export function encode(score) {
         ...(b.simile ? { simile: true } : {}),
         ...(b.repeatStart ? { repeatStart: true } : {}),
         ...(b.repeatEnd ? { repeatEnd: true } : {}),
+        ...(b.text ? { text: b.text } : {}),
         beats: b.beats.map(encodeGroup),
       })),
     },
@@ -40,11 +42,16 @@ function encodeGroup(g) {
 }
 
 function encodeNote(n) {
-  if (n.articulations.length === 0 && !n.sticking) return n.slotId;
+  const marks = n.marks ?? [];
+  if (n.articulations.length === 0 && !n.sticking && !n.head && marks.length === 0 && !n.roll && !n.grace) return n.slotId;
   return {
     slot: n.slotId,
     ...(n.articulations.length ? { articulations: n.articulations } : {}),
     ...(n.sticking ? { sticking: n.sticking } : {}),
+    ...(n.head ? { head: n.head } : {}),
+    ...(marks.length ? { marks } : {}),
+    ...(n.roll ? { roll: n.roll } : {}),
+    ...(n.grace ? { grace: n.grace } : {}),
   };
 }
 
@@ -82,7 +89,7 @@ export function decode(text) {
         const tuplet = bt.tuplet ? int(bt.tuplet, `${where}: tuplet`) : null;
         return decodeGroup(bt, cellsPerBeat(division, sig[1], tuplet), staff, where);
       }),
-      { timeSig, simile: b.simile === true && bi > 0, repeatStart: b.repeatStart === true, repeatEnd: b.repeatEnd === true },
+      { timeSig, simile: b.simile === true && bi > 0, repeatStart: b.repeatStart === true, repeatEnd: b.repeatEnd === true, text: typeof b.text === 'string' ? b.text.slice(0, 80) : '' },
     );
   });
 
@@ -124,9 +131,20 @@ function decodeNote(n, staff, where) {
   if (!staff.slots.some((s) => s.id === slotId)) {
     throw new Error(`${where}: slot desconhecido "${slotId}" (válidos: ${staff.slots.map((s) => s.id).join(', ')})`);
   }
-  const articulations = typeof n === 'string' ? [] : n.articulations ?? [];
-  const sticking = typeof n === 'string' ? null : n.sticking ?? null;
-  return note(slotId, { articulations, sticking });
+  if (typeof n === 'string') return note(slotId);
+  const oneOf = (v, allowed, name) => {
+    if (v == null) return null;
+    if (!allowed.includes(v)) throw new Error(`${where}: ${name} desconhecido "${v}" (válidos: ${allowed.join(', ')})`);
+    return v;
+  };
+  return note(slotId, {
+    articulations: n.articulations ?? [],
+    sticking: n.sticking ?? null,
+    head: oneOf(n.head, NOTEHEADS, 'head'),
+    marks: (n.marks ?? []).map((m) => oneOf(m, Object.values(Mark), 'mark')),
+    roll: oneOf(n.roll, Object.values(Roll), 'roll'),
+    grace: oneOf(n.grace, Object.values(Grace), 'grace'),
+  });
 }
 
 function int(v, name) {

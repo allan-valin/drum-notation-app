@@ -4,6 +4,8 @@
   import BarRow from './BarRow.svelte';
   import FullScore from './FullScore.svelte';
   import Prefs from './Prefs.svelte';
+  import Legend from './Legend.svelte';
+  import Help from './Help.svelte';
   import { initialState, reduce } from '../core/editorState.js';
   import { profileById } from '../core/profile.js';
   import { DEFAULT_COLOURS, INK, normaliseColours, overridesOnly } from '../core/colours.js';
@@ -23,6 +25,7 @@
   let height = $state(640);
   const landscape = $derived(width >= 640 && width > height);
   let colours = $state(normaliseColours(store.loadSettings().colours));
+  let overlay = $state(null);
   if (!background && loaded) store.saveSettings({ ...store.loadSettings(), lastId: id });
 
   const staff = $derived(profileById(st.score.profileId).staves[0]);
@@ -77,6 +80,11 @@
       case 'toggleRepeatStart': return b.repeatStart ? t('status.repeatStartOn', { n }) : t('status.repeatStartOff', { n });
       case 'toggleRepeatEnd': return b.repeatEnd ? t('status.repeatEndOn', { n }) : t('status.repeatEndOff', { n });
       case 'undo': return after.score === before.score ? t('status.nothingToUndo') : t('status.undone');
+      case 'setHead': return after.tool.head ? t('status.techOn', { what: t(`tech.${after.tool.head}`) }) : t('status.techOff', { what: t(`tech.${before.tool.head}`) });
+      case 'setMark': return after.tool.mark ? t('status.techOn', { what: t(`tech.${after.tool.mark}`) }) : t('status.techOff', { what: t(`tech.${before.tool.mark}`) });
+      case 'setRoll': return after.tool.roll ? t('status.techOn', { what: t(`tech.${after.tool.roll}`) }) : t('status.techOff', { what: t(`tech.${before.tool.roll}`) });
+      case 'setGrace': return after.tool.grace ? t('status.techOn', { what: t(`tech.${after.tool.grace}`) }) : t('status.techOff', { what: t(`tech.${before.tool.grace}`) });
+      case 'setBarText': return b.text ? t('status.barTextSet', { n, text: b.text }) : t('status.barTextCleared', { n });
       case 'setTitle': return t('status.titleSet');
       case 'setBpm': return t('status.bpmSet', { bpm: after.score.defaultBpm });
       default: return status;
@@ -116,7 +124,7 @@
 
   <div class="body">
     <aside class="palette-area no-print">
-      <Palette tool={st.tool} canUndo={st.history.length > 0} canMerge={st.cursor.path.length > 1} onAction={dispatch} />
+      <Palette tool={st.tool} canUndo={st.history.length > 0} canMerge={st.cursor.path.length > 1} onAction={dispatch} onLegend={() => (overlay = 'legend')} onHelp={() => (overlay = 'help')} />
     </aside>
 
       <div class="stage">
@@ -166,6 +174,9 @@
       </details>
   </div>
 </div>
+
+{#if overlay === 'legend'}<Legend onClose={() => (overlay = null)} />{/if}
+{#if overlay === 'help'}<Help {colours} onClose={() => (overlay = null)} />{/if}
 
 <style>
   .editor { display: flex; flex-direction: column; min-height: 100vh; min-height: 100dvh; }

@@ -45,6 +45,9 @@
   <button class:on={bar.repeatEnd} aria-pressed={bar.repeatEnd} onclick={() => onAction({ type: 'toggleRepeatEnd' })} aria-label={t('bars.repeatEndLong')} title={t('bars.repeatEndLong')}>
     <span class="smufl mark">{Glyphs.REPEAT_RIGHT}</span> {t('bars.repeatEnd')}
   </button>
+  <label class="text">{t('tech.barText')}
+    <input type="text" maxlength="80" value={bar.text ?? ''} placeholder={t('tech.barTextHint')} onchange={(e) => onAction({ type: 'setBarText', text: e.target.value.trim() })} />
+  </label>
 </div>
 
 {#if picking}
@@ -65,6 +68,8 @@
 
 <style>
   .barrow { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; padding: 6px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--panel); }
+  .text { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--muted); flex: 1; min-width: 200px; }
+  .text input { flex: 1; min-width: 0; }
   .which { font-weight: 600; font-size: 14px; padding: 0 6px; }
   .barrow button { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; }
   b { font-size: 18px; }

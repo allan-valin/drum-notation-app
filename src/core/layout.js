@@ -1,6 +1,6 @@
 import { Glyphs, Metrics } from './glyphs.js';
 import { NoteValue } from './noteValue.js';
-import { Articulation } from './score.js';
+import { Articulation, Mark, Roll, Grace } from './score.js';
 import { slotById } from './profile.js';
 import { beams as beamsOf, beamLevel } from './beaming.js';
 import { leafSpans, groupSpans } from './tree.js';
@@ -82,7 +82,12 @@ export function layoutBar(bar, staff, config) {
         const y = yOf(slot.staffPosition, sp);
         topY = Math.min(topY, y);
         bottomY = Math.max(bottomY, y);
-        glyphs.push({ ...base, kind: 'note', glyph: Glyphs.notehead(slot.notehead, value), x: headX(i), y, slotId: slot.id, staffPosition: slot.staffPosition });
+        glyphs.push({ ...base, kind: 'note', glyph: Glyphs.notehead(n.head ?? slot.notehead, value), x: headX(i), y, slotId: slot.id, staffPosition: slot.staffPosition });
+        if (n.grace === Grace.FLAM) glyphs.push({ ...base, kind: 'grace', glyph: Glyphs.GRACE_SLASH, x: headX(i) - 1.9 * sp, y, slotRef: slot.id });
+        if (n.grace === Grace.DRAG) {
+          glyphs.push({ ...base, kind: 'grace', glyph: Glyphs.GRACE, x: headX(i) - 3.2 * sp, y, slotRef: slot.id });
+          glyphs.push({ ...base, kind: 'grace', glyph: Glyphs.GRACE, x: headX(i) - 1.8 * sp, y, slotRef: slot.id });
+        }
         if (n.articulations.includes(Articulation.GHOST)) {
           glyphs.push({ ...base, kind: 'paren', glyph: Glyphs.PAREN_LEFT, x: headX(i) - 0.5 * sp, y, slotRef: slot.id });
           glyphs.push({ ...base, kind: 'paren', glyph: Glyphs.PAREN_RIGHT, x: headX(i) + headW + 0.1 * sp, y, slotRef: slot.id });
@@ -97,8 +102,21 @@ export function layoutBar(bar, staff, config) {
       if (!beamed && beamLevel(value) > 0) {
         glyphs.push({ ...base, kind: 'flag', glyph: Glyphs.flag(value), x: stemX(i) - (Metrics.stemThickness * sp) / 2, y: stemTop });
       }
+      let markY = stemTop - 0.5 * sp;
       if (notes.some((n) => n.articulations.includes(Articulation.ACCENT))) {
-        glyphs.push({ ...base, kind: 'accent', glyph: Glyphs.ACCENT, x: centreX(i) - 0.68 * sp, y: stemTop - 0.5 * sp });
+        glyphs.push({ ...base, kind: 'accent', glyph: Glyphs.ACCENT, x: centreX(i) - 0.68 * sp, y: markY });
+        markY -= 1.3 * sp;
+      }
+      const MARK_GLYPH = { [Mark.OPEN]: Glyphs.OPEN, [Mark.CLOSED]: Glyphs.CLOSED, [Mark.HALF_OPEN]: Glyphs.HALF_OPEN, [Mark.CHOKE]: Glyphs.CHOKE };
+      for (const m of new Set(notes.flatMap((n) => n.marks ?? []))) {
+        glyphs.push({ ...base, kind: 'mark', glyph: MARK_GLYPH[m], x: centreX(i) - 0.6 * sp, y: markY });
+        markY -= 1.5 * sp;
+      }
+      const roll = notes.map((n) => n.roll).find((r) => r);
+      if (roll && value !== NoteValue.WHOLE) {
+        const mid = (bottomY - Metrics.stemUpSE.y * sp + stemTop) / 2;
+        if (roll === Roll.BUZZ) glyphs.push({ ...base, kind: 'roll', glyph: Glyphs.BUZZ, x: stemX(i), y: mid + 1.0 * sp });
+        else glyphs.push({ ...base, kind: 'roll', glyph: Glyphs.TREMOLO3, x: stemX(i) - 0.6 * sp, y: mid });
       }
       const sticking = notes.map((n) => n.sticking).find((s) => s);
       if (sticking) texts.push({ kind: 'sticking', text: sticking, x: centreX(i), y: yOf(-6, sp), beat: beatIndex, cell: i });
@@ -134,6 +152,10 @@ export function layoutBar(bar, staff, config) {
     : { kind: 'barline', glyph: Glyphs.BARLINE, x: config.width - Metrics.barlineThickness * sp, y: yOf(0, sp) });
 
   const ys = [...glyphs.map((g) => g.y), ...stems.map((s) => s.y2), ...texts.map((t) => t.y), 0, 4 * sp];
+  // bar text goes above everything else in the bar, so it never collides with marks or beams
+  const highest = Math.min(...ys, ...glyphs.filter((g) => g.kind === 'mark' || g.kind === 'accent').map((g) => g.y - 1.2 * sp));
+  if (bar.text) texts.push({ kind: 'barText', text: bar.text, x: lead + 0.3 * sp, y: Math.min(-2 * sp, highest - 0.6 * sp) });
+  ys.push(...texts.map((t) => t.y - 1.2 * sp));
   const top = Math.min(...ys) - sp;
   const bottom = Math.max(...ys) + sp;
   return { glyphs, stems, beams, texts, beatBounds, leaves, top, bottom };

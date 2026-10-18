@@ -4,7 +4,7 @@ import { cursor as mkCursor, next, prev, leafAt, clamp } from './cursor.js';
 import { parentOf } from './tree.js';
 import {
   placeNote, deleteNote, clearLeaf, splitBeat, splitCell, mergeCell, addBar, removeBar,
-  setTimeSig, toggleSimile, toggleRepeatStart, toggleRepeatEnd,
+  setTimeSig, toggleSimile, toggleRepeatStart, toggleRepeatEnd, setBarText,
 } from './edit.js';
 import { profileById, slotNearest } from './profile.js';
 
@@ -18,7 +18,7 @@ export function initialState(score) {
   const st = {
     score,
     cursor: mkCursor(0, 0, 0),
-    tool: { value: NoteValue.QUARTER, tuplet: null, delete: false, accent: false, ghost: false, sticking: null, splitMode: 'beat' },
+    tool: { value: NoteValue.QUARTER, tuplet: null, delete: false, accent: false, ghost: false, sticking: null, splitMode: 'beat', head: null, mark: null, roll: null, grace: null },
     history: [],
     refused: null,
   };
@@ -52,6 +52,11 @@ export function reduce(state, action) {
     case 'toggleAccent': return tool(st, { accent: !st.tool.accent });
     case 'toggleGhost': return tool(st, { ghost: !st.tool.ghost });
     case 'setSticking': return tool(st, { sticking: st.tool.sticking === action.sticking ? null : action.sticking });
+    case 'setHead': return tool(st, { head: st.tool.head === action.head ? null : action.head });
+    case 'setMark': return tool(st, { mark: st.tool.mark === action.mark ? null : action.mark });
+    case 'setRoll': return tool(st, { roll: st.tool.roll === action.roll ? null : action.roll });
+    case 'setGrace': return tool(st, { grace: st.tool.grace === action.grace ? null : action.grace });
+    case 'setBarText': return edit(st, (s) => setBarText(s, st.cursor.bar, action.text));
     case 'addBar': {
       const s = addBar(st.score);
       return syncTool({ ...push(st), score: s, cursor: mkCursor(s.bars.length - 1, 0, 0) });
@@ -89,7 +94,8 @@ function tap(st, staffPosition) {
   const articulations = [];
   if (st.tool.accent) articulations.push(Articulation.ACCENT);
   if (st.tool.ghost) articulations.push(Articulation.GHOST);
-  return edit(st, (s) => placeNote(s, st.cursor, note(slot.id, { articulations, sticking: st.tool.sticking })));
+  const { head, mark, roll, grace, sticking } = st.tool;
+  return edit(st, (s) => placeNote(s, st.cursor, note(slot.id, { articulations, sticking, head, marks: mark ? [mark] : [], roll, grace })));
 }
 
 function split(st, value, tuplet) {

@@ -108,7 +108,7 @@ Also done: portrait order is staff → arrows → palette → bar row → full s
 flashes its frame instead of scrolling the page (scrolling dragged the editor off screen in
 landscape); `Juntar` (merge) undoes a cell split.
 
-### C4 — noteheads, marks, legend, help (medium) — [ ]
+### C4 — noteheads, marks, legend, help (medium) — [x] 2026-10-18
 
 Defaults shipped (PAS/Weinberg), with alternatives named in the legend because books differ:
 
@@ -127,20 +127,25 @@ Defaults shipped (PAS/Weinberg), with alternatives named in the legend because b
 | 3 strokes on the stem | buzz / press roll | single-stroke tremolo (books mark with z) |
 | small grace head | flam; two heads = drag | ruff |
 
-- [ ] Glyph table additions, each codepoint verified against SMuFL `glyphnames.json` at
+- [x] Glyph table additions, each codepoint verified against SMuFL `glyphnames.json` at
   implementation time (`noteheadDiamondBlack`, `noteheadTriangleUpBlack`, `noteheadCircleX`,
   `noteheadSlashedBlack1`, `brassMuteOpen`, `brassMuteClosed`, `brassMuteHalfClosed`,
   `articLaissezVibrer`/choke, `tremolo3`, `buzzRoll`, `graceNoteSlashStemUp`).
-- [ ] Palette groups "Cabeça" and "Técnica": toggles that ride on the next placed note, like
+- [x] Palette groups "Cabeça" and "Técnica": toggles that ride on the next placed note, like
   accent today. Status says what the next note will carry.
-- [ ] Layout draws head override, marks above the stem top, roll strokes on the stem, grace
+- [x] Layout draws head override, marks above the stem top, roll strokes on the stem, grace
   heads before the cell.
-- [ ] Legend overlay from a `☰ legenda` button at the top of the palette: the table above in
+- [x] Legend overlay from a `☰ legenda` button at the top of the palette: the table above in
   the current language, glyphs drawn with Bravura.
-- [ ] `?` help overlay (palette top): how to enter a bar in six steps with a drawn example per
+- [x] `?` help overlay (palette top): how to enter a bar in six steps with a drawn example per
   step, the Tempo/Célula rule, tap rules, playback modes, import from a photo. pt/en/de.
-- [ ] Free text per bar (`bar.text`, e.g. "vassouras") shown above the bar; stick changes are
+- [x] Free text per bar (`bar.text`, e.g. "vassouras") shown above the bar; stick changes are
   text in real scores.
+
+Codepoints used (verified 2026-10-18): diamond E0DB/E0D9/E0D8, triangle E0BE/E0BC/E0BB,
+circled X E0B3/E0B2/E0B1, slashed E0CF/E0D1/E0D3, open E5E7, closed E5E5, half-open E5E6,
+choke E805, buzz E217, tremolo3 E222, flam E560, drag E562 ×2. Cross-stick = the X head chosen
+on the snare line. Bar text is drawn above everything else in the bar.
 
 ### C5 — playback, synth kit (medium) — [ ]
 

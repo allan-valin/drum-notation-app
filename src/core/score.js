@@ -10,9 +10,18 @@ export const Articulation = Object.freeze({
 
 export const Sticking = Object.freeze({ R: 'R', L: 'L' });
 
-/** One hit. `slotId` says which instrument, by naming a slot on the staff. */
-export function note(slotId, { articulations = [], sticking = null } = {}) {
-  return { slotId, articulations: [...articulations], sticking };
+/** Technique marks drawn above the note. */
+export const Mark = Object.freeze({ OPEN: 'open', CLOSED: 'closed', HALF_OPEN: 'halfOpen', CHOKE: 'choke' });
+export const Roll = Object.freeze({ BUZZ: 'buzz', TREMOLO: 'tremolo' });
+export const Grace = Object.freeze({ FLAM: 'flam', DRAG: 'drag' });
+
+/**
+ * One hit. `slotId` says which instrument, by naming a slot on the staff. `head` overrides the
+ * slot's notehead (diamond for a bell, X on the snare line for cross-stick); `marks` sit above,
+ * `roll` on the stem, `grace` before the head.
+ */
+export function note(slotId, { articulations = [], sticking = null, head = null, marks = [], roll = null, grace = null } = {}) {
+  return { slotId, articulations: [...articulations], sticking, head, marks: [...marks], roll, grace };
 }
 
 /**
@@ -31,8 +40,8 @@ export function group(division, tuplet, cells) {
 export const cell = leaf;
 export const beat = group;
 
-export function bar(beats, { timeSig = null, simile = false, repeatStart = false, repeatEnd = false } = {}) {
-  return { beats: [...beats], timeSig, simile, repeatStart, repeatEnd };
+export function bar(beats, { timeSig = null, simile = false, repeatStart = false, repeatEnd = false, text = '' } = {}) {
+  return { beats: [...beats], timeSig, simile, repeatStart, repeatEnd, text };
 }
 
 export function emptyBeat(division, beatUnit, tuplet = null) {

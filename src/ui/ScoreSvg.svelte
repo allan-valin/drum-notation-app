@@ -138,8 +138,12 @@
         opacity={g.beat === undefined ? 1 : dim(g.beat)}
       >{g.glyph}</text>
     {/each}
-    {#each layout.texts as t}
-      <text class="sticking" x={t.x} y={t.y} font-size={1.1 * sp} text-anchor="middle" opacity={dim(t.beat)}>{t.text}</text>
+    {#each layout.texts as tx}
+      {#if tx.kind === 'barText'}
+        <text class="bartext" x={tx.x} y={tx.y} font-size={1.2 * sp}>{tx.text}</text>
+      {:else}
+        <text class="sticking" x={tx.x} y={tx.y} font-size={1.1 * sp} text-anchor="middle" opacity={dim(tx.beat)}>{tx.text}</text>
+      {/if}
     {/each}
   </g>
 </svg>
@@ -157,6 +161,7 @@
   .guide { stroke: var(--focus-ring); stroke-opacity: 0.35; stroke-dasharray: 2 3; }
   .guide-label { fill: var(--muted); font-family: system-ui, sans-serif; pointer-events: none; }
   .ink { fill: var(--ink); }
+  .bartext { fill: var(--ink); font-family: system-ui, sans-serif; font-style: italic; }
   .sticking { fill: var(--ink); font-family: system-ui, sans-serif; font-weight: 600; }
   text { pointer-events: none; }
 </style>

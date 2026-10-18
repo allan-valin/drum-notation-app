@@ -31,7 +31,7 @@
       {#each row as i}
         <button class="frame" class:current={i === current} class:flash={i === flash} onclick={() => onOpen(i)} aria-label={t('editor.goToBar', { n: i + 1 })} aria-current={i === current}>
           <span class="n">{i + 1}</span>
-          <ScoreSvg bar={score.bars[i]} {staff} width={barW - 4} staffSpacing={sp} showClef={i % perRow === 0} timeSig={showsTimeSig(score, i) ? barTimeSig(score, i) : null} {colours} fixedRange={[7, 6]} />
+          <ScoreSvg bar={score.bars[i]} {staff} width={barW - 4} staffSpacing={sp} showClef={i % perRow === 0} timeSig={showsTimeSig(score, i) ? barTimeSig(score, i) : null} {colours} fixedRange={[8.5, 6]} />
         </button>
       {/each}
     </div>
