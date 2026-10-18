@@ -16,7 +16,11 @@ export function beamLevel(value) {
  * beam and gets a stub pointing at its neighbour in that beam.
  */
 export function beams(beat) {
-  const leaves = leafSpans(beat).map((l) => ({ sounding: l.leaf.notes.length > 0, level: beamLevel(l.parent.division) }));
+  return beamsOf(leafSpans(beat).map((l) => ({ sounding: l.leaf.notes.length > 0, level: beamLevel(l.parent.division) })));
+}
+
+/** Beams over any list of { sounding, level } in time order (leaves, or merged notes). */
+export function beamsOf(leaves) {
   const out = [];
   const maxLevel = Math.max(0, ...leaves.map((l) => l.level));
   const level1 = runs(leaves, 1);

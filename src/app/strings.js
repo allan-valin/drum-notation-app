@@ -117,6 +117,7 @@ export const STRINGS = {
       continue: 'Continuar: {title}', or: 'ou escolha uma partitura',
     },
     refused: {
+      doesNotFit: 'Essa duração não cabe aqui (passa do compasso ou não divide a célula)', tieNeedsEmpty: 'A ligadura vai numa célula vazia, logo depois da nota', nothingToTie: 'Não há nota antes desta célula para ligar',
       lastPart: 'A partitura precisa de pelo menos um instrumento',
       noNoteThere: 'Esta célula não tem nota para receber o símbolo', nothingToApply: 'Escolha antes um símbolo (acento, mão, cabeça ou técnica)',
       sameValue: 'A célula já tem essa figura', wouldLoseNotes: 'Juntar apagaria notas. Apague-as antes (ou use Desfazer depois).', notInThisBeat: 'Essa figura não cabe neste tempo',
@@ -141,6 +142,7 @@ export const STRINGS = {
       midTom: 'Tom médio', highTom: 'Tom agudo', hihat: 'Chimbal', ride: 'Ride', crash: 'Crash',
     },
     palette: {
+      dot: 'Ponto', dotHint: 'A próxima figura escolhida vale uma vez e meia (semínima pontuada…)', tie: 'Ligadura', tieHint: 'A célula selecionada (vazia) continua a nota anterior',
       accidental: 'Acidente', byKey: 'Pela armadura', byKeyHint: 'Sem acidente: a nota segue a armadura', sharp: 'Sustenido', flat: 'Bemol', natural: 'Bequadro', doubleSharp: 'Dobrado sustenido', doubleFlat: 'Dobrado bemol', staccato: 'Staccato', tenuto: 'Tenuto', marcato: 'Marcato', fermata: 'Fermata',
       figure: 'Figura', tuplet: 'Quiáltera', articulation: 'Articulação', hand: 'Mão', edit: 'Edição',
       tupletN: 'Quiáltera de {n}', tupletShort: '{n} em 1',
@@ -159,6 +161,7 @@ export const STRINGS = {
       colourReset: 'Padrão', landscapeHint: 'Na horizontal o tempo em foco fica maior.', ok: 'ok', barAria: 'Compasso',
     },
     status: {
+      dotOn: 'Ponto ligado: a próxima figura é pontuada', dotOff: 'Ponto desligado', tieOn: 'Ligadura: {pos} continua a nota anterior', tieOff: 'Ligadura removida em {pos}',
       accidentalOn: 'Próximas notas: {what}', accidentalOff: 'Notas seguem a armadura', keySet: 'Armadura a partir do compasso {n}: {key}', artOn: 'Próximas notas: {what}', artOff: '{what} desligado',
       partSwitched: 'Editando: {name}', partAdded: '{name} adicionado. Escreva no editor; a lista ao lado do BPM controla o som.', partRemoved: '{name} removido', instrumentSet: 'Parte agora é {name}', muted: '{name} sem som', unmuted: '{name} com som',
       techOnSymbol: 'Próximo toque numa nota põe: {what}',
@@ -305,6 +308,7 @@ export const STRINGS = {
       continue: 'Continue: {title}', or: 'or pick a score',
     },
     refused: {
+      doesNotFit: 'That length does not fit here (it runs past the bar or does not divide the cell)', tieNeedsEmpty: 'A tie goes on an empty cell right after the note', nothingToTie: 'There is no note before this cell to tie',
       lastPart: 'A score needs at least one instrument',
       noNoteThere: 'This cell has no note to take the symbol', nothingToApply: 'Choose a symbol first (accent, hand, head or technique)',
       sameValue: 'The cell already has that value', wouldLoseNotes: 'Merging would delete notes. Delete them first (or Undo afterwards).', notInThisBeat: 'That value does not fit this beat',
@@ -329,6 +333,7 @@ export const STRINGS = {
       midTom: 'Mid tom', highTom: 'High tom', hihat: 'Hi-hat', ride: 'Ride', crash: 'Crash',
     },
     palette: {
+      dot: 'Dot', dotHint: 'The next value chosen lasts one and a half times (dotted quarter…)', tie: 'Tie', tieHint: 'The selected (empty) cell continues the note before it',
       accidental: 'Accidental', byKey: 'By key', byKeyHint: 'No accidental: the note follows the key signature', sharp: 'Sharp', flat: 'Flat', natural: 'Natural', doubleSharp: 'Double sharp', doubleFlat: 'Double flat', staccato: 'Staccato', tenuto: 'Tenuto', marcato: 'Marcato', fermata: 'Fermata',
       figure: 'Note value', tuplet: 'Tuplet', articulation: 'Articulation', hand: 'Hand', edit: 'Edit',
       tupletN: 'Tuplet of {n}', tupletShort: '{n} in 1',
@@ -347,6 +352,7 @@ export const STRINGS = {
       colourReset: 'Default', landscapeHint: 'Turn the phone sideways for a bigger beat.', ok: 'ok', barAria: 'Bar',
     },
     status: {
+      dotOn: 'Dot on: the next value is dotted', dotOff: 'Dot off', tieOn: 'Tie: {pos} continues the note before', tieOff: 'Tie removed at {pos}',
       accidentalOn: 'Next notes: {what}', accidentalOff: 'Notes follow the key signature', keySet: 'Key from bar {n}: {key}', artOn: 'Next notes: {what}', artOff: '{what} off',
       partSwitched: 'Editing: {name}', partAdded: '{name} added. Write in the editor; the list next to BPM controls its sound.', partRemoved: '{name} removed', instrumentSet: 'Part is now {name}', muted: '{name} muted', unmuted: '{name} unmuted',
       techOnSymbol: 'Next tap on a note adds: {what}',
@@ -493,6 +499,7 @@ export const STRINGS = {
       continue: 'Weiter: {title}', or: 'oder eine Partitur wählen',
     },
     refused: {
+      doesNotFit: 'Diese Länge passt hier nicht (über den Takt hinaus oder teilt die Zelle nicht)', tieNeedsEmpty: 'Ein Haltebogen gehört in eine leere Zelle direkt nach der Note', nothingToTie: 'Vor dieser Zelle steht keine Note zum Binden',
       lastPart: 'Eine Partitur braucht mindestens ein Instrument',
       noNoteThere: 'Diese Zelle hat keine Note für das Zeichen', nothingToApply: 'Erst ein Zeichen wählen (Akzent, Hand, Kopf oder Technik)',
       sameValue: 'Die Zelle hat diesen Wert schon', wouldLoseNotes: 'Verbinden würde Noten löschen. Erst löschen (oder danach Rückgängig).', notInThisBeat: 'Dieser Wert passt nicht in diesen Schlag',
@@ -517,6 +524,7 @@ export const STRINGS = {
       midTom: 'Mitteltom', highTom: 'Hochtom', hihat: 'Hi-Hat', ride: 'Ride', crash: 'Crash',
     },
     palette: {
+      dot: 'Punkt', dotHint: 'Der nächste gewählte Wert gilt anderthalbfach (punktierte Viertel…)', tie: 'Haltebogen', tieHint: 'Die gewählte (leere) Zelle setzt die Note davor fort',
       accidental: 'Vorzeichen', byKey: 'Nach Tonart', byKeyHint: 'Ohne Vorzeichen: die Note folgt der Tonart', sharp: 'Kreuz', flat: 'Be', natural: 'Auflösung', doubleSharp: 'Doppelkreuz', doubleFlat: 'Doppel-B', staccato: 'Staccato', tenuto: 'Tenuto', marcato: 'Marcato', fermata: 'Fermate',
       figure: 'Notenwert', tuplet: 'Tole', articulation: 'Artikulation', hand: 'Hand', edit: 'Bearbeiten',
       tupletN: '{n}er-Tole', tupletShort: '{n} auf 1',
@@ -535,6 +543,7 @@ export const STRINGS = {
       colourReset: 'Standard', landscapeHint: 'Im Querformat wird der Schlag größer.', ok: 'ok', barAria: 'Takt',
     },
     status: {
+      dotOn: 'Punkt an: der nächste Wert ist punktiert', dotOff: 'Punkt aus', tieOn: 'Haltebogen: {pos} setzt die Note davor fort', tieOff: 'Haltebogen bei {pos} entfernt',
       accidentalOn: 'Nächste Noten: {what}', accidentalOff: 'Noten folgen der Tonart', keySet: 'Tonart ab Takt {n}: {key}', artOn: 'Nächste Noten: {what}', artOff: '{what} aus',
       partSwitched: 'Bearbeitet: {name}', partAdded: '{name} hinzugefügt. Im Editor schreiben; die Liste neben BPM steuert den Klang.', partRemoved: '{name} entfernt', instrumentSet: 'Stimme ist jetzt {name}', muted: '{name} stumm', unmuted: '{name} mit Ton',
       techOnSymbol: 'Nächstes Tippen auf eine Note setzt: {what}',

@@ -43,7 +43,7 @@ function encodeGroup(g) {
   return {
     division: g.division.id,
     ...(g.tuplet ? { tuplet: g.tuplet } : {}),
-    cells: g.cells.map((c) => (isGroup(c) ? encodeGroup(c) : c.notes.map(encodeNote))),
+    cells: g.cells.map((c) => (isGroup(c) ? encodeGroup(c) : c.cont ? { cont: true } : c.notes.map(encodeNote))),
   };
 }
 
@@ -158,6 +158,7 @@ function decodeGroup(g, expected, staff, where) {
       if (!Number.isInteger(count) || count < 2) throw new Error(`${here}: ${inner.id} não cabe dentro de ${division.id}`);
       return decodeGroup(c, count, staff, here);
     }
+    if (c && !Array.isArray(c) && c.cont === true) return leaf([], { cont: true });
     const notes = Array.isArray(c) ? c : (c?.notes ?? []);
     return leaf(notes.map((n) => decodeNote(n, staff, here)));
   }));

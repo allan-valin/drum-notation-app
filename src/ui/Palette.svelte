@@ -88,6 +88,19 @@
     </div>
   </section>
 
+  {#if has('length')}
+  <section>
+    <div class="grid two">
+      <button class:on={tool.dot} aria-label={t('palette.dot')} title={t('palette.dotHint')} onclick={() => onAction({ type: 'toggleDot' })}>
+        <span class="smufl glyph note">{Glyphs.metNote(NoteValue.QUARTER)}{Glyphs.DOT}</span><span class="label">{t('palette.dot')}</span>
+      </button>
+      <button aria-label={t('palette.tie')} title={t('palette.tieHint')} onclick={() => onAction({ type: 'toggleTie' })}>
+        <span class="glyph text small-text">⌒</span><span class="label">{t('palette.tie')}</span>
+      </button>
+    </div>
+  </section>
+  {/if}
+
   {#if has('tuplet')}
   <section>
     <h3>{t('palette.tuplet')}</h3>

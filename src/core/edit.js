@@ -1,6 +1,7 @@
-import { cellsPerBeat, noteValueFor } from './noteValue.js';
+import { cellsPerBeat, noteValueFor, NOTE_VALUES } from './noteValue.js';
+import { PPQ, beatTicks, leafTicks } from './ticks.js';
 import { leaf, group, emptyBar, emptyBeat, barTimeSig } from './score.js';
-import { isGroup, getAt, parentOf, replaceAt, firstNotes } from './tree.js';
+import { isGroup, getAt, parentOf, replaceAt, firstNotes, samePath } from './tree.js';
 
 /**
  * Write `note` at `c`. A note already on the same slot is replaced; a note on a different
@@ -18,10 +19,10 @@ export function deleteNote(score, c, slotId) {
   return mapLeaf(score, c, (x) => leaf(x.notes.filter((n) => n.slotId !== slotId)));
 }
 
-/** Empty the leaf at `c` (a rest). */
+/** Empty the leaf at `c` (a rest); a continuation stops continuing. */
 export function clearLeaf(score, c) {
   const l = getAt(score.bars[c.bar].beats[c.beat], c.path);
-  if (l.notes.length === 0) return score;
+  if (l.notes.length === 0 && !l.cont) return score;
   return mapLeaf(score, c, () => leaf());
 }
 
@@ -214,3 +215,114 @@ function mapBeat(score, c, f) {
 }
 
 export { isGroup };
+
+// ---- lengths: notes longer than their cell, dots and ties (pitched instruments) ----------
+
+const ticksOf = (value) => (PPQ * 4) / value.divisionsPerWhole;
+const valueOfTicks = (t) => NOTE_VALUES.find((v) => ticksOf(v) === t);
+
+/** Every leaf of a bar in time order, with its start and length in ticks from the bar's start. */
+export function barLeaves(score, barIndex) {
+  const [, den] = barTimeSig(score, barIndex);
+  const bt = beatTicks(den);
+  return score.bars[barIndex].beats.flatMap((b, beat) =>
+    leafTicks(b, den).map((l) => ({ bar: barIndex, beat, path: l.path, start: beat * bt + l.tick, length: l.length, leaf: l.leaf })));
+}
+
+const at = (l) => ({ bar: l.bar, beat: l.beat, path: l.path });
+const setCont = (score, c, cont) => mapLeaf(score, c, () => leaf([], { cont }));
+
+/** The continuations right after `c` (in this bar) stop continuing: the note they held ends at `c`. */
+function clearChain(score, c) {
+  const leaves = barLeaves(score, c.bar);
+  let i = leaves.findIndex((l) => l.beat === c.beat && samePath(l.path, c.path)) + 1;
+  let s = score;
+  while (i > 0 && i < leaves.length && leaves[i].leaf.cont) {
+    s = mapLeaf(s, at(leaves[i]), () => leaf());
+    i += 1;
+  }
+  return s;
+}
+
+/**
+ * Make the note at `c` last `value` (dotted: one and a half times). Longer than a beat: the
+ * note moves to the beat's start and the following cells become continuations. A dotted value
+ * shorter than a beat splits the beat into thirds of it. A cell boundary that cuts the length
+ * is split where it must end. Refused when it would cover notes ({ refused: 'wouldLoseNotes' })
+ * or run past the bar ({ refused: 'doesNotFit' }).
+ */
+export function setLength(score, c, value, dotted) {
+  const [num, den] = barTimeSig(score, c.bar);
+  const bt = beatTicks(den);
+  const D = ticksOf(value) * (dotted ? 1.5 : 1);
+  let s = clearChain(score, c);
+  const notes = getAt(s.bars[c.bar].beats[c.beat], c.path).notes;
+  let start;
+  if (D >= bt) {
+    s = splitBeat(s, c, noteValueFor(den), null);
+    s = mapLeaf(s, { bar: c.bar, beat: c.beat, path: [0] }, () => leaf(notes));
+    start = { bar: c.bar, beat: c.beat, path: [0] };
+  } else {
+    if (!dotted) return splitBeat(s, c, value, null);
+    const unit = valueOfTicks(D / 3);
+    if (!unit || bt % (D / 3) !== 0) return { refused: 'doesNotFit' };
+    const cells = bt / (D / 3);
+    const old = barLeaves(s, c.bar).find((l) => l.beat === c.beat && samePath(l.path, c.path));
+    const index = Math.min(cells - 1, Math.floor((old.start - c.beat * bt) / (D / 3)));
+    s = splitBeat(s, c, unit, null);
+    s = mapLeaf(s, { bar: c.bar, beat: c.beat, path: [0] }, () => leaf());
+    s = mapLeaf(s, { bar: c.bar, beat: c.beat, path: [index] }, () => leaf(notes));
+    start = { bar: c.bar, beat: c.beat, path: [index] };
+  }
+  const first = barLeaves(s, c.bar).find((l) => l.beat === start.beat && samePath(l.path, start.path));
+  const end = first.start + D;
+  if (end > num * bt) return { refused: 'doesNotFit' };
+  // walk forward, continuing or splitting cells until the length is covered
+  for (let guard = 0; guard < 64; guard++) {
+    const next = barLeaves(s, c.bar).find((l) => l.start > first.start && l.start < end && !l.leaf.cont);
+    if (!next) break;
+    if (next.leaf.notes.length) return { refused: 'wouldLoseNotes' };
+    if (next.start + next.length <= end) { s = setCont(s, at(next), true); continue; }
+    const v = valueOfTicks(end - next.start);
+    if (!v || next.length % (end - next.start) !== 0) return { refused: 'doesNotFit' };
+    s = splitCell(s, at(next), v, null);
+    const parts = barLeaves(s, c.bar).find((l) => l.start === next.start);
+    s = setCont(s, at(parts), true);
+  }
+  return s;
+}
+
+/** Toggle a tie into `c`: an empty cell continues the note before it (also from the previous bar). */
+export function toggleTie(score, c) {
+  const l = getAt(score.bars[c.bar].beats[c.beat], c.path);
+  if (l.cont) return setCont(score, c, false);
+  if (l.notes.length) return { refused: 'tieNeedsEmpty' };
+  const here = barLeaves(score, c.bar);
+  const i = here.findIndex((x) => x.beat === c.beat && samePath(x.path, c.path));
+  const prev = i > 0 ? here[i - 1] : c.bar > 0 ? barLeaves(score, c.bar - 1).at(-1) : null;
+  if (!prev || (!prev.leaf.notes.length && !prev.leaf.cont)) return { refused: 'nothingToTie' };
+  return setCont(score, c, true);
+}
+
+/**
+ * The notes a tie carries into bar `index` from before it (the bar starts with a continuation),
+ * looking back over whole bars of held notes. Empty when the bar starts fresh.
+ */
+export function carryInto(score, index) {
+  if (index === 0) return [];
+  const first = barLeaves(score, index)[0];
+  if (!first?.leaf.cont) return [];
+  for (let b = index - 1; b >= 0; b--) {
+    const leaves = barLeaves(score, b);
+    for (let k = leaves.length - 1; k >= 0; k--) {
+      if (leaves[k].leaf.cont) continue;
+      return leaves[k].leaf.notes;
+    }
+  }
+  return [];
+}
+
+/** True when bar `index + 1` starts by holding a note from bar `index` (draw the tie out). */
+export function tiesOut(score, index) {
+  return index + 1 < score.bars.length && !!barLeaves(score, index + 1)[0]?.leaf.cont;
+}

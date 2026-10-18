@@ -35,8 +35,9 @@ export function note(slotId, { articulations = [], sticking = null, head = null,
  * A cell is either a leaf (one point in time: the notes in it sound together) or a group
  * (a span split into equal cells, each of which can be split again). A beat is a group.
  */
-export function leaf(notes = []) {
-  return { notes: [...notes] };
+export function leaf(notes = [], { cont = false } = {}) {
+  // cont: this cell continues the note before it (a tie); it has no notes of its own
+  return cont ? { notes: [], cont: true } : { notes: [...notes] };
 }
 
 export function group(division, tuplet, cells) {

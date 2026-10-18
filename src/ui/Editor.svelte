@@ -18,6 +18,7 @@
   import { prefs } from '../app/prefs.svelte.js';
   import { t } from '../app/prefs.svelte.js';
   import { partLabelIndex, isEmptyPart } from '../core/parts.js';
+  import { carryInto, tiesOut } from '../core/edit.js';
 
   /** `background`: drawn behind the welcome overlay, inert, nothing saved. */
   let { store, id, onBack, onPrint, fallback = null, background = false } = $props();
@@ -127,6 +128,8 @@
         const [maj] = keyNames(barKey(after.score, after.cursor.bar), prefs.lang, STRINGS[prefs.lang].noteNames);
         return t('status.keySet', { n, key: `${maj} ${t('bars.major')}` });
       }
+      case 'toggleDot': return after.tool.dot ? t('status.dotOn') : t('status.dotOff');
+      case 'toggleTie': return leafAt(after.score, after.cursor).cont ? t('status.tieOn', { pos: p }) : t('status.tieOff', { pos: p });
       case 'setTitle': return t('status.titleSet');
       case 'setBpm': return t('status.bpmSet', { bpm: after.score.defaultBpm });
       default: return status;
@@ -220,6 +223,9 @@
           {colours}
           timeSig={barTimeSig(st.score, shownBar)}
           keyFifths={barKey(st.score, shownBar)}
+          den={barTimeSig(st.score, shownBar)[1]}
+          carry={carryInto(st.score, shownBar)}
+          tieOut={tiesOut(st.score, shownBar)}
           showGuides={true}
           cards={true}
           deleteMode={st.tool.delete}

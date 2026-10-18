@@ -86,7 +86,7 @@ transposition are just the frequency. A sampled set can follow later like the dr
   score shows every part; playback mixes parts. Percussion profiles: drum kit, congas.
 - [x] **I2 Pitch.** (2026-10-18: done together with the rock-band pitched profiles and their synth voices from I4: electric guitar, bass guitar, keyboard (one staff), vocals. Hit-test 0 stolen clicks for all six palettes, three sizes; a four-part bar played in Chromium.) Pitched note model, clefs, staff position → pitch, accidentals tool, key
   signature per bar, stem direction, ledger lines both ways, legend/help per profile.
-- [ ] **I3 Length.** Notes longer than a beat (beat spans), ties across beats and bars, dots
+- [x] **I3 Length.** (2026-10-18: a continuation flag on cells is the tie; runs that add up to a written value draw as one note (half, whole, dotted), others as ties, also across bar lines; playback holds them. Drums untouched.) Notes longer than a beat (beat spans), ties across beats and bars, dots
   drawn for tied pairs that make a dotted value; sustained playback lengths.
 - [ ] **I4 Rock band sounds and profiles.** Guitar, bass, keys (single staff first), vocal;
   synth recipes; dynamics, staccato/tenuto/marcato; per-profile hit-test.

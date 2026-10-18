@@ -1,12 +1,13 @@
 import { NoteValue, NOTE_VALUES } from './noteValue.js';
-import { note, Articulation, Mark, Roll, Grace, barKey } from './score.js';
+import { note, Articulation, Mark, Roll, Grace, barKey, barTimeSig } from './score.js';
 import { parseSlot, keyAlter } from './pitch.js';
 import { cursor as mkCursor, next, prev, leafAt, clamp } from './cursor.js';
 import { parentOf, leafPaths, getAt } from './tree.js';
 import {
   placeNote, deleteNote, clearLeaf, splitBeat, splitCell, resizeCell, mergeCell, addBar, removeBar,
-  setTimeSig, toggleSimile, toggleRepeatStart, toggleRepeatEnd, setBarText, moveBars, setKey,
+  setTimeSig, toggleSimile, toggleRepeatStart, toggleRepeatEnd, setBarText, moveBars, setKey, setLength, toggleTie,
 } from './edit.js';
+import { barLeaves } from './edit.js';
 import { profileById, slotNearest } from './profile.js';
 import { toFull, partView, zipPart, applyAll, addPart, removePart, setInstrument, toggleMute } from './parts.js';
 
@@ -24,7 +25,7 @@ export function initialState(score) {
     part,
     score: partView(full, part),
     cursor: mkCursor(0, 0, 0),
-    tool: { value: NoteValue.QUARTER, tuplet: null, delete: false, accent: false, ghost: false, sticking: null, splitMode: 'beat', head: null, tech: null, withNote: true, accidental: null, arts: [] },
+    tool: { value: NoteValue.QUARTER, tuplet: null, delete: false, accent: false, ghost: false, sticking: null, splitMode: 'beat', head: null, tech: null, withNote: true, accidental: null, arts: [], dot: false },
     history: [],
     refused: null,
   };
@@ -92,6 +93,7 @@ function switchPart(st, part, force = false) {
     accent: profile.articulations.includes('accent') && t.accent,
     ghost: profile.articulations.includes('ghost') && t.ghost,
     accidental: profile.palette.includes('accidental') ? t.accidental : null,
+    dot: profile.staves[0].pitched ? t.dot : false,
     arts: t.arts.filter((a) => profile.articulations.includes(a)),
   };
   return syncTool({ ...st, part, score, tool, refused: null, cursor: clamp(score, st.cursor) });
@@ -137,6 +139,12 @@ function reduceView(state, action) {
     case 'setAccidental': return tool(st, { accidental: st.tool.accidental === action.alter ? null : action.alter });
     case 'toggleArt': return tool(st, { arts: st.tool.arts.includes(action.art) ? st.tool.arts.filter((a) => a !== action.art) : [...st.tool.arts, action.art] });
     case 'setKey': return edit(st, (s) => setKey(s, st.cursor.bar, action.key));
+    case 'toggleDot': return tool(st, { dot: !st.tool.dot });
+    case 'toggleTie': {
+      const s = toggleTie(st.score, st.cursor);
+      if (s.refused) return { ...st, refused: s.refused };
+      return { ...push(st), score: s };
+    }
     case 'moveBars': {
       const { score, range } = moveBars(st.score, action.from, action.to, action.gap);
       if (score === st.score) return st;
@@ -244,6 +252,16 @@ function applySymbols(st, staffPosition, techFields) {
 }
 
 function split(st, value, tuplet) {
+  // pitched, Tempo mode: a value longer than the beat, or dotted, is a note length, not a split
+  const pitched = profileById(st.score.profileId).staves[0].pitched;
+  const [, den] = barTimeSig(st.score, st.cursor.bar);
+  if (pitched && st.tool.splitMode !== 'cell' && !tuplet && (st.tool.dot || value.divisionsPerWhole < den)) {
+    const s = setLength(st.score, st.cursor, value, st.tool.dot);
+    if (s.refused) return { ...st, refused: s.refused };
+    const head = barLeaves(s, st.cursor.bar).find((l) => l.leaf.notes.length && l.start <= startTick(st) && !l.leaf.cont) ?? null;
+    const cur = head && value.divisionsPerWhole < den ? { bar: st.cursor.bar, beat: head.beat, path: head.path } : clamp(s, st.cursor);
+    return { ...syncTool({ ...push(st), score: s, cursor: cur }), tool: { ...st.tool, value, dotted: st.tool.dot } };
+  }
   if (st.tool.splitMode === 'cell') {
     const s = resizeCell(st.score, st.cursor, value, tuplet);
     if (s.refused) return { ...st, refused: s.refused };
@@ -256,6 +274,11 @@ function split(st, value, tuplet) {
   }
   const out = edit(st, (s) => splitBeat(s, st.cursor, value, tuplet));
   return syncTool(clampCursor({ ...out, cursor: { ...out.cursor, path: [Math.min(out.cursor.path[0], 99)] } }));
+}
+
+function startTick(st) {
+  const l = barLeaves(st.score, st.cursor.bar).find((x) => x.beat === st.cursor.beat && x.path.join('.') === st.cursor.path.join('.'));
+  return l ? l.start : 0;
 }
 
 function leafCount(score, c) {

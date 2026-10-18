@@ -6,6 +6,7 @@
   import { createDrag } from '../app/lib/drag.js';
 
   import { partView } from '../core/parts.js';
+  import { carryInto, tiesOut } from '../core/edit.js';
   import { profileById } from '../core/profile.js';
 
   let { full, parts = [], part = null, colours, current, onOpen, range = null, playingBar = null, selecting = false, onDrop = () => {} } = $props();
@@ -99,7 +100,7 @@
           {#each views as v (v.id)}
             <div class="staff" class:active={many && v.id === part} class:mutedpart={v.muted}>
               {#if many && i % perRow === 0}<span class="plabel">{v.label}</span>{/if}
-              <ScoreSvg bar={v.view.bars[i]} staff={v.staff} width={barW - 4} staffSpacing={sp} showClef={i % perRow === 0} timeSig={showsTimeSig(score, i) ? barTimeSig(score, i) : null} keyFifths={barKey(score, i)} showKey={i % perRow === 0 || showsKey(score, i)} {colours} fixedRange={many ? [6.5, 6.5] : [8.5, 6]} />
+              <ScoreSvg bar={v.view.bars[i]} staff={v.staff} width={barW - 4} staffSpacing={sp} showClef={i % perRow === 0} timeSig={showsTimeSig(score, i) ? barTimeSig(score, i) : null} keyFifths={barKey(score, i)} showKey={i % perRow === 0 || showsKey(score, i)} den={barTimeSig(score, i)[1]} carry={carryInto(v.view, i)} tieOut={tiesOut(v.view, i)} {colours} fixedRange={many ? [6.5, 6.5] : [8.5, 6]} />
             </div>
           {/each}
         </button>

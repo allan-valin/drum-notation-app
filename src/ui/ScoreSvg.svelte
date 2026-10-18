@@ -32,6 +32,10 @@
     cards = false,
     /** key signature in force (fifths): drives accidentals; drawn after the clef when `showKey` */
     keyFifths = 0,
+    /** the bar's beat unit, and the notes a tie brings in from the previous bar */
+    den = 4,
+    carry = [],
+    tieOut = false,
     showKey = true,
     /** highlight for a whole bar, e.g. the bar being played */
     playingPath = null,
@@ -43,7 +47,7 @@
   const keyWidth = $derived(keySigns.length ? keySigns.length * 1.0 + 0.6 : 0);
   const lead = $derived((showClef ? 3 : 0.5) * sp + keyWidth * sp + (timeSig ? 2.5 * sp : 0));
   const barWidth = $derived(Math.max(width - lead - 0.5 * sp, 10 * sp));
-  const layout = $derived(layoutBar(bar, staff, { width: barWidth, staffSpacing: sp, focusedBeat, key: keyFifths }));
+  const layout = $derived(layoutBar(bar, staff, { width: barWidth, staffSpacing: sp, focusedBeat, key: keyFifths, den, carry, tieOut }));
   // pitched ranges can be wide: guides cover the staff and three ledger lines each side
   const guideSlots = $derived(staff.pitched ? staff.slots.filter((x) => x.staffPosition >= -6 && x.staffPosition <= 14) : staff.slots);
   const guideTop = $derived(yOf(guideSlots[guideSlots.length - 1].staffPosition, sp) - 1.5 * sp);
@@ -162,6 +166,11 @@
         opacity={g.beat === undefined ? 1 : dim(g.beat)}
       >{g.glyph}</text>
     {/each}
+    {#each layout.ties as tie}
+      {@const off = (tie.below ? 0.55 : -0.55) * sp}
+      {@const bow = (tie.below ? 1 : -1) * Math.min(1.2 * sp, Math.max(0.5 * sp, (tie.x2 - tie.x1) * 0.15))}
+      <path class="tie" d="M {tie.x1} {tie.y + off} Q {(tie.x1 + tie.x2) / 2} {tie.y + off + bow} {tie.x2} {tie.y + off}" stroke-width={0.16 * sp} />
+    {/each}
     {#each layout.texts as tx}
       {#if tx.kind === 'barText'}
         <text class="bartext" x={tx.x} y={tx.y} font-size={1.2 * sp}>{tx.text}</text>
@@ -176,6 +185,7 @@
   .score { display: block; touch-action: manipulation; user-select: none; -webkit-user-select: none; color: var(--ink); }
   .score.delete { cursor: not-allowed; }
   .staffline, .leger { stroke: var(--ink); }
+  .tie { fill: none; stroke: var(--ink); stroke-linecap: round; }
   .focus { fill: var(--focus); }
   .card { fill: var(--card-a); stroke: var(--card-line); stroke-width: 1; }
   .card.alt { fill: var(--card-b); }

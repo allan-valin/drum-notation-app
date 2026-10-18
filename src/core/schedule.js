@@ -83,6 +83,7 @@ export function performance(score, a, b, instrument = score.profileId ?? 'drums'
   const hits = [];
   const clicks = [];
   let offset = 0;
+  let open = []; // pitched notes still sounding, lengthened by continuation cells
   for (const shown of playOrder(score, a, b)) {
     let src = shown;
     while (src > 0 && score.bars[src].simile) src -= 1;
@@ -97,11 +98,17 @@ export function performance(score, a, b, instrument = score.profileId ?? 'drums'
       if (!group) continue;
       for (const leaf of leafTicks(group, den)) {
         const at = offset + beat * bt + leaf.tick;
+        if (pitchedStaff) {
+          if (leaf.leaf.cont) { open.forEach((h) => { h.length += leaf.length; }); continue; }
+          open = [];
+        }
         for (const note of leaf.leaf.notes) {
           if (pitchedStaff) {
             // a pitched note: its own voice, at its frequency, for its written length
             const freq = frequencyOf(midiOf(note, { clef: pitchedStaff.clef, transpose: profile.transpose }));
-            hits.push({ bar: shown, beat, path: leaf.path, slotId: note.slotId, sound: `voice:${profile.voice}`, freq, length: leaf.length, tick: at, ahead: 0, velocity: velocityOf(note) });
+            const hit = { bar: shown, beat, path: leaf.path, slotId: note.slotId, sound: `voice:${profile.voice}`, freq, length: leaf.length, tick: at, ahead: 0, velocity: velocityOf(note) };
+            hits.push(hit);
+            open.push(hit);
             continue;
           }
           const where = { bar: shown, beat, path: leaf.path, slotId: note.slotId, sound: soundFor(note, instrument) };

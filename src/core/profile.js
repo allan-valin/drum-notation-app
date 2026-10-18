@@ -94,7 +94,7 @@ export const CONGAS_PROFILE = Object.freeze({
  * Pitched instruments: the staff is every line and space in the written range. They use
  * accidentals and articulations; no sticks, so no drum heads, techniques or hands.
  */
-const PITCHED_PALETTE = ['edit', 'figure', 'tuplet', 'tapMode', 'accidental', 'articulation'];
+const PITCHED_PALETTE = ['edit', 'figure', 'length', 'tuplet', 'tapMode', 'accidental', 'articulation'];
 const PITCHED_ARTS = ['accent', 'staccato', 'tenuto', 'marcato', 'fermata'];
 const PITCHED_LEGEND = ['sharp', 'flat', 'natural', 'doubleSharp', 'doubleFlat', 'staccato', 'tenuto', 'accent', 'marcato', 'fermata', 'simile', 'repeat'];
 function pitchedProfile(id, family, clef, low, high, voice, extra = {}) {

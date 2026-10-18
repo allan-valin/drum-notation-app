@@ -2,7 +2,8 @@ import { Glyphs, Metrics } from './glyphs.js';
 import { NoteValue } from './noteValue.js';
 import { Articulation, Mark, Roll, Grace } from './score.js';
 import { slotById } from './profile.js';
-import { beams as beamsOf, beamLevel } from './beaming.js';
+import { beamsOf, beamLevel } from './beaming.js';
+import { drawUnits } from './units.js';
 import { leafSpans, groupSpans } from './tree.js';
 import { parseSlot, keyAlter } from './pitch.js';
 
@@ -47,13 +48,21 @@ export function layoutBar(bar, staff, config) {
   const key = config.key ?? 0;
   // the alteration in force for each written position so far in this bar (accidentals carry)
   const inForce = new Map();
+  const ties = [];
+  const units = drawUnits(bar, config.den ?? 4, config.carry ?? []);
+  const lastHead = new Map(); // slot -> { x, y }: where the last drawn head of each note sits, for ties
+  let lastSounding = []; // heads of the last note drawn, for a tie running out of the bar
 
   bar.beats.forEach((beat, beatIndex) => {
     const beatWidth = unit * weights[beatIndex];
     beatBounds.push([x, x + beatWidth]);
-    const spans = leafSpans(beat);
-    spans.forEach((l, i) => leaves.push({ beat: beatIndex, index: i, path: l.path, x0: x + l.start * beatWidth, x1: x + (l.start + l.size) * beatWidth }));
+    const cellSpans = leafSpans(beat);
+    cellSpans.forEach((l, i) => leaves.push({ beat: beatIndex, index: i, path: l.path, x0: x + l.start * beatWidth, x1: x + (l.start + l.size) * beatWidth }));
     if (bar.simile) { x += beatWidth; return; }
+    // what is drawn in this beat: one entry per unit that starts here (held cells draw nothing)
+    const spans = units.filter((u) => u.beat === beatIndex).map((u) => ({
+      ...cellSpans[u.idx], leaf: { notes: u.notes }, parent: { division: u.value }, unit: u,
+    }));
 
     const centreX = (i) => x + (spans[i].start + spans[i].size / 2) * beatWidth;
     const headX = (i) => centreX(i) - headW / 2;
@@ -62,7 +71,7 @@ export function layoutBar(bar, staff, config) {
     const topOf = (i) => Math.min(...spans[i].leaf.notes.map((n) => yOf(posOf(n), sp)));
     const bottomOf = (i) => Math.max(...spans[i].leaf.notes.map((n) => yOf(posOf(n), sp)));
 
-    const beatBeams = beamsOf(beat);
+    const beatBeams = beamsOf(spans.map((sp_) => ({ sounding: sp_.leaf.notes.length > 0, level: sp_.unit.dotted && beamLevel(sp_.unit.value) === 0 ? 0 : beamLevel(sp_.unit.value) })));
     const hosts = beatBeams.filter((b) => b.level === 1);
     const hostOf = (i) => hosts.find((h) => i >= h.from && i <= h.to);
     /**
@@ -94,7 +103,7 @@ export function layoutBar(bar, staff, config) {
     spans.forEach((span, i) => {
       const value = valueOf(i);
       const notes = span.leaf.notes;
-      const base = { beat: beatIndex, cell: i, path: span.path, value };
+      const base = { beat: beatIndex, cell: span.unit.idx, path: span.path, value };
       if (notes.length === 0) {
         const restY = value === NoteValue.WHOLE ? sp : 2 * sp;
         glyphs.push({ ...base, kind: 'rest', glyph: Glyphs.rest(value), x: centreX(i) - 0.5 * sp, y: restY });
@@ -103,6 +112,7 @@ export function layoutBar(bar, staff, config) {
       let topY = Infinity;
       let bottomY = -Infinity;
       const dir = dirOf(i);
+      lastSounding = [];
       // a chord with notes a step apart: every second head of a cluster goes to the other side of the stem
       const order = [...notes].sort((p, q) => posOf(p) - posOf(q));
       const shifted = new Set();
@@ -111,7 +121,7 @@ export function layoutBar(bar, staff, config) {
       }
       let accidentalColumn = 0;
       [...order].reverse().forEach((n) => {
-        if (!pitched) return;
+        if (!pitched || span.unit.tiedIn) return; // a tied note keeps the accidental it had
         const { step } = parseSlot(n.slotId);
         const sounding = n.alter ?? keyAlter(key, step);
         const before = inForce.has(n.slotId) ? inForce.get(n.slotId) : keyAlter(key, step);
@@ -128,6 +138,16 @@ export function layoutBar(bar, staff, config) {
         bottomY = Math.max(bottomY, y);
         const dx = shifted.has(n) ? (dir === 'up' ? headW - Metrics.stemThickness * sp : -(headW - Metrics.stemThickness * sp)) : 0;
         glyphs.push({ ...base, kind: 'note', glyph: Glyphs.notehead(n.head ?? slot.notehead, value), x: headX(i) + dx, y, slotId: slot.id, staffPosition: slot.staffPosition });
+        if (span.unit.dotted) {
+          // the dot sits in a space: a note on a line moves it up half a space
+          glyphs.push({ ...base, kind: 'dot', glyph: Glyphs.DOT, x: headX(i) + dx + headW + 0.35 * sp, y: y - (slot.staffPosition % 2 === 0 ? 0.5 * sp : 0) });
+        }
+        if (span.unit.tiedIn) {
+          const from = lastHead.get(slot.id);
+          ties.push({ x1: from ? from.x + headW : 0, x2: headX(i) + dx, y, slotId: slot.id, below: dir === 'up' });
+        }
+        lastHead.set(slot.id, { x: headX(i) + dx, y });
+        lastSounding.push({ x: headX(i) + dx, y, slotId: slot.id, below: dir === 'up' });
         if (n.grace === Grace.FLAM) glyphs.push({ ...base, kind: 'grace', glyph: Glyphs.GRACE_SLASH, x: headX(i) - 1.9 * sp, y, slotRef: slot.id });
         if (n.grace === Grace.DRAG) {
           glyphs.push({ ...base, kind: 'grace', glyph: Glyphs.GRACE, x: headX(i) - 3.2 * sp, y, slotRef: slot.id });
@@ -218,11 +238,13 @@ export function layoutBar(bar, staff, config) {
   const ys = [...glyphs.map((g) => g.y), ...stems.map((s) => s.y2), ...texts.map((t) => t.y), 0, 4 * sp];
   // bar text goes above everything else in the bar, so it never collides with marks or beams
   const highest = Math.min(...ys, ...glyphs.filter((g) => g.kind === 'mark' || g.kind === 'accent').map((g) => g.y - 1.2 * sp));
+  // the next bar starts by holding this one's last note: its tie starts here and runs to the bar line
+  if (config.tieOut) lastSounding.forEach((h) => ties.push({ x1: h.x + headW, x2: config.width - 0.3 * sp, y: h.y, slotId: h.slotId, below: h.below }));
   if (bar.text) texts.push({ kind: 'barText', text: bar.text, x: lead + 0.3 * sp, y: Math.min(-2 * sp, highest - 0.6 * sp) });
   ys.push(...texts.map((t) => t.y - 1.2 * sp));
   const top = Math.min(...ys) - sp;
   const bottom = Math.max(...ys) + sp;
-  return { glyphs, stems, beams, texts, beatBounds, leaves, top, bottom };
+  return { glyphs, stems, beams, texts, ties, beatBounds, leaves, top, bottom };
 }
 
 /** Leger lines a notehead needs: positions outside 0..8 on even half-steps up to its own. */
