@@ -49,12 +49,18 @@ describe('Editor', () => {
     expect(store.load('a').bars[0].beats[0].cells[0].notes[0].slotId).toBe('snare');
   });
 
-  it('a tap on another beat selects it and places the note there', async () => {
+  it('a tap on another beat selects it; a second tap on it places the note', async () => {
     const store = createStore(memoryStorage());
     store.save(newScore({ id: 'a', title: 'T' }));
     const { container } = render(Editor, { store, id: 'a', onBack: () => {}, onPrint: () => {} });
     const sp = spOf(container);
     await tapAt(container, 5.5 * sp + (300 - 6 * sp) * 0.95, yOf(4, sp)); // far right = last beat
+    expect(store.load('a').bars[0].beats[3].cells[0].notes).toEqual([]);
+    expect(container.querySelector('.status').textContent).toContain('Toque de novo');
+    const stage = container.querySelector('.stage svg');
+    const cards = [...stage.querySelectorAll('rect.card')];
+    const last = cards[3];
+    await tapAt(container, Number(last.getAttribute('x')) + Number(last.getAttribute('width')) / 2, yOf(4, sp));
     expect(store.load('a').bars[0].beats[3].cells[0].notes[0].slotId).toBe('snare');
     expect(container.querySelector('.where').textContent).toContain('4');
   });

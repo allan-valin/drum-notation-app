@@ -60,9 +60,11 @@
     const b = after.score.bars[after.cursor.bar];
     switch (a.type) {
       case 'tap': case 'tapAt':
+        if (after.selectedOnly) return t('status.selected', { pos: p });
         if (after.score === before.score) return t('status.nothingToDelete', { pos: p });
         return before.tool.delete ? t('status.deleted', { pos: p, notes }) : t('status.placed', { pos: p, notes });
       case 'selectValue': case 'selectTuplet':
+        if (before.tool.splitMode === 'cell' && leafAt(after.score, after.cursor) && after.cursor.path.length < before.cursor.path.length) return t('status.merged2', { pos: p, value: t(`value.${after.tool.value.id}`) });
         if (before.tool.splitMode === 'cell') return t('status.splitCell', { pos: `${before.cursor.bar + 1}.${posLabel(before.cursor)}`, value: t(`valuePlural.${after.tool.value.id}`) });
         if (a.type === 'selectTuplet') return after.tool.tuplet ? t('status.tupletOn', { n: after.tool.tuplet }) : t('status.tupletOff');
         return t('status.split', { pos: `${n}.${after.cursor.beat + 1}`, value: t(`valuePlural.${a.value.id}`) });

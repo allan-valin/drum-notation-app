@@ -55,6 +55,48 @@ export function splitCell(score, c, division, tuplet) {
   );
 }
 
+/**
+ * "Célula" mode: make the cell under `c` this value. Shorter splits it (see splitCell). Longer
+ * merges back the enclosing part of the beat whose cells have that value, or the whole beat
+ * when the value is the beat's or longer. A merge keeps the first notes of the merged part and
+ * is refused, `{ refused: 'wouldLoseNotes' }`, when any other note would be deleted. The same
+ * value returns the score unchanged.
+ */
+export function resizeCell(score, c, division, tuplet) {
+  const beat = score.bars[c.bar].beats[c.beat];
+  const parent = parentOf(beat, c.path);
+  if (division.divisionsPerWhole > parent.division.divisionsPerWhole || (tuplet && division !== parent.division)) {
+    return splitCell(score, c, division, tuplet);
+  }
+  if (division === parent.division && !tuplet) return score;
+  // longer: find the ancestor cell whose own value is `division`
+  for (let k = c.path.length - 1; k >= 1; k--) {
+    const prefix = c.path.slice(0, k);
+    if (parentOf(beat, prefix).division === division) {
+      const node = getAt(beat, prefix);
+      if (losesNotes([node], 1)) return { refused: 'wouldLoseNotes' };
+      return mapBeat(score, c, (b) => replaceAt(b, prefix, (g) => leaf(firstNotes(g))));
+    }
+  }
+  if (division.divisionsPerWhole <= beat.division.divisionsPerWhole || division.divisionsPerWhole <= barTimeSig(score, c.bar)[1]) {
+    const [, den] = barTimeSig(score, c.bar);
+    const keep = cellsPerBeat(division, den, null);
+    if (losesNotes(beat.cells, keep)) return { refused: 'wouldLoseNotes' };
+    return splitBeat(score, c, division, null);
+  }
+  return { refused: 'notInThisBeat' };
+}
+
+/** True if collapsing `cells` to their first `keep` top-level cells (each to its first leaf) drops notes. */
+function losesNotes(cells, keep) {
+  const leavesOf = (n) => (isGroup(n) ? n.cells.flatMap(leavesOf) : [n]);
+  return cells.some((c, i) => {
+    const leaves = leavesOf(c);
+    const dropped = i < keep ? leaves.slice(1) : leaves;
+    return dropped.some((l) => l.notes.length > 0);
+  });
+}
+
 /** Undo a split: the group containing `c` becomes one leaf with its first notes. */
 export function mergeCell(score, c) {
   if (c.path.length < 2) return score;

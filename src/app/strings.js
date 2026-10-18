@@ -92,6 +92,7 @@ export const STRINGS = {
       continue: 'Continuar: {title}', or: 'ou escolha uma partitura',
     },
     refused: {
+      sameValue: 'A célula já tem essa figura', wouldLoseNotes: 'Juntar apagaria notas. Apague-as antes (ou use Desfazer depois).', notInThisBeat: 'Essa figura não cabe neste tempo',
       notShorter: 'Escolha uma figura menor que a da célula para dividi-la (ou use o modo Tempo)',
       nothingToMerge: 'Esta célula não está dividida', lastBar: 'A partitura precisa de pelo menos um compasso',
       simileFirstBar: 'O primeiro compasso não tem um anterior para repetir', simileBar: 'Este compasso repete o anterior (%). Desligue o % para escrever nele.',
@@ -129,6 +130,7 @@ export const STRINGS = {
       colourReset: 'Padrão', landscapeHint: 'Na horizontal o tempo em foco fica maior.', ok: 'ok', barAria: 'Compasso',
     },
     status: {
+      selected: 'Posição {pos} selecionada. Toque de novo para escrever.', merged2: 'Célula {pos} agora é {value}',
       techOn: 'Próximas notas: {what}', techOff: '{what} desligado', barTextSet: 'Texto do compasso {n}: {text}', barTextCleared: 'Texto do compasso {n} removido',
       splitCell: 'Célula {pos} dividida em {value}', mode: 'Modo: {mode}', merged: 'Célula {pos} juntada',
       timeSigSet: 'Compasso {n} em {sig}', timeSigInherit: 'Compasso {n} segue a fórmula anterior ({sig})',
@@ -245,6 +247,7 @@ export const STRINGS = {
       continue: 'Continue: {title}', or: 'or pick a score',
     },
     refused: {
+      sameValue: 'The cell already has that value', wouldLoseNotes: 'Merging would delete notes. Delete them first (or Undo afterwards).', notInThisBeat: 'That value does not fit this beat',
       notShorter: 'Pick a value shorter than the cell to split it (or use Beat mode)',
       nothingToMerge: 'This cell is not split', lastBar: 'A score needs at least one bar',
       simileFirstBar: 'The first bar has no previous bar to repeat', simileBar: 'This bar repeats the previous one (%). Turn % off to write in it.',
@@ -282,6 +285,7 @@ export const STRINGS = {
       colourReset: 'Default', landscapeHint: 'Turn the phone sideways for a bigger beat.', ok: 'ok', barAria: 'Bar',
     },
     status: {
+      selected: 'Position {pos} selected. Tap again to write.', merged2: 'Cell {pos} is now {value}',
       techOn: 'Next notes: {what}', techOff: '{what} off', barTextSet: 'Bar {n} text: {text}', barTextCleared: 'Bar {n} text removed',
       splitCell: 'Cell {pos} split into {value}', mode: 'Mode: {mode}', merged: 'Cell {pos} merged',
       timeSigSet: 'Bar {n} in {sig}', timeSigInherit: 'Bar {n} follows the previous signature ({sig})',
@@ -398,6 +402,7 @@ export const STRINGS = {
       continue: 'Weiter: {title}', or: 'oder eine Partitur wählen',
     },
     refused: {
+      sameValue: 'Die Zelle hat diesen Wert schon', wouldLoseNotes: 'Verbinden würde Noten löschen. Erst löschen (oder danach Rückgängig).', notInThisBeat: 'Dieser Wert passt nicht in diesen Schlag',
       notShorter: 'Einen kürzeren Notenwert als die Zelle wählen, um sie zu teilen (oder Schlag-Modus nutzen)',
       nothingToMerge: 'Diese Zelle ist nicht geteilt', lastBar: 'Eine Partitur braucht mindestens einen Takt',
       simileFirstBar: 'Der erste Takt hat keinen vorherigen zum Wiederholen', simileBar: 'Dieser Takt wiederholt den vorherigen (%). % ausschalten, um hineinzuschreiben.',
@@ -435,6 +440,7 @@ export const STRINGS = {
       colourReset: 'Standard', landscapeHint: 'Im Querformat wird der Schlag größer.', ok: 'ok', barAria: 'Takt',
     },
     status: {
+      selected: 'Position {pos} gewählt. Nochmals tippen zum Schreiben.', merged2: 'Zelle {pos} ist jetzt {value}',
       techOn: 'Nächste Noten: {what}', techOff: '{what} aus', barTextSet: 'Text von Takt {n}: {text}', barTextCleared: 'Text von Takt {n} entfernt',
       splitCell: 'Zelle {pos} in {value} geteilt', mode: 'Modus: {mode}', merged: 'Zelle {pos} verbunden',
       timeSigSet: 'Takt {n} in {sig}', timeSigInherit: 'Takt {n} folgt der vorherigen Taktart ({sig})',

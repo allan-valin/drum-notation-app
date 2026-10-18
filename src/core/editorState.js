@@ -1,9 +1,9 @@
 import { NoteValue, NOTE_VALUES } from './noteValue.js';
 import { note, Articulation } from './score.js';
 import { cursor as mkCursor, next, prev, leafAt, clamp } from './cursor.js';
-import { parentOf } from './tree.js';
+import { parentOf, leafPaths, getAt } from './tree.js';
 import {
-  placeNote, deleteNote, clearLeaf, splitBeat, splitCell, mergeCell, addBar, removeBar,
+  placeNote, deleteNote, clearLeaf, splitBeat, splitCell, resizeCell, mergeCell, addBar, removeBar,
   setTimeSig, toggleSimile, toggleRepeatStart, toggleRepeatEnd, setBarText,
 } from './edit.js';
 import { profileById, slotNearest } from './profile.js';
@@ -26,12 +26,15 @@ export function initialState(score) {
 }
 
 export function reduce(state, action) {
-  const st = state.refused ? { ...state, refused: null } : state;
+  const st = state.refused || state.selectedOnly ? { ...state, refused: null, selectedOnly: false } : state;
   switch (action.type) {
     case 'tap': return tap(st, action.staffPosition);
     case 'tapAt': {
-      const moved = syncTool({ ...st, cursor: clamp(st.score, { bar: st.cursor.bar, beat: action.beat, path: action.path }) });
-      return tap(moved, action.staffPosition);
+      // first tap on a cell selects it; a tap on the selected cell writes
+      const target = clamp(st.score, { bar: st.cursor.bar, beat: action.beat, path: action.path });
+      const same = target.beat === st.cursor.beat && target.path.join('.') === st.cursor.path.join('.');
+      if (!same) return { ...syncTool({ ...st, cursor: target }), selectedOnly: true };
+      return tap(st, action.staffPosition);
     }
     case 'selectValue': return split(st, action.value, st.tool.splitMode === 'cell' ? null : st.tool.tuplet);
     case 'selectTuplet': {
@@ -100,13 +103,31 @@ function tap(st, staffPosition) {
 
 function split(st, value, tuplet) {
   if (st.tool.splitMode === 'cell') {
-    const s = splitCell(st.score, st.cursor, value, tuplet);
-    if (s === st.score) return { ...st, refused: 'notShorter' };
-    const deeper = clamp(s, { ...st.cursor, path: [...st.cursor.path, 0] });
-    return syncTool({ ...push(st), score: s, cursor: deeper });
+    const s = resizeCell(st.score, st.cursor, value, tuplet);
+    if (s.refused) return { ...st, refused: s.refused };
+    if (s === st.score) return { ...st, refused: 'sameValue' };
+    const before = leafCount(st.score, st.cursor);
+    const after = leafCount(s, st.cursor);
+    // split: go into the first new cell; merge: land on the merged cell
+    const path = after > before ? [...st.cursor.path, 0] : st.cursor.path;
+    return syncTool({ ...push(st), score: s, cursor: clamp(s, { ...st.cursor, path: after > before ? path : shrinkTo(s, st.cursor) }) });
   }
   const out = edit(st, (s) => splitBeat(s, st.cursor, value, tuplet));
   return syncTool(clampCursor({ ...out, cursor: { ...out.cursor, path: [Math.min(out.cursor.path[0], 99)] } }));
+}
+
+function leafCount(score, c) {
+  return leafPaths(score.bars[c.bar].beats[c.beat]).length;
+}
+
+/** After a merge, the deepest prefix of the old path that is now a leaf. */
+function shrinkTo(score, c) {
+  const beat = score.bars[c.bar].beats[c.beat];
+  for (let k = c.path.length; k >= 1; k--) {
+    const node = getAt(beat, c.path.slice(0, k));
+    if (node && !node.cells) return c.path.slice(0, k);
+  }
+  return [0];
 }
 
 function currentValue(st) {

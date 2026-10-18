@@ -112,14 +112,14 @@ describe('editor state, round 1 feedback', () => {
     expect(st.cursor).toEqual(cursor(0, 0, 1, 0));
     expect(st.tool.value).toBe(NoteValue.SIXTEENTH);
   });
-  it('in Célula mode a value that is not shorter is refused and says so', () => {
+  it('in Célula mode the value the cell already has is refused and says so', () => {
     const st = run(start(), { type: 'selectValue', value: NoteValue.EIGHTH }, { type: 'setSplitMode', mode: 'cell' });
     const after = reduce(st, { type: 'selectValue', value: NoteValue.EIGHTH });
     expect(after.score).toBe(st.score);
-    expect(after.refused).toBe('notShorter');
+    expect(after.refused).toBe('sameValue');
   });
-  it('tapping another cell selects it and places the note there', () => {
-    const st = run(start(), { type: 'tapAt', beat: 2, path: [0], staffPosition: snarePos });
+  it('tapping another cell selects it; tapping it again places the note there', () => {
+    const st = run(start(), { type: 'tapAt', beat: 2, path: [0], staffPosition: snarePos }, { type: 'tapAt', beat: 2, path: [0], staffPosition: snarePos });
     expect(st.cursor).toEqual(cursor(0, 2, 0));
     expect(notes(st).map((n) => n.slotId)).toEqual(['snare']);
   });
