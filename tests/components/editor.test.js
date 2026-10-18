@@ -31,6 +31,7 @@ beforeAll(() => {
 });
 
 const heads = (container) => [...container.querySelectorAll('.stage text')].filter((t) => t.textContent === Glyphs.notehead('normal', NoteValue.QUARTER) || t.textContent === Glyphs.notehead('cross', NoteValue.QUARTER));
+const spOf = (container) => Number(container.querySelectorAll('.stage .staffline')[1].getAttribute('y1'));
 const tapAt = (container, x, y) => fireEvent.pointerDown(container.querySelector('.stage svg'), { clientX: x, clientY: y });
 
 describe('Editor', () => {
@@ -39,7 +40,7 @@ describe('Editor', () => {
     store.save(newScore({ id: 'a', title: 'T' }));
     const { container } = render(Editor, { store, id: 'a', onBack: () => {}, onPrint: () => {} });
     const svg = container.querySelector('.stage svg');
-    const sp = 14; // jsdom reports clientWidth 0 → the editor clamps to its 300 px minimum → sp = 14
+    const sp = spOf(container); // jsdom reports clientWidth 0 → the editor clamps to its 300 px minimum
     const lead = 5.5 * sp; // clef + time signature
     expect(heads(container).length).toBe(0);
     await tapAt(container, lead + 20, yOf(4, sp)); // snare line, first (focused) beat
@@ -52,7 +53,8 @@ describe('Editor', () => {
     const store = createStore(memoryStorage());
     store.save(newScore({ id: 'a', title: 'T' }));
     const { container } = render(Editor, { store, id: 'a', onBack: () => {}, onPrint: () => {} });
-    await tapAt(container, 5.5 * 14 + (300 - 5.5 * 14 - 7) * 0.95, yOf(4, 14)); // far right = last beat, not focused
+    const sp = spOf(container);
+    await tapAt(container, 5.5 * sp + (300 - 6 * sp) * 0.95, yOf(4, sp)); // far right = last beat, not focused
     expect(heads(container).length).toBe(0);
     expect(container.querySelector('.status').textContent).toContain('não está em foco');
   });
@@ -66,7 +68,7 @@ describe('Editor', () => {
     expect(container.querySelector('.where').textContent).toContain('tempo 1.1');
     await fireEvent.click(getByLabelText('Próxima posição'));
     expect(container.querySelector('.where').textContent).toContain('tempo 1.2');
-    const sp = 14, lead = 5.5 * sp;
+    const sp = spOf(container), lead = 5.5 * sp;
     const focusedWidth = ((300 - lead - 0.5 * sp) / 5.5) * 2.5;
     await tapAt(container, lead + focusedWidth * 0.75, yOf(-2, sp)); // kick, second cell
     expect(store.load('a').bars[0].beats[0].cells[1].notes[0].slotId).toBe('kick');

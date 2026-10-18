@@ -15,6 +15,8 @@
   let status = $state(loaded ? `Aberto: ${loaded.title || 'sem título'}` : 'Partitura nova');
   let savedAt = $state('');
   let width = $state(360);
+  let height = $state(640);
+  const landscape = $derived(width >= 640 && width > height);
   let showHint = $state(true);
   const settings = store.loadSettings();
   let colours = $state({ ...DEFAULT_COLOURS, ...(settings.colours ?? {}) });
@@ -55,6 +57,7 @@
       case 'addBar': return `Compasso ${after.score.bars.length} adicionado`;
       case 'removeBar': return after.score === before.score ? 'A partitura precisa de pelo menos um compasso' : `Compasso removido (${after.score.bars.length} restantes)`;
       case 'undo': return after.score === before.score ? 'Nada para desfazer' : 'Desfeito';
+      case 'goTo': return `Posição ${pos()}: ${list}`;
       case 'setTitle': return 'Título atualizado';
       case 'setBpm': return `BPM: ${after.score.defaultBpm}`;
       default: return status;
@@ -82,16 +85,19 @@
     else if (e.key === 'z' && (e.ctrlKey || e.metaKey)) dispatch({ type: 'undo' });
   }
 
-  const sp = $derived(Math.max(14, Math.min(26, width / 34)));
+  // staff spacing: wide enough to tap, but the whole stage must fit a phone held sideways
+  const sp = $derived(Math.max(12, Math.min(26, width / 34, (height - (landscape ? 150 : 300)) / 15)));
 </script>
 
-<svelte:window onkeydown={onKey} />
+<svelte:window onkeydown={onKey} bind:innerHeight={height} />
 
 <div class="editor" bind:clientWidth={width}>
   <header class="no-print">
     <button onclick={onBack} aria-label="Voltar ao arquivo">‹ Arquivo</button>
     <input type="text" value={st.score.title} placeholder="Título" aria-label="Título" onchange={(e) => dispatch({ type: 'setTitle', title: e.target.value })} />
     <label class="bpm">BPM <input type="number" min="20" max="300" value={st.score.defaultBpm} onchange={(e) => dispatch({ type: 'setBpm', bpm: Number(e.target.value) || 80 })} /></label>
+    <button onclick={() => dispatch({ type: 'addBar' })} aria-label="Adicionar compasso" title="Adicionar compasso">+</button>
+    <button onclick={() => { if (confirm(`Remover o compasso ${st.cursor.bar + 1}?`)) dispatch({ type: 'removeBar' }); }} disabled={st.score.bars.length <= 1} aria-label="Remover compasso" title="Remover este compasso">−</button>
     <button onclick={onPrint} aria-label="Imprimir ou salvar PDF">PDF</button>
   </header>
 
@@ -101,14 +107,6 @@
     </aside>
 
     <main>
-      <div class="barnav no-print">
-        <button onclick={() => dispatch({ type: 'goTo', cursor: mkCursor(st.cursor.bar - 1, 0, 0) })} disabled={st.cursor.bar === 0} aria-label="Compasso anterior">« compasso</button>
-        <span class="where">Compasso {st.cursor.bar + 1} de {st.score.bars.length} · tempo {st.cursor.beat + 1}{bar.beats[st.cursor.beat].cells.length > 1 ? `.${st.cursor.cell + 1}` : ''}</span>
-        <button onclick={() => dispatch({ type: 'goTo', cursor: mkCursor(st.cursor.bar + 1, 0, 0) })} disabled={st.cursor.bar >= st.score.bars.length - 1} aria-label="Próximo compasso">compasso »</button>
-        <button onclick={() => dispatch({ type: 'addBar' })} aria-label="Adicionar compasso">+ compasso</button>
-        <button onclick={() => { if (confirm(`Remover o compasso ${st.cursor.bar + 1}?`)) dispatch({ type: 'removeBar' }); }} disabled={st.score.bars.length <= 1} aria-label="Remover compasso">− compasso</button>
-      </div>
-
       <div class="stage">
         <ScoreSvg
           {bar}
@@ -126,15 +124,18 @@
       </div>
 
       <div class="move no-print">
+        <button onclick={() => dispatch({ type: 'goTo', cursor: mkCursor(st.cursor.bar - 1, 0, 0) })} disabled={st.cursor.bar === 0} aria-label="Compasso anterior" title="Compasso anterior">«</button>
         <button class="big" onclick={() => dispatch({ type: 'prev' })} aria-label="Posição anterior">‹</button>
         <div class="status" aria-live="polite">
+          <div class="where">Compasso {st.cursor.bar + 1} de {st.score.bars.length} · tempo {st.cursor.beat + 1}{bar.beats[st.cursor.beat].cells.length > 1 ? `.${st.cursor.cell + 1}` : ''}</div>
           <div>{status}</div>
-          <div class="saved">{savedAt ? `salvo ${savedAt}` : 'nada alterado ainda'} · {st.score.bars.length} compasso{st.score.bars.length === 1 ? '' : 's'}</div>
+          <div class="saved">{savedAt ? `salvo ${savedAt}` : 'nada alterado ainda'}</div>
         </div>
         <button class="big" onclick={() => dispatch({ type: 'next' })} aria-label="Próxima posição">›</button>
+        <button onclick={() => dispatch({ type: 'goTo', cursor: mkCursor(st.cursor.bar + 1, 0, 0) })} disabled={st.cursor.bar >= st.score.bars.length - 1} aria-label="Próximo compasso" title="Próximo compasso">»</button>
       </div>
 
-      <details class="overview no-print" open>
+      <details class="overview no-print" open={!landscape}>
         <summary>Partitura inteira</summary>
         <div class="bars">
           {#each st.score.bars as b, i}
@@ -170,12 +171,11 @@
   .bpm input { width: 64px; }
   .body { display: flex; flex-direction: column; gap: 8px; padding: 8px; }
   main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 8px; }
-  .barnav { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
-  .where { flex: 1; text-align: center; font-size: 14px; color: var(--muted); min-width: 140px; }
+  .where { font-size: 13px; color: var(--muted); }
   .stage { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 4px; overflow-x: auto; }
-  .move { display: flex; gap: 8px; align-items: stretch; }
+  .move { display: flex; gap: 6px; align-items: stretch; }
   .big { font-size: 28px; min-width: 64px; }
-  .status { flex: 1; font-size: 14px; display: flex; flex-direction: column; justify-content: center; padding: 0 4px; min-height: var(--tap); }
+  .status { flex: 1; font-size: 14px; display: flex; flex-direction: column; justify-content: center; padding: 0 4px; min-height: var(--tap); min-width: 0; line-height: 1.25; }
   .saved { font-size: 12px; color: var(--muted); }
   .overview summary, .colours summary { cursor: pointer; color: var(--muted); font-size: 14px; padding: 6px 0; }
   .bars { display: flex; flex-wrap: wrap; gap: 6px; }
@@ -186,7 +186,9 @@
   .swatches label { display: flex; align-items: center; gap: 6px; font-size: 14px; }
   .hint { font-size: 13px; color: var(--muted); display: flex; gap: 8px; align-items: center; margin: 0; }
   @media (orientation: landscape) and (min-width: 640px) {
-    .body { flex-direction: row; }
+    header { padding: 4px 8px; }
+    .body { flex-direction: row; padding: 6px; }
     aside { width: 160px; flex: none; }
+    .stage { padding: 0; }
   }
 </style>

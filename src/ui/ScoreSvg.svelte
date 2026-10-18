@@ -75,10 +75,11 @@
 
   {#if showGuides && focusedBeat !== null && layout.beatBounds[focusedBeat]}
     {@const [a, b] = layout.beatBounds[focusedBeat]}
-    {#each staff.slots as slot}
+    {#each staff.slots as slot, i}
       {@const y = yOf(slot.staffPosition, sp)}
       <line class="guide" x1={lead + a} x2={lead + b} y1={y} y2={y} />
-      <text class="guide-label" x={lead + a + 0.3 * sp} y={y - 0.25 * sp} font-size={0.9 * sp}>{slot.name}</text>
+      <!-- two staggered columns so names one half-step apart do not collide -->
+      <text class="guide-label" x={lead + a + 0.2 * sp + (i % 2) * 3.4 * sp} y={y + 0.25 * sp} font-size={0.7 * sp}>{slot.name}</text>
     {/each}
   {/if}
 
