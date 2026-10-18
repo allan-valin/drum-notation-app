@@ -36,13 +36,21 @@ docs/SCORE_IMPORT_PROMPT.md
 
 ## Checklist
 
-- [ ] 1 scaffold builds + tests + deploys (this commit)
-- [ ] 2–8 pure core ported with the plan's tests
-- [ ] 9 glyph table (codepoints verified against SMuFL glyphnames.json 2026-10-18)
-- [ ] 10 layout
-- [ ] 11 JSON, 12 storage
-- [ ] 13 ScoreSvg + staffPositionAt
-- [ ] 14 editor state + Editor.svelte
-- [ ] 15 colours
-- [ ] 16 archive, print, import prompt
-- [ ] phone check on the Redmi over LAN, then on the live site
+- [x] 1 scaffold builds + tests + deploys (live 2026-10-18 at https://allan-valin.github.io/drum-notation-app/)
+- [x] 2–8 pure core ported with the plan's tests
+- [x] 9 glyph table (codepoints verified against SMuFL glyphnames.json 2026-10-18)
+- [x] 10 layout
+- [x] 11 JSON, 12 storage
+- [x] 13 ScoreSvg + staffPositionAt
+- [x] 14 editor state + Editor.svelte (undo added; tap outside the focused cell is refused with a hint, per the spec)
+- [x] 15 colours (user-editable, persisted in settings)
+- [x] 16 archive, print, import prompt; service worker for offline
+- [ ] phone check on the Redmi: open the live site, enter one real exercise, print to PDF from the phone
+- [ ] decide from use: tap-to-focus a neighbouring beat (spec deferred it); delete toggle latching; slot labels overlapping noteheads
+
+## Verified 2026-10-18 (headless Chromium, phone viewports 800×360 and 390×844)
+
+Entry of kick+hihat eighths, four accented/ghosted/stuck sixteenths, a quarter triplet with
+snare/floor tom/crash, a second bar; the stored JSON matched the taps in both orientations, and
+the print page laid two bars on one baseline. Screenshots were not kept; rerun by driving the
+live site.

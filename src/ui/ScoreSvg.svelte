@@ -20,6 +20,8 @@
     showGuides = false,
     onTap = null,
     deleteMode = false,
+    /** fixed vertical range in staff spaces (above the top line, below it), so bars in a row share a baseline */
+    fixedRange = null,
   } = $props();
 
   const sp = $derived(staffSpacing);
@@ -28,8 +30,8 @@
   const layout = $derived(layoutBar(bar, staff, { width: barWidth, staffSpacing: sp, focusedBeat }));
   const guideTop = $derived(yOf(staff.slots[staff.slots.length - 1].staffPosition, sp) - 1.5 * sp);
   const guideBottom = $derived(yOf(staff.slots[0].staffPosition, sp) + 2.5 * sp);
-  const top = $derived(Math.min(layout.top, showGuides ? guideTop : layout.top) - 0.5 * sp);
-  const bottom = $derived(Math.max(layout.bottom, showGuides ? guideBottom : layout.bottom) + 0.5 * sp);
+  const top = $derived(fixedRange ? -fixedRange[0] * sp : Math.min(layout.top, showGuides ? guideTop : layout.top) - 0.5 * sp);
+  const bottom = $derived(fixedRange ? fixedRange[1] * sp : Math.max(layout.bottom, showGuides ? guideBottom : layout.bottom) + 0.5 * sp);
   const height = $derived(bottom - top);
   const fontSize = $derived(4 * sp);
   const colourOf = (value) => colourFor(value, colours);

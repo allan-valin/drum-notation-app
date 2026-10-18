@@ -51,9 +51,10 @@
 <style>
   .palette { display: flex; flex-direction: column; gap: 10px; }
   .group { display: flex; flex-wrap: wrap; gap: 6px; }
-  .values button { flex-direction: column; }
+  .values button { flex-direction: column; min-height: 60px; padding-top: 10px; }
   button { display: inline-flex; align-items: center; justify-content: center; gap: 2px; min-width: 52px; padding: 2px 6px; line-height: 1; }
   .glyph { font-size: 30px; line-height: 1; display: inline-block; height: 30px; transform: translateY(-4px); }
+  .values .glyph { transform: translateY(4px); }
   .small-glyph { font-size: 24px; }
   .small { font-size: 10px; color: inherit; opacity: 0.8; }
   @media (orientation: landscape) and (min-width: 640px) {

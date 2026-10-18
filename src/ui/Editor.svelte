@@ -141,7 +141,7 @@
           {#each st.score.bars as b, i}
             <button class="barthumb" class:current={i === st.cursor.bar} onclick={() => dispatch({ type: 'goTo', cursor: mkCursor(i, 0, 0) })} aria-label="Ir ao compasso {i + 1}">
               <span class="n">{i + 1}</span>
-              <ScoreSvg bar={b} {staff} width={220} staffSpacing={6} showClef={i === 0} timeSig={i === 0 ? [st.score.timeSigNum, st.score.timeSigDen] : null} {colours} />
+              <ScoreSvg bar={b} {staff} width={220} staffSpacing={6} showClef={i === 0} timeSig={i === 0 ? [st.score.timeSigNum, st.score.timeSigDen] : null} {colours} fixedRange={[8, 10]} />
             </button>
           {/each}
         </div>
@@ -165,7 +165,7 @@
 
 <style>
   .editor { display: flex; flex-direction: column; min-height: 100vh; min-height: 100dvh; }
-  header { display: flex; gap: 8px; align-items: center; padding: 8px; border-bottom: 1px solid var(--line); }
+  header { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; padding: 8px; border-bottom: 1px solid var(--line); }
   header input[type='text'] { flex: 1; min-width: 80px; }
   .bpm { display: flex; align-items: center; gap: 4px; font-size: 13px; color: var(--muted); }
   .bpm input { width: 64px; }

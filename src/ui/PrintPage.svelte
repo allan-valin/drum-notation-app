@@ -33,7 +33,7 @@
         <div class="line">
           {#each line as bi, k}
             <div class="bar" style="flex: {k === 0 ? 1.25 : 1}">
-              <ScoreSvg bar={score.bars[bi]} {staff} width={k === 0 ? LINE * 1.25 / line.length : LINE / line.length} staffSpacing={9} showClef={k === 0} timeSig={bi === 0 ? [score.timeSigNum, score.timeSigDen] : null} {colours} />
+              <ScoreSvg bar={score.bars[bi]} {staff} width={k === 0 ? LINE * 1.25 / line.length : LINE / line.length} staffSpacing={9} showClef={k === 0} timeSig={bi === 0 ? [score.timeSigNum, score.timeSigDen] : null} {colours} fixedRange={[8, 10]} />
             </div>
           {/each}
         </div>
