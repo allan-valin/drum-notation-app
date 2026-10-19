@@ -182,7 +182,7 @@ describe('play mode', () => {
     expect(container.querySelectorAll('.full .frame.inrange').length).toBe(2);
     await fireEvent.click(getByLabelText('Tocar'));
     expect(container.querySelector('.status').textContent).toContain('Tocando compassos 2–3');
-    const pal = () => container.querySelector('.palette-area');
+    const pal = () => container.querySelector('.palette-area .palette-scroll');
     expect(pal().inert === true || pal().hasAttribute('inert')).toBe(true);
     expect(pal().classList.contains('locked')).toBe(true);
     await fireEvent.click(getByLabelText('Próxima posição'));
@@ -371,5 +371,27 @@ describe('round 4', () => {
     const full = store.load('a');
     expect(partView(full, 'p1').bars[1].beats[0].cells[0].notes[0].slotId).toBe('kick');
     expect(full.bars.length).toBe(2);
+  });
+
+  it('the palette sidebar folds away with « and comes back with » where it was scrolled to', async () => {
+    const store = createStore(memoryStorage());
+    store.save(newScore({ id: 'a', title: 'T' }));
+    const { container } = render(Editor, { store, id: 'a', onBack: () => {}, onPrint: () => {} });
+    const aside = container.querySelector('.palette-area');
+    const scroller = aside.querySelector('.palette-scroll');
+    let top = 0; // jsdom does not scroll: a plain property stands in
+    Object.defineProperty(scroller, 'scrollTop', { get: () => top, set: (v) => (top = v), configurable: true });
+    const toggle = aside.querySelector('.palette-toggle');
+    expect(toggle.textContent.trim()).toBe('«');
+    expect(toggle.getAttribute('aria-expanded')).toBe('true');
+    top = 420;
+    await fireEvent.click(toggle);
+    expect(aside.classList.contains('collapsed')).toBe(true);
+    expect(toggle.textContent.trim()).toBe('»');
+    expect(toggle.getAttribute('aria-expanded')).toBe('false');
+    top = 0; // display: none drops the scroll position in a real browser
+    await fireEvent.click(toggle);
+    expect(aside.classList.contains('collapsed')).toBe(false);
+    expect(top).toBe(420);
   });
 });

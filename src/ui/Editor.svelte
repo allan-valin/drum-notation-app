@@ -1,4 +1,5 @@
 <script>
+  import { tick } from 'svelte';
   import ScoreSvg from './ScoreSvg.svelte';
   import Palette from './Palette.svelte';
   import BarRow from './BarRow.svelte';
@@ -38,6 +39,15 @@
   let playing = $state(false);
   let playhead = $state(null);
   let playMode = $state('bar');
+  // landscape sidebar folds to a strip; display: none forgets the scroll, so it is kept here
+  let paletteOpen = $state(true);
+  let paletteScroll = $state(null);
+  let paletteTop = 0;
+  async function togglePalette() {
+    if (paletteOpen) paletteTop = paletteScroll.scrollTop;
+    paletteOpen = !paletteOpen;
+    if (paletteOpen) { await tick(); paletteScroll.scrollTop = paletteTop; }
+  }
   let range = $state(null);
   let selecting = $state(false);
   let onlyPart = $state(false);
@@ -217,7 +227,7 @@
 
   // staff spacing: big enough to tap, small enough that stage + controls fit a phone held sideways
   const sp = $derived(Math.max(12, Math.min(22, width / 36, (height - (landscape ? 150 : 300)) / 15)));
-  const stageWidth = $derived(Math.max(300, width - (landscape ? 230 : 0) - 16));
+  const stageWidth = $derived(Math.max(300, width - (landscape ? (paletteOpen ? 230 : 58) : 0) - 16));
 </script>
 
 <svelte:window onkeydown={onKey} bind:innerHeight={height} />
@@ -232,8 +242,11 @@
   </header>
 
   <div class="body">
-    <aside class="palette-area no-print" class:locked={playing} inert={playing}>
+    <aside class="palette-area no-print" class:collapsed={!paletteOpen}>
+      <button class="palette-toggle" onclick={togglePalette} aria-expanded={paletteOpen} aria-label={t(paletteOpen ? 'editor.paletteHide' : 'editor.paletteShow')} title={t(paletteOpen ? 'editor.paletteHide' : 'editor.paletteShow')}>{paletteOpen ? '«' : '»'}</button>
+      <div class="palette-scroll" class:locked={playing} inert={playing} bind:this={paletteScroll}>
       <Palette tool={st.tool} canUndo={st.history.length > 0} canMerge={st.cursor.path.length > 1} onAction={dispatch} onLegend={() => (overlay = 'legend')} onHelp={() => (overlay = 'help')} {profile} parts={partList} part={st.part} lyric={leafAt(st.score, st.cursor).lyric ?? ''} chord={leafAt(st.score, st.cursor).chord ?? ''} {lyricsInfo} />
+      </div>
     </aside>
 
       <div class="stage">
@@ -308,6 +321,7 @@
   .stage { grid-area: stage; }
   .move { grid-area: move; }
   .palette-area { grid-area: palette; background: var(--toolbar); border: 1px solid var(--line); border-radius: var(--radius); padding: 8px; }
+  .palette-toggle { display: none; }
   .bars-area { grid-area: bars; }
   .full-area { grid-area: full; }
   .transport-area { grid-area: transport; }
@@ -327,7 +341,13 @@
     header { padding: 4px 8px; }
     .body { grid-template-columns: 220px minmax(0, 1fr); grid-template-areas: 'palette stage' 'palette move' 'palette bars' 'palette transport' 'palette full' 'palette colours'; grid-template-rows: auto auto auto auto auto 1fr; padding: 6px; align-items: start; }
     /* its own scroll: the palette is long, the page is as long as the score */
-    .palette-area { position: sticky; top: 6px; max-height: calc(100vh - 70px); max-height: calc(100dvh - 70px); overflow-y: auto; overscroll-behavior: contain; }
+    .palette-area { position: sticky; top: 6px; max-height: calc(100vh - 70px); max-height: calc(100dvh - 70px); display: flex; flex-direction: column; padding: 0; }
+    .palette-scroll { overflow-y: auto; overscroll-behavior: contain; padding: 0 8px 8px; min-height: 0; }
+    /* outside the scroll, so it never scrolls away */
+    .palette-toggle { display: block; flex: none; align-self: flex-end; margin: 4px; min-width: var(--tap); font-size: 20px; }
+    .body:has(.collapsed) { grid-template-columns: 52px minmax(0, 1fr); }
+    .collapsed .palette-scroll { display: none; }
+    .collapsed .palette-toggle { align-self: center; }
     .stage { padding: 0; }
   }
 </style>

@@ -207,7 +207,7 @@ export const STRINGS = {
       prevBar: 'Compasso anterior', nextBar: 'Próximo compasso', prevPos: 'Posição anterior', nextPos: 'Próxima posição',
       where: 'Compasso {bar} de {total} · tempo {beat}', saved: 'salvo {time}', notSaved: 'nada alterado ainda',
       wholeScore: 'Partitura inteira', goToBar: 'Ir ao compasso {n}', colours: 'Cores por figura',
-      colourReset: 'Padrão', landscapeHint: 'Na horizontal o tempo em foco fica maior.', ok: 'ok', barAria: 'Compasso',
+      colourReset: 'Padrão', paletteHide: 'Recolher a barra lateral', paletteShow: 'Abrir a barra lateral', landscapeHint: 'Na horizontal o tempo em foco fica maior.', ok: 'ok', barAria: 'Compasso',
     },
     status: {
       ped_down: 'Pedal abaixa em {pos}', ped_up: 'Pedal sobe em {pos}', pedRemoved: 'Marca de pedal removida em {pos}',
@@ -452,7 +452,7 @@ export const STRINGS = {
       prevBar: 'Previous bar', nextBar: 'Next bar', prevPos: 'Previous position', nextPos: 'Next position',
       where: 'Bar {bar} of {total} · beat {beat}', saved: 'saved {time}', notSaved: 'nothing changed yet',
       wholeScore: 'Whole score', goToBar: 'Go to bar {n}', colours: 'Colours per note value',
-      colourReset: 'Default', landscapeHint: 'Turn the phone sideways for a bigger beat.', ok: 'ok', barAria: 'Bar',
+      colourReset: 'Default', paletteHide: 'Collapse the sidebar', paletteShow: 'Open the sidebar', landscapeHint: 'Turn the phone sideways for a bigger beat.', ok: 'ok', barAria: 'Bar',
     },
     status: {
       ped_down: 'Pedal down at {pos}', ped_up: 'Pedal up at {pos}', pedRemoved: 'Pedal mark removed at {pos}',
@@ -697,7 +697,7 @@ export const STRINGS = {
       prevBar: 'Vorheriger Takt', nextBar: 'Nächster Takt', prevPos: 'Vorherige Position', nextPos: 'Nächste Position',
       where: 'Takt {bar} von {total} · Schlag {beat}', saved: 'gespeichert {time}', notSaved: 'noch nichts geändert',
       wholeScore: 'Ganze Partitur', goToBar: 'Zu Takt {n}', colours: 'Farben je Notenwert',
-      colourReset: 'Standard', landscapeHint: 'Im Querformat wird der Schlag größer.', ok: 'ok', barAria: 'Takt',
+      colourReset: 'Standard', paletteHide: 'Seitenleiste einklappen', paletteShow: 'Seitenleiste ausklappen', landscapeHint: 'Im Querformat wird der Schlag größer.', ok: 'ok', barAria: 'Takt',
     },
     status: {
       ped_down: 'Pedal unten bei {pos}', ped_up: 'Pedal oben bei {pos}', pedRemoved: 'Pedalmarke bei {pos} entfernt',
