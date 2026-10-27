@@ -17,7 +17,7 @@ describe('import prompt in every language', () => {
         ...NOTEHEADS.filter((h) => h !== 'normal'),
         ...Object.values(Mark), ...Object.values(Roll), ...Object.values(Grace),
         'quarter', 'eighth', 'sixteenth', 'thirtySecond', 'timeSig', 'simile', 'repeatStart', 'repeatEnd', 'text',
-        ...INSTRUMENTS, 'parts', 'instrument', 'alter', 'key', 'cont', 'dyn', 'wedge', 'lyric', 'slur', 'chord', 'swing', 'schema_version": 3',
+        ...INSTRUMENTS, 'parts', 'instrument', 'alter', 'key', 'cont', 'dyn', 'wedge', 'lyric', 'slur', 'chord', 'swing', 'schema_version": 4', 'lower', 'stem', 'tuplet', 'sticking', 'articulations', 'ped',
       ];
       for (const id of ids) expect(text, `${lang} missing ${id}`).toContain(id);
       expect(NOTE_VALUES.length).toBe(6);
@@ -26,6 +26,15 @@ describe('import prompt in every language', () => {
       const blocks = [...text.matchAll(/```json\n([\s\S]*?)```/g)].map((m) => m[1]);
       expect(blocks.length).toBeGreaterThanOrEqual(2);
       for (const json of blocks) expect(decode(json).bars[0].beats.length).toBe(4);
+      // the first example is one JSON with several bars, a lower voice and a stem override
+      const first = decode(blocks[0]);
+      expect(first.bars.length).toBeGreaterThanOrEqual(4);
+      expect(first.bars.some((b) => b.lower)).toBe(true);
+      expect(blocks[0]).toContain('"stem": "up"');
+    });
+    it(`${lang}: says one image is one JSON with every bar, and has a checklist`, () => {
+      expect(text).toMatch(/22/);
+      expect((text.match(/^### /gm) ?? []).length).toBeGreaterThanOrEqual(12);
     });
   }
   it('the link follows the language', () => {
