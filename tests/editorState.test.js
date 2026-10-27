@@ -103,7 +103,7 @@ describe('editor state, round 1 feedback', () => {
   it('starts in Tempo mode', () => {
     expect(start().tool.splitMode).toBe('beat');
   });
-  it('in Célula mode a value splits only the focused cell', () => {
+  it('in Subdivisão mode a value splits only the focused cell', () => {
     let st = run(start(), { type: 'selectValue', value: NoteValue.EIGHTH }, { type: 'next' }, { type: 'setSplitMode', mode: 'cell' });
     st = reduce(st, { type: 'selectValue', value: NoteValue.SIXTEENTH });
     const b = beatAt(st.score, st.cursor);
@@ -112,7 +112,7 @@ describe('editor state, round 1 feedback', () => {
     expect(st.cursor).toEqual(cursor(0, 0, 1, 0));
     expect(st.tool.value).toBe(NoteValue.SIXTEENTH);
   });
-  it('in Célula mode the value the cell already has is refused and says so', () => {
+  it('in Subdivisão mode the value the cell already has is refused and says so', () => {
     const st = run(start(), { type: 'selectValue', value: NoteValue.EIGHTH }, { type: 'setSplitMode', mode: 'cell' });
     const after = reduce(st, { type: 'selectValue', value: NoteValue.EIGHTH });
     expect(after.score).toBe(st.score);

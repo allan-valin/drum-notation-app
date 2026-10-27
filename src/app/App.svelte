@@ -4,11 +4,13 @@
   import PrintPage from '../ui/PrintPage.svelte';
   import { createStore } from '../core/storage.js';
   import { demoScore } from '../core/demo.js';
-  import { initPrefs, t } from './prefs.svelte.js';
+  import { initPrefs, t, prefs } from './prefs.svelte.js';
 
   const store = createStore(window.localStorage);
   initPrefs(store);
   $effect(() => { document.title = t('app.title'); });
+  // the page's language follows the chosen one, so long words hyphenate correctly (Unter-teilung)
+  $effect(() => { document.documentElement.lang = { pt: 'pt-BR', en: 'en', de: 'de' }[prefs.lang] ?? 'pt-BR'; });
 
   let route = $state(parse(location.hash));
   function parse(hash) {

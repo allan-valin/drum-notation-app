@@ -86,7 +86,7 @@ Ein Schlag ist `{ "division": ..., "cells": [ ... ] }`.
 - `division` ist der kürzeste Notenwert in diesem Schlag: `quarter` (Viertel), `eighth` (Achtel),
   `sixteenth` (Sechzehntel), `thirtySecond` (Zweiunddreißigstel) (auch `half`, Halbe, und `whole`,
   Ganze).
-- `cells` ist der Schlag in gleiche Stücke dieses Werts geschnitten, **eine Zelle pro Stück, in
+- `cells` ist der Schlag in gleiche Stücke dieses Werts geschnitten (seine Unterteilungen; in der App „Unterteilung“), **eine Zelle pro Stück, in
   Reihenfolge**, ob dort eine Note beginnt oder nicht. Wie viele Zellen:
 
 | division | Zellen pro Schlag in x/4 (Schlag = Viertel) | Zellen pro Schlag in x/8 (Schlag = Achtel) |

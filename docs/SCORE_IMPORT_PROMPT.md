@@ -85,7 +85,7 @@ Um tempo é `{ "division": ..., "cells": [ ... ] }`.
 - `division` é a menor figura usada naquele tempo: `quarter` (semínima), `eighth` (colcheia),
   `sixteenth` (semicolcheia), `thirtySecond` (fusa) (também `half`, mínima, e `whole`,
   semibreve).
-- `cells` é o tempo cortado em fatias iguais dessa figura, **uma célula por fatia, em ordem**,
+- `cells` é o tempo cortado em fatias iguais dessa figura (as subdivisões; no app, "Subdivisão"), **uma célula por fatia, em ordem**,
   comece ou não uma nota ali. Quantas células:
 
 | division | células por tempo em x/4 (tempo = semínima) | células por tempo em x/8 (tempo = colcheia) |

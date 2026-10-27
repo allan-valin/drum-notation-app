@@ -413,6 +413,8 @@
   .mode button + button { border-left: 1px solid var(--line); }
   .mode { display: grid; grid-template-columns: 1fr 1fr; border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; margin-bottom: 3px; }
   .mode.three { grid-template-columns: 1fr 1fr 1fr; }
+  /* three to a row in a narrow sidebar: long words (Unterteilung, Subdivisão) break onto a second line */
+  .mode.three button { font-size: 13px; padding: 2px 3px; line-height: 1.1; hyphens: auto; overflow-wrap: anywhere; min-width: 0; }
   .switch { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; min-height: 36px; margin: 2px 0; }
   .switch input { width: 20px; height: 20px; }
   .fill .field { display: flex; flex-direction: column; gap: 2px; font-size: 11px; font-weight: 600; color: var(--muted); margin-bottom: 5px; }

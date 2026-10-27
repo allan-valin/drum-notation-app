@@ -9,7 +9,7 @@ import { initialState, reduce } from '../src/core/editorState.js';
 const s0 = () => newScore({ title: 't' });
 const nested = () => splitCell(splitBeat(s0(), cursor(0, 0, 0), NoteValue.EIGHTH, null), cursor(0, 0, 1), NoteValue.SIXTEENTH, null);
 
-describe('resizeCell: Célula mode in both directions', () => {
+describe('resizeCell: Subdivisão mode in both directions', () => {
   it('a shorter value splits the cell, as before', () => {
     const s = resizeCell(splitBeat(s0(), cursor(0, 0, 0), NoteValue.EIGHTH, null), cursor(0, 0, 1), NoteValue.SIXTEENTH, null);
     expect(leafPaths(s.bars[0].beats[0])).toEqual([[0], [1, 0], [1, 1]]);
@@ -57,7 +57,7 @@ describe('tap rules', () => {
     st = reduce(st, { type: 'tapAt', beat: 2, path: [0], staffPosition: 5 });
     expect(leafAt(st.score, st.cursor).notes.map((n) => n.slotId)).toEqual(['snare']);
   });
-  it('in Célula mode a longer value merges up through the reducer', () => {
+  it('in Subdivisão mode a longer value merges up through the reducer', () => {
     let st = initialState(nested());
     st = reduce(st, { type: 'goTo', cursor: cursor(0, 0, 1, 1) });
     st = reduce(st, { type: 'setSplitMode', mode: 'cell' });

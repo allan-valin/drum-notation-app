@@ -116,13 +116,13 @@ describe('Editor', () => {
     expect(container.querySelector('.status').textContent).toContain('3/4');
   });
 
-  it('Célula mode splits only the selected cell', async () => {
+  it('Subdivisão mode splits only the selected cell', async () => {
     const store = createStore(memoryStorage());
     store.save(newScore({ id: 'a', title: 'T' }));
     const { getByLabelText, getByRole } = render(Editor, { store, id: 'a', onBack: () => {}, onPrint: () => {} });
     await fireEvent.click(getByLabelText('Colcheia'));
     await fireEvent.click(getByLabelText('Próxima posição'));
-    await fireEvent.click(getByRole('radio', { name: 'Célula' }));
+    await fireEvent.click(getByRole('radio', { name: 'Subdivisão' }));
     await fireEvent.click(getByLabelText('Semicolcheia'));
     const beat = loadView(store, 'a').bars[0].beats[0];
     expect(beat.cells[0].notes).toEqual([]);
@@ -437,6 +437,6 @@ describe('note value modes', () => {
     store.save(newScore({ id: 'a', title: 'T' }));
     const { getByRole } = render(Editor, { store, id: 'a', onBack: () => {}, onPrint: () => {} });
     const group = getByRole('radiogroup', { name: 'Figura' });
-    expect([...group.querySelectorAll('[role=radio]')].map((b) => b.textContent.trim())).toEqual(['Compasso', 'Tempo', 'Célula']);
+    expect([...group.querySelectorAll('[role=radio]')].map((b) => b.textContent.trim())).toEqual(['Compasso', 'Tempo', 'Subdivisão']);
   });
 });

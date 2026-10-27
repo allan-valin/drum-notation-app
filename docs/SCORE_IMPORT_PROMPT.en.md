@@ -83,7 +83,7 @@ A beat is `{ "division": ..., "cells": [ ... ] }`.
 
 - `division` is the shortest note value used in that beat: `quarter`, `eighth`, `sixteenth`,
   `thirtySecond` (also `half` and `whole`).
-- `cells` is the beat cut into equal slices of that value, **one cell per slice, in order**,
+- `cells` is the beat cut into equal slices of that value (its subdivisions; the app calls them "Subdivision"), **one cell per slice, in order**,
   whether a note starts there or not. How many cells:
 
 | division | cells per beat in x/4 (beat = quarter) | cells per beat in x/8 (beat = eighth) |

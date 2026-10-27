@@ -28,7 +28,7 @@ describe('tree helpers', () => {
   });
 });
 
-describe('splitting one cell (Célula mode)', () => {
+describe('splitting one cell (Subdivisão mode)', () => {
   it('eighth beat, second cell split into sixteenths: eighth rest + two sixteenths', () => {
     let s = splitBeat(s0(), cursor(0, 0, 0), NoteValue.EIGHTH, null);
     s = splitCell(s, cursor(0, 0, 1), NoteValue.SIXTEENTH, null);
