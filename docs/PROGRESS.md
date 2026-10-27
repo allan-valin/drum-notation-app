@@ -13,7 +13,7 @@ Source: the TODO.md written on 2026-10-26 (now deleted; everything in it is belo
 | 3 | Rock Band drum key positions (`docs/drum-key-reference.png`) | yes | 18 pieces at the heights measured from the image. Pieces sharing a height differ by notehead: choose the head (triangle, open diamond, circled X…) and tap that height. |
 | 4 | Right click deletes a note | yes | Desktop: right click deletes the note nearest the click in that cell, in either voice; no context menu on the staff. |
 | 5 | Note value `bar` | yes | Figura › Compasso: the value splits every beat of the bar. |
-| 6 | Drag notes; delayed column change; select cells or beats and move them keeping spacing | yes | Press and hold a note (450 ms) to pick it up; up and down changes the instrument; another column takes effect after resting on it 650 ms; resting past the bar's edge 900 ms goes to the next/previous bar. Palette › Seleção › Subdivisões or Tempos: taps mark, hold a marked one and drag. |
+| 6 | Drag notes; delayed column change; select cells or beats and move them keeping spacing | partly: dragging a selection does nothing (T13) | Press and hold a note (450 ms) to pick it up; up and down changes the instrument; another column takes effect after resting on it 650 ms; resting past the bar's edge 900 ms goes to the next/previous bar. Palette › Seleção › Subdivisões or Tempos: taps mark, hold a marked one and drag. |
 | 7 | Clearer AI import prompt: one JSON with all bars, every field, full example, step by step | yes | `docs/SCORE_IMPORT_PROMPT*.md`, eleven steps, field tables, a checklist, a 4-bar example with a lower voice and a stem override. |
 | 8 | Autofill a bar: piece + pattern dropdowns, patterns from the time signature | yes | Palette › Preencher compasso. Patterns: every cell, beats only, every other beat from 1 or 2, and for odd/compound meters every grouping into 2s and 3s (7/8: 2+2+3, 2+3+2, 3+2+2). The rock groove: Figura › Compasso › colcheia, then hi-hat on every cell, snare from 2, kick from 1. |
 | — | (Allan, same day) see-through preview before writing | yes | Mouse/stylus hover over the selected cell shows the note a click would write. On a phone the preview shows while the finger presses, and the status line says what lifting writes (browsers cannot sense a finger before it touches). |
@@ -71,6 +71,12 @@ real-browser check.
   glissando/slide, arpeggio, 8va/8vb/15ma lines.
 - [ ] **T10. Rehearsal marks and bar lines.** Boxed rehearsal letters (A, B…), double and final
   bar lines.
+- [ ] **T13. Moving a selection does nothing (bug, Allan 2026-10-27).** With Seleção on and cells
+  or beats marked, press-and-hold + drag does not move them: the selection is only cosmetic.
+  What is known: the reducer action (`moveSelection`) passes its tests, and single-note drag works
+  in a real browser; the selection drag was never tried in a browser, so the break is in the UI
+  path (Editor `dragStart`/`dragEnd` with `selectMode`, or ScoreSvg's press handling while
+  marking). Start by reproducing it in Playwright, then fix, then a test that drags a selection.
 - [ ] **T11. Real-phone check** of round 3's touch gestures: press-and-hold drag, the voice strips,
   the press preview (Allan's Redmi).
 - [x] **T12. Name of the "cell"** (2026-10-27). Allan's drum teacher doubted "Célula"; Allan chose
