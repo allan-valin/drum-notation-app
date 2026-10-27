@@ -12,13 +12,13 @@
     profile = DRUM_PROFILE, parts = [], part = null, lyric = '', chord = '', lyricsInfo = '',
   } = $props();
   const q = NoteValue.QUARTER;
-  const HEADS = [Notehead.CROSS, Notehead.DIAMOND, Notehead.TRIANGLE, Notehead.CIRCLE_X, Notehead.SLASHED, Notehead.SLASH];
+  const HEADS = [Notehead.CROSS, Notehead.DIAMOND, Notehead.DIAMOND_OPEN, Notehead.TRIANGLE, Notehead.CIRCLE_X, Notehead.SLASHED, Notehead.SLASH];
   /** Every technique the app knows; a profile shows the ones its instrument uses. */
   const TECHS = [
     { id: Mark.OPEN, glyph: Glyphs.OPEN, cls: 'mark' },
     { id: Mark.CLOSED, glyph: Glyphs.CLOSED, cls: 'mark' },
     { id: Mark.HALF_OPEN, glyph: Glyphs.HALF_OPEN, cls: 'mark' },
-    { id: Mark.CHOKE, glyph: Glyphs.CHOKE, cls: 'mark' },
+    { id: Mark.CHOKE, glyph: Glyphs.STACCATO, cls: 'mark' },
     { id: Roll.BUZZ, glyph: Glyphs.BUZZ, cls: 'mark' },
     { id: Roll.TREMOLO, glyph: Glyphs.TREMOLO3, cls: 'small' },
     { id: Grace.FLAM, glyph: Glyphs.GRACE_SLASH + Glyphs.notehead(Notehead.NORMAL, q), cls: 'small' },

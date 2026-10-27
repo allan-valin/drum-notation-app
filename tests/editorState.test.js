@@ -4,8 +4,8 @@ import { newScore, Articulation, Sticking } from '../src/core/score.js';
 import { NoteValue } from '../src/core/noteValue.js';
 import { cursor, beatAt, leafAt } from '../src/core/cursor.js';
 
-const snarePos = 4;
-const kickPos = -2;
+const snarePos = 5;
+const kickPos = 1;
 const start = () => initialState(newScore({ id: 'a', title: 't' }));
 const notes = (st) => leafAt(st.score, st.cursor).notes;
 const run = (st, ...actions) => actions.reduce((s, a) => reduce(s, a), st);

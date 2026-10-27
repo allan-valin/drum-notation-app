@@ -14,6 +14,8 @@ const NOTEHEAD = {
   [Notehead.NORMAL]: { whole: cp(0xe0a2), half: cp(0xe0a3), black: cp(0xe0a4) },
   [Notehead.CROSS]: { whole: cp(0xe0a7), half: cp(0xe0a8), black: cp(0xe0a9) },
   [Notehead.DIAMOND]: { whole: cp(0xe0d8), half: cp(0xe0d9), black: cp(0xe0db) },
+  // splash: an open diamond at every value
+  [Notehead.DIAMOND_OPEN]: { whole: cp(0xe0d8), half: cp(0xe0d9), black: cp(0xe0d9) },
   [Notehead.TRIANGLE]: { whole: cp(0xe0bb), half: cp(0xe0bc), black: cp(0xe0be) },
   [Notehead.CIRCLE_X]: { whole: cp(0xe0b1), half: cp(0xe0b2), black: cp(0xe0b3) },
   [Notehead.SLASHED]: { whole: cp(0xe0d3), half: cp(0xe0d1), black: cp(0xe0cf) },

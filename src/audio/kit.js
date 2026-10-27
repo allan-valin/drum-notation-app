@@ -93,8 +93,13 @@ export function createKit(ctx) {
     crashChoke: (t, v) => { metal(t, v * 0.32, 0.12, 7000, 1.2); noiseHit(t, v * 0.35, 0.1, [['highpass', 4000]]); },
     china: (t, v) => { metal(t, v * 0.35, 1.1, 4500, 0.9); noiseHit(t, v * 0.35, 0.9, [['bandpass', 3500, 0.7]]); },
     cowbell: (t, v) => { tone(t, v * 0.35, 0.3, 545, 545, 'square'); tone(t, v * 0.35, 0.3, 815, 815, 'square'); },
+    splash: (t, v) => { metal(t, v * 0.3, 0.5, 9500, 1.3); noiseHit(t, v * 0.3, 0.45, [['highpass', 5000]]); },
+    hihatSplash: (t, v) => { metal(t, v * 0.3, 0.3, 8000); noiseHit(t, v * 0.22, 0.26, [['highpass', 6000]]); },
     highTom: (t, v) => tone(t, v, 0.35, 260, 180, 'sine', 0.2),
     midTom: (t, v) => tone(t, v, 0.4, 190, 135, 'sine', 0.22),
+    // five toms on the Rock Band key: tom 3 and tom 4 sit between the mid and the floor tom
+    tom3: (t, v) => tone(t, v, 0.42, 165, 115, 'sine', 0.23),
+    tom4: (t, v) => tone(t, v, 0.46, 145, 100, 'sine', 0.24),
     floorTom: (t, v) => tone(t, v, 0.5, 125, 85, 'sine', 0.25),
     // taiko: a big low skin (don), a softer stroke (tsu), the wooden rim (ka)
     taikoDon: (t, v) => { tone(t, v * 1.3, 0.9, 90, 60, 'sine', 0.2); noiseHit(t, v * 0.2, 0.08, [['lowpass', 500]]); },

@@ -58,6 +58,8 @@
   const layout = $derived(layoutBar(bar, staff, { width: barWidth, staffSpacing: sp, focusedBeat, key: keyFifths, den, carry, tieOut, dynamicsAbove, slurIn }));
   // pitched ranges can be wide: guides cover the staff and three ledger lines each side
   const guideSlots = $derived(staff.pitched ? staff.slots.filter((x) => x.staffPosition >= -6 && x.staffPosition <= 14) : staff.slots);
+  /** Drum guides: one row per height, naming every instrument written there ("China / Splash / Cowbell"). */
+  const guideRows = $derived([...new Set(guideSlots.map((x) => x.staffPosition))].map((p) => ({ p, ids: guideSlots.filter((x) => x.staffPosition === p).map((x) => x.id) })));
   const guideTop = $derived(yOf(guideSlots[guideSlots.length - 1].staffPosition, sp) - 1.5 * sp);
   const guideBottom = $derived(yOf(guideSlots[0].staffPosition, sp) + 2.5 * sp);
   const top = $derived(fixedRange ? -fixedRange[0] * sp : Math.min(layout.top, showGuides ? guideTop : layout.top) - 0.5 * sp);
@@ -123,12 +125,16 @@
           <line class="guide" x1={lead + a} x2={lead + b} y1={y} y2={y} />
           <text class="guide-label" x={lead + a + 0.2 * sp} y={y - 0.2 * sp} font-size={0.7 * sp}>{slotLabel(slot.id)}</text>
         {/if}
-      {:else}
-        <line class="guide" x1={lead + a} x2={lead + b} y1={y} y2={y} />
-        <!-- two staggered columns so names one half-step apart do not collide -->
-        <text class="guide-label" x={lead + a + 0.2 * sp + (i % 2) * 3.4 * sp} y={y + 0.25 * sp} font-size={0.7 * sp}>{t(`slot.${slot.id}`)}</text>
       {/if}
     {/each}
+    {#if !staff.pitched}
+      {#each guideRows as row, i}
+        {@const y = yOf(row.p, sp)}
+        <line class="guide" x1={lead + a} x2={lead + b} y1={y} y2={y} />
+        <!-- two staggered columns so names one half-step apart do not collide -->
+        <text class="guide-label" x={lead + a + 0.2 * sp + (i % 2) * 3.4 * sp} y={y + 0.25 * sp} font-size={0.7 * sp}>{row.ids.map((id) => t(`slot.${id}`)).join(' / ')}</text>
+      {/each}
+    {/if}
   {/if}
 
   {#each [0, 1, 2, 3, 4] as i}

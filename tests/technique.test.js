@@ -35,8 +35,8 @@ describe('noteheads', () => {
 });
 
 describe('technique marks', () => {
-  it('open, closed, half-open and choke draw above the note', () => {
-    for (const [m, g] of [[Mark.OPEN, Glyphs.OPEN], [Mark.CLOSED, Glyphs.CLOSED], [Mark.HALF_OPEN, Glyphs.HALF_OPEN], [Mark.CHOKE, Glyphs.CHOKE]]) {
+  it('open, closed, half-open and choke (a dot, as the Rock Band key draws it) sit above the note', () => {
+    for (const [m, g] of [[Mark.OPEN, Glyphs.OPEN], [Mark.CLOSED, Glyphs.CLOSED], [Mark.HALF_OPEN, Glyphs.HALF_OPEN], [Mark.CHOKE, Glyphs.STACCATO]]) {
       const r = layoutBar(one(note('hihat', { marks: [m] })), staff, cfg);
       const mark = r.glyphs.find((x) => x.glyph === g);
       const head = r.glyphs.find((x) => x.kind === 'note');
@@ -79,7 +79,7 @@ describe('JSON and editor state carry techniques', () => {
     let st = initialState(newScore({ title: 't' }));
     st = reduce(st, { type: 'setHead', head: Notehead.TRIANGLE });
     st = reduce(st, { type: 'setTech', tech: Mark.OPEN });
-    st = reduce(st, { type: 'tap', staffPosition: 9 });
+    st = reduce(st, { type: 'tap', staffPosition: 8 });
     expect(leafAt(st.score, st.cursor).notes[0]).toMatchObject({ slotId: 'hihat', head: Notehead.TRIANGLE, marks: [Mark.OPEN], roll: null, grace: null });
   });
   it('choosing the same head again clears it back to the slot default', () => {

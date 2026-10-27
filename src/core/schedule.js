@@ -100,7 +100,13 @@ export function soundFor(note, instrument = 'drums') {
 function drumSound(note) {
   const marks = note.marks ?? [];
   if (note.head === Notehead.TRIANGLE) return 'cowbell';
-  if (note.head === Notehead.CIRCLE_X) return 'china';
+  if (note.head === Notehead.DIAMOND_OPEN) return 'splash';
+  if (note.head === Notehead.CIRCLE_X) {
+    // a circled X opens a hi-hat (by hand or by foot); on anything else it is a China
+    if (note.slotId === 'hihat') return 'hihatOpen';
+    if (note.slotId === 'hihatPedal') return 'hihatSplash';
+    return 'china';
+  }
   switch (note.slotId) {
     case 'hihat':
       if (note.head === Notehead.DIAMOND) return 'rideBell';
@@ -108,6 +114,7 @@ function drumSound(note) {
       if (marks.includes(Mark.HALF_OPEN)) return 'hihatHalf';
       return 'hihatClosed';
     case 'hihatPedal': return 'hihatPedal';
+    case 'kickLeft': return 'kick';
     case 'ride': return note.head === Notehead.DIAMOND ? 'rideBell' : 'ride';
     case 'crash':
       if (marks.includes(Mark.CHOKE)) return 'crashChoke';

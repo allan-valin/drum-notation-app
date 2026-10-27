@@ -38,11 +38,12 @@ Regeln:
   - `highTom` (4. Zwischenraum), `midTom` (4. Linie), `snare` (3. Zwischenraum),
     `floorTom` (1. Zwischenraum),
   - `kick` (Zwischenraum unter dem System / 1. Linie), `hihatPedal` (unter dem System, X).
+  - Alle Teile: `china`, `splash`, `cowbell`, `crash`, `ride`, `rideBell`, `hihat`, `hihatOpen`, `highTom`, `midTom`, `snare`, `tom3`, `tom4`, `floorTom`, `kick`, `kickLeft`, `hihatPedal`, `hihatSplash`.
 - Eine Note kann ein Objekt statt eines Strings sein, wenn sie Details hat:
   `{ "slot": "snare", "articulations": ["accent"], "sticking": "R" }`.
   Artikulationen: `accent` (>), `ghost` (Kopf in Klammern). `sticking`: `"R"` oder `"L"`.
 - Ein anderer Kopf als der normale des Instruments: `"head"` mit `cross` (X; auf der
-  Snare-Linie ein Cross-Stick), `diamond` (Raute: Beckenglocke), `triangle` (Cowbell),
+  Snare-Linie ein Cross-Stick), `diamond` (Raute: Beckenglocke), `diamondOpen` (splash), `triangle` (Cowbell),
   `circleX` (X im Kreis: China), `slashed` (durchgestrichen: Rimshot).
 - Technik: `"marks": ["open"]` (○ darüber: offene Hi-Hat), `["closed"]` (+), `["halfOpen"]` (ø),
   `["choke"]` (abstoppen); `"roll": "buzz"` (z am Hals) oder `"tremolo"` (drei Striche am Hals);

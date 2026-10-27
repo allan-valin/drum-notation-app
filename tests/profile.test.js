@@ -9,8 +9,10 @@ describe('drum profile', () => {
     expect(DRUM_PROFILE.staves.length).toBe(1);
     expect(staff.lineCount).toBe(5);
   });
-  it('feet sit below the staff', () => {
-    expect(slot('kick').staffPosition).toBeLessThan(0);
+  it('bass drums sit in the bottom of the staff, the hi-hat pedal below it (Rock Band key)', () => {
+    expect(slot('kick').staffPosition).toBe(1);
+    expect(slot('kickLeft').staffPosition).toBe(0);
+    expect(slot('hihatPedal').staffPosition).toBeLessThan(0);
   });
   it('cymbals sit above the staff and use a cross notehead', () => {
     expect(slot('crash').staffPosition).toBeGreaterThan(8);

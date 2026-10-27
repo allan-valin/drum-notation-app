@@ -12,6 +12,7 @@
   const ROWS = [
     ['cross', head(Notehead.CROSS)],
     ['diamond', head(Notehead.DIAMOND)],
+    ['diamondOpen', head(Notehead.DIAMOND_OPEN)],
     ['triangle', head(Notehead.TRIANGLE)],
     ['circleX', head(Notehead.CIRCLE_X)],
     ['crossStick', head(Notehead.CROSS)],
@@ -19,7 +20,7 @@
     ['open', Glyphs.OPEN],
     ['closed', Glyphs.CLOSED],
     ['halfOpen', Glyphs.HALF_OPEN],
-    ['choke', Glyphs.CHOKE],
+    ['choke', head(Notehead.CROSS) + ' ' + Glyphs.STACCATO],
     ['buzz', Glyphs.BUZZ],
     ['tremolo', Glyphs.TREMOLO3],
     ['flam', Glyphs.GRACE_SLASH + head(Notehead.NORMAL)],

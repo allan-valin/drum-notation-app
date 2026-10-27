@@ -38,11 +38,12 @@ Regras:
     `hihat` (5ª linha ou logo acima, X),
   - `highTom` (4º espaço), `midTom` (4ª linha), `snare` (3º espaço), `floorTom` (1º espaço),
   - `kick` (1º espaço abaixo da pauta / 1ª linha), `hihatPedal` (abaixo da pauta, X).
+  - Todas as peças: `china`, `splash`, `cowbell`, `crash`, `ride`, `rideBell`, `hihat`, `hihatOpen`, `highTom`, `midTom`, `snare`, `tom3`, `tom4`, `floorTom`, `kick`, `kickLeft`, `hihatPedal`, `hihatSplash`.
 - Uma nota pode ser um objeto em vez de uma string quando tem detalhes:
   `{ "slot": "snare", "articulations": ["accent"], "sticking": "R" }`.
   Articulações: `accent` (>), `ghost` (cabeça entre parênteses). `sticking`: `"R"` ou `"L"`.
 - Cabeça diferente da normal do instrumento: `"head"` com `cross` (X; na linha da caixa é
-  cross-stick), `diamond` (losango: cúpula do prato), `triangle` (cowbell), `circleX` (X no
+  cross-stick), `diamond` (losango: cúpula do prato), `diamondOpen` (splash), `triangle` (cowbell), `circleX` (X no
   círculo: china), `slashed` (cabeça cortada: rimshot).
 - Técnica: `"marks": ["open"]` (○ acima: chimbal aberto), `["closed"]` (+), `["halfOpen"]` (ø),
   `["choke"]` (abafar); `"roll": "buzz"` (z na haste) ou `"tremolo"` (três traços na haste);

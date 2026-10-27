@@ -8,7 +8,7 @@ import {
   setTimeSig, toggleSimile, toggleRepeatStart, toggleRepeatEnd, setBarText, moveBars, setKey, setLength, toggleTie, setDynamic, setWedge, setLyric, setSlur, setChord, distributeLyrics, setPedal,
 } from './edit.js';
 import { barLeaves } from './edit.js';
-import { profileById, slotNearest } from './profile.js';
+import { profileById, slotNearest, slotFor } from './profile.js';
 import { toFull, partView, zipPart, applyAll, addPart, removePart, setInstrument, toggleMute, movePartBars } from './parts.js';
 
 const HISTORY = 50;
@@ -240,7 +240,9 @@ function tap(st, staffPosition) {
   // a rhythm slash sits on the middle line, wherever the tap was
   const slot = staff.pitched && st.tool.head === 'slash' && st.tool.withNote
     ? staff.slots.find((x) => x.staffPosition === 4) ?? slotNearest(staff, 4)
-    : slotNearest(staff, staffPosition);
+    : slotFor(staff, staffPosition, st.tool.head);
+  // a head that names the instrument there (triangle: cowbell) is that instrument's own head
+  const ownHead = slot.notehead === st.tool.head;
   const writtenKey = partKey(barKey(st.score, st.cursor.bar), profile);
   if (st.score.bars[st.cursor.bar].simile) return { ...st, refused: 'simileBar' };
   if (st.tool.delete) return edit(st, (s) => deleteNote(s, st.cursor, slot.id));
@@ -266,7 +268,7 @@ function tap(st, staffPosition) {
   const alter = staff.pitched
     ? (head === 'slash' ? 0 : st.tool.accidental ?? keyAlter(writtenKey, parseSlot(slot.id).step))
     : undefined;
-  const placed = edit(st, (s) => placeNote(s, st.cursor, note(slot.id, { articulations, sticking, head, ...techFields, alter })));
+  const placed = edit(st, (s) => placeNote(s, st.cursor, note(slot.id, { articulations, sticking, head: ownHead ? null : head, ...techFields, alter })));
   return cellMarks(placed, placed !== st);
 }
 

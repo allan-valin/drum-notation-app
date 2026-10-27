@@ -36,11 +36,12 @@ Rules:
     `hihat` (5th line or just above, X),
   - `highTom` (4th space), `midTom` (4th line), `snare` (3rd space), `floorTom` (1st space),
   - `kick` (space below the staff / 1st line), `hihatPedal` (below the staff, X).
+  - Every piece: `china`, `splash`, `cowbell`, `crash`, `ride`, `rideBell`, `hihat`, `hihatOpen`, `highTom`, `midTom`, `snare`, `tom3`, `tom4`, `floorTom`, `kick`, `kickLeft`, `hihatPedal`, `hihatSplash`.
 - A note can be an object instead of a string when it has details:
   `{ "slot": "snare", "articulations": ["accent"], "sticking": "R" }`.
   Articulations: `accent` (>), `ghost` (head in parentheses). `sticking`: `"R"` or `"L"`.
 - A head other than the instrument's normal one: `"head"` with `cross` (X; on the snare line it
-  is a cross-stick), `diamond` (cymbal bell), `triangle` (cowbell), `circleX` (circled X: china),
+  is a cross-stick), `diamond` (cymbal bell), `diamondOpen` (splash), `triangle` (cowbell), `circleX` (circled X: china),
   `slashed` (slashed head: rimshot).
 - Technique: `"marks": ["open"]` (○ above: open hi-hat), `["closed"]` (+), `["halfOpen"]` (ø),
   `["choke"]`; `"roll": "buzz"` (z on the stem) or `"tremolo"` (three strokes on the stem);

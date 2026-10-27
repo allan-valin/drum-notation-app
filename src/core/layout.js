@@ -237,7 +237,7 @@ export function layoutBar(bar, staff, config) {
         glyphs.push({ ...base, kind: 'accent', glyph: Glyphs.ACCENT, x: centreX(i) - 0.68 * sp, y: markY });
         markY -= 1.3 * sp;
       }
-      const MARK_GLYPH = { [Mark.OPEN]: Glyphs.OPEN, [Mark.CLOSED]: Glyphs.CLOSED, [Mark.HALF_OPEN]: Glyphs.HALF_OPEN, [Mark.CHOKE]: Glyphs.CHOKE };
+      const MARK_GLYPH = { [Mark.OPEN]: Glyphs.OPEN, [Mark.CLOSED]: Glyphs.CLOSED, [Mark.HALF_OPEN]: Glyphs.HALF_OPEN, [Mark.CHOKE]: Glyphs.STACCATO }; // choke: a dot over the stem (Rock Band key)
       // strings and ornaments: bowings, harmonic and trill signs above, pizz./arco as words
       if (pitched) {
         const ORN = { [Mark.DOWN_BOW]: Glyphs.DOWN_BOW, [Mark.UP_BOW]: Glyphs.UP_BOW, [Mark.HARMONIC]: Glyphs.HARMONIC, [Mark.TRILL]: Glyphs.TRILL };

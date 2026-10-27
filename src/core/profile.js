@@ -5,11 +5,12 @@ export { Notehead, NOTEHEADS };
 
 /**
  * One instrument's place on the staff. `staffPosition` counts half-steps from the bottom
- * line: 0 is the bottom line, 1 the space above it, negatives sit below the staff.
- * There is no voice field: on a drum staff the position *is* the instrument.
+ * line: 0 is the bottom line, 1 the space above it, negatives sit below the staff. Several
+ * instruments may share a position and differ by notehead (China, splash and cowbell);
+ * `stem` is the direction a new note of it gets (snare and bass drums down on a drum staff).
  */
-function slot(id, name, staffPosition, notehead) {
-  return Object.freeze({ id, name, staffPosition, notehead });
+function slot(id, name, staffPosition, notehead, stem = 'up') {
+  return Object.freeze({ id, name, staffPosition, notehead, stem });
 }
 
 /** The slot whose position is closest to `position`: how a tap height becomes an instrument. */
@@ -19,13 +20,23 @@ export function slotNearest(staff, position) {
   );
 }
 
+/**
+ * The instrument a tap at `position` writes: of the slots nearest that height, the one whose
+ * own notehead is `head`, else the first listed there (the head then stays an override).
+ */
+export function slotFor(staff, position, head = null) {
+  const nearest = slotNearest(staff, position).staffPosition;
+  const here = staff.slots.filter((s) => s.staffPosition === nearest);
+  return (head && here.find((s) => s.notehead === head)) || here[0];
+}
+
 export function slotById(staff, id) {
   const s = staff.slots.find((x) => x.id === id);
   if (!s) throw new Error(`unknown slot: ${id}`);
   return s;
 }
 
-const ALL_HEADS = ['cross', 'diamond', 'triangle', 'circleX', 'slashed'];
+const ALL_HEADS = ['cross', 'diamond', 'diamondOpen', 'triangle', 'circleX', 'slashed'];
 const ALL_TECHS = ['open', 'closed', 'halfOpen', 'choke', 'buzz', 'tremolo', 'flam', 'drag'];
 
 /**
@@ -42,20 +53,30 @@ export const DRUM_PROFILE = Object.freeze({
   heads: ALL_HEADS,
   techniques: [...ALL_TECHS, 'lv'],
   hands: true,
-  legend: ['cross', 'diamond', 'triangle', 'circleX', 'crossStick', 'slashed', 'open', 'closed', 'halfOpen', 'choke', 'lv', 'buzz', 'tremolo', 'flam', 'drag', 'ghost', 'accent', 'dynamics', 'wedges', 'dot', 'simile', 'repeat'],
+  legend: ['cross', 'diamond', 'diamondOpen', 'triangle', 'circleX', 'crossStick', 'slashed', 'open', 'closed', 'halfOpen', 'choke', 'lv', 'buzz', 'tremolo', 'flam', 'drag', 'ghost', 'accent', 'dynamics', 'wedges', 'dot', 'simile', 'repeat'],
   staves: Object.freeze([
     Object.freeze({
       lineCount: 5,
       slots: Object.freeze([
-        slot('hihatPedal', 'Chimbal (pé)', -4, Notehead.CROSS),
-        slot('kick', 'Bumbo', -2, Notehead.NORMAL),
-        slot('floorTom', 'Surdo', 1, Notehead.NORMAL),
-        slot('snare', 'Caixa', 4, Notehead.NORMAL),
-        slot('midTom', 'Tom médio', 6, Notehead.NORMAL),
-        slot('highTom', 'Tom agudo', 7, Notehead.NORMAL),
-        slot('hihat', 'Chimbal', 9, Notehead.CROSS),
-        slot('ride', 'Ride', 10, Notehead.CROSS),
-        slot('crash', 'Crash', 11, Notehead.CROSS),
+        // the Rock Band drum key (docs/drum-key-reference.png), bottom to top
+        slot('hihatPedal', 'Chimbal (pé)', -1, Notehead.CROSS),
+        slot('hihatSplash', 'Chimbal splash (pé)', -1, Notehead.CIRCLE_X),
+        slot('kickLeft', 'Bumbo esquerdo', 0, Notehead.NORMAL, 'down'),
+        slot('kick', 'Bumbo', 1, Notehead.NORMAL, 'down'),
+        slot('floorTom', 'Tom 5', 2, Notehead.NORMAL),
+        slot('tom4', 'Tom 4', 3, Notehead.NORMAL),
+        slot('tom3', 'Tom 3', 4, Notehead.NORMAL),
+        slot('snare', 'Caixa', 5, Notehead.NORMAL, 'down'),
+        slot('midTom', 'Tom 2', 6, Notehead.NORMAL),
+        slot('highTom', 'Tom 1', 7, Notehead.NORMAL),
+        slot('hihat', 'Chimbal', 8, Notehead.CROSS),
+        slot('hihatOpen', 'Chimbal aberto', 8, Notehead.CIRCLE_X),
+        slot('ride', 'Ride', 9, Notehead.CROSS),
+        slot('rideBell', 'Cúpula do ride', 9, Notehead.DIAMOND),
+        slot('crash', 'Crash', 10, Notehead.CROSS),
+        slot('china', 'China', 11, Notehead.CIRCLE_X),
+        slot('splash', 'Splash', 11, Notehead.DIAMOND_OPEN),
+        slot('cowbell', 'Cowbell', 11, Notehead.TRIANGLE),
       ]),
     }),
   ]),

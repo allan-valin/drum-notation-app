@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { createSampleKit, SAMPLE_FILES } from '../src/audio/samples.js';
+import { createSampleKit, SAMPLE_FILES, BORROWED } from '../src/audio/samples.js';
 import { createKit } from '../src/audio/kit.js';
 
 function fakeContext() {
@@ -21,7 +21,9 @@ describe('sample kit', () => {
   it('has a file for every sound the synth kit knows', () => {
     const synthSounds = createKit(fakeContext()).sounds;
     // the recorded kit has no congas: those stay synthesized (the fallback)
-    for (const s of synthSounds) if (s !== 'crashChoke' && !/^(conga|darbuka|riq|daf|taiko)/.test(s)) expect(Object.keys(SAMPLE_FILES), s).toContain(s);
+    // pieces with no recording borrow a neighbour's file (tom 3 plays the mid tom slower…)
+    for (const s of synthSounds) if (s !== 'crashChoke' && !BORROWED[s] && !/^(conga|darbuka|riq|daf|taiko)/.test(s)) expect(Object.keys(SAMPLE_FILES), s).toContain(s);
+    for (const [file] of Object.values(BORROWED)) expect(Object.keys(SAMPLE_FILES)).toContain(file);
   });
   it('plays the synth until the samples arrive, then the samples', async () => {
     const ctx = fakeContext();

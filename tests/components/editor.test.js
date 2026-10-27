@@ -46,7 +46,7 @@ describe('Editor', () => {
     const sp = spOf(container); // jsdom reports clientWidth 0 → the editor clamps to its 300 px minimum
     const lead = 5.5 * sp; // clef + time signature
     expect(heads(container).length).toBe(0);
-    await tapAt(container, lead + 20, yOf(4, sp)); // snare line, first (focused) beat
+    await tapAt(container, lead + 20, yOf(5, sp)); // snare line, first (focused) beat
     expect(heads(container).length).toBe(1);
     expect(container.querySelector('.status').textContent).toContain('Caixa');
     expect(loadView(store, 'a').bars[0].beats[0].cells[0].notes[0].slotId).toBe('snare');
@@ -57,13 +57,13 @@ describe('Editor', () => {
     store.save(newScore({ id: 'a', title: 'T' }));
     const { container } = render(Editor, { store, id: 'a', onBack: () => {}, onPrint: () => {} });
     const sp = spOf(container);
-    await tapAt(container, 5.5 * sp + (300 - 6 * sp) * 0.95, yOf(4, sp)); // far right = last beat
+    await tapAt(container, 5.5 * sp + (300 - 6 * sp) * 0.95, yOf(5, sp)); // far right = last beat
     expect(loadView(store, 'a').bars[0].beats[3].cells[0].notes).toEqual([]);
     expect(container.querySelector('.status').textContent).toContain('Toque de novo');
     const stage = container.querySelector('.stage svg');
     const cards = [...stage.querySelectorAll('rect.card')];
     const last = cards[3];
-    await tapAt(container, Number(last.getAttribute('x')) + Number(last.getAttribute('width')) / 2, yOf(4, sp));
+    await tapAt(container, Number(last.getAttribute('x')) + Number(last.getAttribute('width')) / 2, yOf(5, sp));
     expect(loadView(store, 'a').bars[0].beats[3].cells[0].notes[0].slotId).toBe('snare');
     expect(container.querySelector('.where').textContent).toContain('4');
   });
@@ -79,10 +79,10 @@ describe('Editor', () => {
     expect(container.querySelector('.where').textContent).toContain('tempo 1.2');
     const sp = spOf(container), lead = 5.5 * sp;
     const focusedWidth = ((300 - lead - 0.5 * sp) / 5.5) * 2.5;
-    await tapAt(container, lead + focusedWidth * 0.75, yOf(-2, sp)); // kick, second cell
+    await tapAt(container, lead + focusedWidth * 0.75, yOf(1, sp)); // kick, second cell
     expect(loadView(store, 'a').bars[0].beats[0].cells[1].notes[0].slotId).toBe('kick');
     await fireEvent.click(getByLabelText('Apagar'));
-    await tapAt(container, lead + focusedWidth * 0.75, yOf(-2, sp));
+    await tapAt(container, lead + focusedWidth * 0.75, yOf(1, sp));
     expect(loadView(store, 'a').bars[0].beats[0].cells[1].notes.length).toBe(0);
     expect(container.querySelector('.status').textContent).toContain('Apagado');
   });
@@ -132,7 +132,7 @@ describe('legend and help overlays', () => {
     const { getByLabelText, getByRole, queryByRole } = render(Editor, { store, id: 'a', onBack: () => {}, onPrint: () => {} });
     await fireEvent.click(getByLabelText('Legenda dos símbolos'));
     const dialog = getByRole('dialog', { name: 'Legenda dos símbolos' });
-    expect(dialog.querySelectorAll('tbody tr').length).toBe(22);
+    expect(dialog.querySelectorAll('tbody tr').length).toBe(23);
     expect(dialog.textContent).toContain('Outros autores usam para');
     await fireEvent.click(getByLabelText('Fechar'));
     expect(queryByRole('dialog')).toBeNull();
@@ -153,7 +153,7 @@ describe('legend and help overlays', () => {
     await fireEvent.click(getByLabelText('Aberto'));
     expect(container.querySelector('.status').textContent).toContain('Próximas notas: Aberto');
     const sp = spOf(container);
-    await tapAt(container, 5.5 * sp + 20, yOf(9, sp));
+    await tapAt(container, 5.5 * sp + 20, yOf(8, sp));
     expect(loadView(store, 'a').bars[0].beats[0].cells[0].notes[0]).toMatchObject({ slotId: 'hihat', marks: ['open'] });
   });
 });
@@ -200,10 +200,10 @@ describe('symbol only, in the page', () => {
     store.save(newScore({ id: 'a', title: 'T' }));
     const { container, getByLabelText, getByRole } = render(Editor, { store, id: 'a', onBack: () => {}, onPrint: () => {} });
     const sp = spOf(container);
-    await tapAt(container, 5.5 * sp + 20, yOf(4, sp));
+    await tapAt(container, 5.5 * sp + 20, yOf(5, sp));
     await fireEvent.click(getByRole('radio', { name: 'Só símbolo' }));
     await fireEvent.click(getByLabelText('Acento'));
-    await tapAt(container, 5.5 * sp + 20, yOf(4, sp));
+    await tapAt(container, 5.5 * sp + 20, yOf(5, sp));
     const notes = loadView(store, 'a').bars[0].beats[0].cells[0].notes;
     expect(notes.length).toBe(1);
     expect(notes[0].articulations).toEqual(['accent']);
@@ -217,7 +217,7 @@ describe('moving bars', () => {
     store.save(newScore({ id: 'a', title: 'T' }));
     const { container, getByLabelText } = render(Editor, { store, id: 'a', onBack: () => {}, onPrint: () => {} });
     const sp = spOf(container);
-    await tapAt(container, 5.5 * sp + 20, yOf(-2, sp)); // kick in bar 1
+    await tapAt(container, 5.5 * sp + 20, yOf(1, sp)); // kick in bar 1
     await fireEvent.click(getByLabelText('Adicionar compasso no fim'));
     await fireEvent.click(getByLabelText('Adicionar compasso no fim'));
     await fireEvent.click(getByLabelText('Selecionar compassos'));
@@ -248,7 +248,7 @@ describe('silent practice', () => {
     store.save(newScore({ id: 'a', title: 'T' }));
     const { container, getByLabelText, getByRole, getByText } = render(Editor, { store, id: 'a', onBack: () => {}, onPrint: () => {} });
     const sp = spOf(container);
-    await tapAt(container, 5.5 * sp + 20, yOf(-2, sp)); // a kick on beat 1, sounding right at the start
+    await tapAt(container, 5.5 * sp + 20, yOf(1, sp)); // a kick on beat 1, sounding right at the start
     await fireEvent.click(getByRole('radio', { name: 'Sem som' }));
     expect(store.loadSettings().sound).toBe('none');
     await fireEvent.click(getByText('Metrônomo'));
@@ -300,7 +300,7 @@ describe('instruments', () => {
     const { container, getByText } = render(Editor, { store, id: 'a', onBack: () => {}, onPrint: () => {} });
     await fireEvent.click(getByText('+ Adicionar instrumento'));
     const sp = spOf(container);
-    await tapAt(container, 5.5 * sp + 20, yOf(4, sp));
+    await tapAt(container, 5.5 * sp + 20, yOf(5, sp));
     const full = store.load('a');
     expect(partView(full, full.parts[1].id).bars[0].beats[0].cells[0].notes[0].slotId).toBe('conga');
     expect(partView(full, 'p1').bars[0].beats[0].cells[0].notes).toEqual([]);
@@ -310,7 +310,7 @@ describe('instruments', () => {
     store.save(newScore({ id: 'a', title: 'T' }));
     const { container, getByLabelText } = render(Editor, { store, id: 'a', onBack: () => {}, onPrint: () => {} });
     const sp = spOf(container);
-    await tapAt(container, 5.5 * sp + 20, yOf(-2, sp));
+    await tapAt(container, 5.5 * sp + 20, yOf(1, sp));
     window.confirm = () => false;
     await fireEvent.change(getByLabelText('Instrumento 1'), { target: { value: 'congas' } });
     expect(store.load('a').parts[0].instrument).toBe('drums');
@@ -360,7 +360,7 @@ describe('round 4', () => {
     store.save(newScore({ id: 'a', title: 'T' }));
     const { container, getByLabelText, getByText } = render(Editor, { store, id: 'a', onBack: () => {}, onPrint: () => {} });
     const sp = spOf(container);
-    await tapAt(container, 5.5 * sp + 20, yOf(-2, sp)); // kick in bar 1 (drums)
+    await tapAt(container, 5.5 * sp + 20, yOf(1, sp)); // kick in bar 1 (drums)
     await fireEvent.click(getByLabelText('Adicionar compasso no fim'));
     await fireEvent.click(getByText('+ Adicionar instrumento'));            // congas, now being edited
     await fireEvent.change(getByLabelText('Instrumento'), { target: { value: 'p1' } }); // back to drums

@@ -37,7 +37,7 @@ describe('score JSON', () => {
   });
   it('rejects an unknown slot', () => {
     const j = JSON.parse(encode(sample()));
-    j.bars[0].parts.p1.beats[0].cells[0][0] = 'cowbell';
+    j.bars[0].parts.p1.beats[0].cells[0][0] = 'tambourine';
     expect(() => decode(JSON.stringify(j))).toThrow(/slot/);
   });
   it('fills in a missing id and timestamps on import', () => {
