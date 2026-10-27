@@ -17,6 +17,7 @@ Source: the TODO.md written on 2026-10-26 (now deleted; everything in it is belo
 | 7 | Clearer AI import prompt: one JSON with all bars, every field, full example, step by step | yes | `docs/SCORE_IMPORT_PROMPT*.md`, eleven steps, field tables, a checklist, a 4-bar example with a lower voice and a stem override. |
 | 8 | Autofill a bar: piece + pattern dropdowns, patterns from the time signature | yes | Palette › Preencher compasso. Patterns: every cell, beats only, every other beat from 1 or 2, and for odd/compound meters every grouping into 2s and 3s (7/8: 2+2+3, 2+3+2, 3+2+2). The rock groove: Figura › Compasso › colcheia, then hi-hat on every cell, snare from 2, kick from 1. |
 | — | (Allan, same day) see-through preview before writing | yes | Mouse/stylus hover over the selected cell shows the note a click would write. On a phone the preview shows while the finger presses, and the status line says what lifting writes (browsers cannot sense a finger before it touches). |
+| — | (Allan, same day) collapsible palette sections, clear separation | yes | Every palette section is a card with a header; a tap on the header folds it (▸) or opens it (▾), remembered in the browser. "Abrir/Fechar todas as seções" at the top. Dot and tie moved into Figura. |
 
 ### Decisions taken, worth a second look
 

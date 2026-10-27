@@ -440,3 +440,25 @@ describe('note value modes', () => {
     expect([...group.querySelectorAll('[role=radio]')].map((b) => b.textContent.trim())).toEqual(['Compasso', 'Tempo', 'Subdivisão']);
   });
 });
+
+describe('palette sections', () => {
+  it('a header folds its section away, the choice is remembered, and two buttons open or fold them all', async () => {
+    localStorage.clear();
+    const store = createStore(memoryStorage());
+    store.save(newScore({ id: 'a', title: 'T' }));
+    const first = render(Editor, { store, id: 'a', onBack: () => {}, onPrint: () => {} });
+    const head = first.getByRole('button', { name: 'Quiáltera' });
+    expect(head.getAttribute('aria-expanded')).toBe('true');
+    await fireEvent.click(head);
+    expect(head.getAttribute('aria-expanded')).toBe('false');
+    expect(head.closest('section').classList.contains('closed')).toBe(true);
+    first.unmount();
+    const again = render(Editor, { store, id: 'a', onBack: () => {}, onPrint: () => {} });
+    expect(again.getByRole('button', { name: 'Quiáltera' }).getAttribute('aria-expanded')).toBe('false');
+    await fireEvent.click(again.getByRole('button', { name: /Abrir todas as seções/ }));
+    expect(again.container.querySelectorAll('section.closed').length).toBe(0);
+    await fireEvent.click(again.getByRole('button', { name: /Fechar todas as seções/ }));
+    expect(again.container.querySelectorAll('section.closed').length).toBe(again.container.querySelectorAll('.palette section').length);
+    localStorage.clear();
+  });
+});

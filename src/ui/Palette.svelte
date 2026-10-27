@@ -23,6 +23,23 @@
   const patterns = $derived(patternsFor(beatsInBar));
   let fillPiece = $state('hihat');
   let fillPattern = $state('cells');
+  /** Collapsed sections, by their title key; remembered in this browser. */
+  const CLOSED_KEY = 'drum-palette-closed';
+  let closed = $state(new Set((() => { try { return JSON.parse(localStorage.getItem(CLOSED_KEY) ?? '[]'); } catch { return []; } })()));
+  function remember() { try { localStorage.setItem(CLOSED_KEY, JSON.stringify([...closed])); } catch { /* private mode: not kept */ } }
+  function toggle(key) {
+    const next = new Set(closed);
+    if (next.has(key)) next.delete(key); else next.add(key);
+    closed = next;
+    remember();
+  }
+  /** Every section title key in this palette, for "collapse all". */
+  let paletteEl;
+  function setAll(close) {
+    const keys = [...(paletteEl?.querySelectorAll('.sec-head') ?? [])].map((b) => b.dataset.key);
+    closed = close ? new Set(keys) : new Set();
+    remember();
+  }
   const patternLabel = (p) => (p.startsWith('g:') ? t('autofill.group', { g: p.slice(2) }) : t(`autofill.${p}`));
   const q = NoteValue.QUARTER;
   const HEADS = [Notehead.CROSS, Notehead.DIAMOND, Notehead.DIAMOND_OPEN, Notehead.TRIANGLE, Notehead.CIRCLE_X, Notehead.SLASHED, Notehead.SLASH];
@@ -78,13 +95,16 @@
   const TUPLETS = [3, 5, 6, 7];
 </script>
 
-<div class="palette">
+<div class="palette" bind:this={paletteEl}>
   <div class="top">
     <button class="aux" onclick={onLegend} aria-label={t('legend.title')}><span class="glyph text small-text">☰</span><span class="label">{t('legend.open')}</span></button>
     <button class="aux" onclick={onHelp} aria-label={t('help.title')}><span class="glyph text small-text">?</span><span class="label">{t('help.open')}</span></button>
+    <button class="aux fold" onclick={() => setAll(false)}>▾ {t('palette.expandAll')}</button>
+    <button class="aux fold" onclick={() => setAll(true)}>▸ {t('palette.collapseAll')}</button>
   </div>
-  <section class="instrument">
-    <h3>{t('instrument.editing')}</h3>
+  <section class="sec instrument" class:closed={closed.has('instrument.editing')}>
+    <h3><button class="sec-head" data-key="instrument.editing" aria-expanded={!closed.has('instrument.editing')} onclick={() => toggle('instrument.editing')}>{t('instrument.editing')}<span class="chev" aria-hidden="true">{closed.has('instrument.editing') ? '▸' : '▾'}</span></button></h3>
+    <div class="sec-body">
     <select aria-label={t('instrument.label')} value={part} onchange={(e) => {
       const v = e.target.value;
       // "add:violin": a new instrument from here, added to the band and opened for writing
@@ -101,9 +121,11 @@
         </optgroup>
       {/each}
     </select>
+  </div>
   </section>
-  <section>
-    <h3>{t('palette.edit')}</h3>
+  <section class="sec" class:closed={closed.has('palette.edit')}>
+    <h3><button class="sec-head" data-key="palette.edit" aria-expanded={!closed.has('palette.edit')} onclick={() => toggle('palette.edit')}>{t('palette.edit')}<span class="chev" aria-hidden="true">{closed.has('palette.edit') ? '▸' : '▾'}</span></button></h3>
+    <div class="sec-body">
     <div class="grid">
       <button class="danger" class:on={tool.delete} aria-label={t('palette.delete')} title={t('palette.deleteHint')} onclick={() => onAction({ type: 'toggleDelete' })}>
         <span class="glyph text">✕</span><span class="label">{t('palette.delete')}</span>
@@ -115,9 +137,11 @@
         <span class="glyph text">⊐⊏</span><span class="label">{t('split.merge')}</span>
       </button>
     </div>
+  </div>
   </section>
-  <section>
-    <h3>{t('palette.figure')}</h3>
+  <section class="sec" class:closed={closed.has('palette.figure')}>
+    <h3><button class="sec-head" data-key="palette.figure" aria-expanded={!closed.has('palette.figure')} onclick={() => toggle('palette.figure')}>{t('palette.figure')}<span class="chev" aria-hidden="true">{closed.has('palette.figure') ? '▸' : '▾'}</span></button></h3>
+    <div class="sec-body">
     <div class="mode three" role="radiogroup" aria-label={t('palette.figure')}>
       {#each ['bar', 'beat', 'cell'] as m}
         <button role="radio" aria-checked={splitMode === m} class:on={splitMode === m} onclick={() => onAction({ type: 'setSplitMode', mode: m })}>{t(`split.${m}`)}</button>
@@ -132,10 +156,8 @@
         </button>
       {/each}
     </div>
-  </section>
 
   {#if has('length')}
-  <section>
     <div class="grid two">
       <button class:on={tool.dot} aria-label={t('palette.dot')} title={t('palette.dotHint')} onclick={() => onAction({ type: 'toggleDot' })}>
         <span class="smufl glyph note">{Glyphs.metNote(NoteValue.QUARTER)}{Glyphs.DOT}</span><span class="label">{t('palette.dot')}</span>
@@ -144,12 +166,14 @@
         <span class="glyph text small-text">⌒</span><span class="label">{t('palette.tie')}</span>
       </button>
     </div>
-  </section>
   {/if}
+  </div>
+  </section>
 
   {#if has('tuplet')}
-  <section>
-    <h3>{t('palette.tuplet')}</h3>
+  <section class="sec" class:closed={closed.has('palette.tuplet')}>
+    <h3><button class="sec-head" data-key="palette.tuplet" aria-expanded={!closed.has('palette.tuplet')} onclick={() => toggle('palette.tuplet')}>{t('palette.tuplet')}<span class="chev" aria-hidden="true">{closed.has('palette.tuplet') ? '▸' : '▾'}</span></button></h3>
+    <div class="sec-body">
     <div class="grid four">
       {#each TUPLETS as n}
         <button class:on={tool.tuplet === n} aria-label={t('palette.tupletN', { n })} title={t('palette.tupletN', { n })} onclick={() => onAction({ type: 'selectTuplet', n })}>
@@ -158,12 +182,14 @@
         </button>
       {/each}
     </div>
+  </div>
   </section>
   {/if}
 
   {#if staff0.voices}
-  <section>
-    <h3>{t('voices.title')}</h3>
+  <section class="sec" class:closed={closed.has('voices.title')}>
+    <h3><button class="sec-head" data-key="voices.title" aria-expanded={!closed.has('voices.title')} onclick={() => toggle('voices.title')}>{t('voices.title')}<span class="chev" aria-hidden="true">{closed.has('voices.title') ? '▸' : '▾'}</span></button></h3>
+    <div class="sec-body">
     <div class="mode three" role="radiogroup" aria-label={t('voices.title')} title={t('voices.stemHint')}>
       <button role="radio" aria-checked={!tool.stem} class:on={!tool.stem} onclick={() => tool.stem && onAction({ type: 'setStem', stem: tool.stem })}>{t('voices.auto')}</button>
       <button role="radio" aria-checked={tool.stem === 'up'} class:on={tool.stem === 'up'} aria-label={t('voices.up')} onclick={() => onAction({ type: 'setStem', stem: 'up' })}>↑ {t('voices.up')}</button>
@@ -178,12 +204,14 @@
       </div>
     {/if}
     <p class="hint">{t('voices.splitHint')}</p>
+  </div>
   </section>
   {/if}
 
   {#if fillPieces.length}
-  <section class="fill">
-    <h3>{t('autofill.title')}</h3>
+  <section class="sec fill" class:closed={closed.has('autofill.title')}>
+    <h3><button class="sec-head" data-key="autofill.title" aria-expanded={!closed.has('autofill.title')} onclick={() => toggle('autofill.title')}>{t('autofill.title')}<span class="chev" aria-hidden="true">{closed.has('autofill.title') ? '▸' : '▾'}</span></button></h3>
+    <div class="sec-body">
     <label class="field">{t('autofill.piece')}
       <select bind:value={fillPiece} aria-label={`${t('autofill.title')}: ${t('autofill.piece')}`}>
         {#each fillPieces as x}<option value={x.id}>{t(`slot.${x.id}`)}</option>{/each}
@@ -196,11 +224,13 @@
     </label>
     <button class="apply" onclick={() => onAction({ type: 'autofill', slotId: fillPieces.some((x) => x.id === fillPiece) ? fillPiece : fillPieces[0].id, pattern: patterns.includes(fillPattern) ? fillPattern : patterns[0], label: patternLabel(patterns.includes(fillPattern) ? fillPattern : patterns[0]) })}>{t('autofill.apply')}</button>
     <p class="hint">{t('autofill.hint')}</p>
+  </div>
   </section>
   {/if}
 
-  <section>
-    <h3>{t('drag.select')}</h3>
+  <section class="sec" class:closed={closed.has('drag.select')}>
+    <h3><button class="sec-head" data-key="drag.select" aria-expanded={!closed.has('drag.select')} onclick={() => toggle('drag.select')}>{t('drag.select')}<span class="chev" aria-hidden="true">{closed.has('drag.select') ? '▸' : '▾'}</span></button></h3>
+    <div class="sec-body">
     <div class="mode three" role="radiogroup" aria-label={t('drag.select')}>
       <button role="radio" aria-checked={!selectMode} class:on={!selectMode} onclick={() => onSelectMode(null)}>{t('drag.off')}</button>
       <button role="radio" aria-checked={selectMode === 'cells'} class:on={selectMode === 'cells'} onclick={() => onSelectMode('cells')}>{t('drag.cells')}</button>
@@ -210,11 +240,13 @@
       <p class="hint">{t('drag.selected', { n: selectedCount })} · <button class="link" onclick={() => onSelectMode(selectMode, true)}>{t('drag.clear')}</button></p>
     {/if}
     <p class="hint">{t('drag.hint')} {t('drag.rightClick')}.</p>
+  </div>
   </section>
 
   {#if has('accidental')}
-  <section>
-    <h3>{t('palette.accidental')}</h3>
+  <section class="sec" class:closed={closed.has('palette.accidental')}>
+    <h3><button class="sec-head" data-key="palette.accidental" aria-expanded={!closed.has('palette.accidental')} onclick={() => toggle('palette.accidental')}>{t('palette.accidental')}<span class="chev" aria-hidden="true">{closed.has('palette.accidental') ? '▸' : '▾'}</span></button></h3>
+    <div class="sec-body">
     <div class="grid">
       <button class:on={tool.accidental === null} aria-label={t('palette.byKey')} title={t('palette.byKeyHint')} onclick={() => tool.accidental !== null && onAction({ type: 'setAccidental', alter: tool.accidental })}>
         <span class="glyph text small-text">♮?</span><span class="label">{t('palette.byKey')}</span>
@@ -225,21 +257,25 @@
         </button>
       {/each}
     </div>
+  </div>
   </section>
   {/if}
 
   <div class="symbols">
-  <section>
-    <h3>{t('tech.tapDoes')}</h3>
+  <section class="sec" class:closed={closed.has('tech.tapDoes')}>
+    <h3><button class="sec-head" data-key="tech.tapDoes" aria-expanded={!closed.has('tech.tapDoes')} onclick={() => toggle('tech.tapDoes')}>{t('tech.tapDoes')}<span class="chev" aria-hidden="true">{closed.has('tech.tapDoes') ? '▸' : '▾'}</span></button></h3>
+    <div class="sec-body">
     <div class="mode" role="radiogroup" aria-label={t('tech.tapDoes')}>
       <button role="radio" aria-checked={tool.withNote} class:on={tool.withNote} onclick={() => onAction({ type: 'setWithNote', on: true })}>{t('tech.withNote')}</button>
       <button role="radio" aria-checked={!tool.withNote} class:on={!tool.withNote} onclick={() => onAction({ type: 'setWithNote', on: false })}>{t('tech.symbolOnly')}</button>
     </div>
     <p class="hint">{tool.withNote ? t('tech.withNoteHint') : t('tech.symbolOnlyHint')}</p>
+  </div>
   </section>
 
-  <section>
-    <h3>{t('palette.articulation')}</h3>
+  <section class="sec" class:closed={closed.has('palette.articulation')}>
+    <h3><button class="sec-head" data-key="palette.articulation" aria-expanded={!closed.has('palette.articulation')} onclick={() => toggle('palette.articulation')}>{t('palette.articulation')}<span class="chev" aria-hidden="true">{closed.has('palette.articulation') ? '▸' : '▾'}</span></button></h3>
+    <div class="sec-body">
     <div class="grid">
       <button aria-label={t('palette.rest')} title={t('palette.restHint')} onclick={() => onAction({ type: 'rest' })}>
         <span class="smufl glyph">{Glyphs.rest(NoteValue.QUARTER)}</span>
@@ -264,11 +300,13 @@
       </button>
       {/if}
     </div>
+  </div>
   </section>
 
   {#if has('phrasing')}
-  <section>
-    <h3>{t('palette.phrasing')}</h3>
+  <section class="sec" class:closed={closed.has('palette.phrasing')}>
+    <h3><button class="sec-head" data-key="palette.phrasing" aria-expanded={!closed.has('palette.phrasing')} onclick={() => toggle('palette.phrasing')}>{t('palette.phrasing')}<span class="chev" aria-hidden="true">{closed.has('palette.phrasing') ? '▸' : '▾'}</span></button></h3>
+    <div class="sec-body">
     <div class="grid">
       <button aria-label={t('palette.slurStart')} title={t('palette.slurHint')} onclick={() => onAction({ type: 'setSlur', kind: 'start' })}>
         <span class="glyph text small-text">⌒(</span><span class="label">{t('palette.slurStart')}</span>
@@ -280,23 +318,27 @@
         <span class="smufl glyph art">{Glyphs.BREATH}</span><span class="label">{t('palette.breath')}</span>
       </button>
     </div>
+  </div>
   </section>
   {/if}
 
   {#if has('chords')}
-  <section class="lyrics">
-    <h3>{t('palette.chords')}</h3>
+  <section class="sec lyrics" class:closed={closed.has('palette.chords')}>
+    <h3><button class="sec-head" data-key="palette.chords" aria-expanded={!closed.has('palette.chords')} onclick={() => toggle('palette.chords')}>{t('palette.chords')}<span class="chev" aria-hidden="true">{closed.has('palette.chords') ? '▸' : '▾'}</span></button></h3>
+    <div class="sec-body">
     <form onsubmit={(e) => { e.preventDefault(); const f = e.currentTarget.elements.chord; onAction({ type: 'setChord', text: f.value, advance: true }); f.value = ''; f.focus(); }}>
       <input name="chord" type="text" maxlength="16" value={chord} placeholder={t('palette.chordHint')} aria-label={t('palette.chords')} autocomplete="off" autocapitalize="characters" />
       <button type="submit" aria-label={t('palette.chordApply')}>↵</button>
     </form>
     <p class="hint">{t('palette.chordHelp')}</p>
+  </div>
   </section>
   {/if}
 
   {#if has('lyrics')}
-  <section class="lyrics">
-    <h3>{t('palette.lyrics')}</h3>
+  <section class="sec lyrics" class:closed={closed.has('palette.lyrics')}>
+    <h3><button class="sec-head" data-key="palette.lyrics" aria-expanded={!closed.has('palette.lyrics')} onclick={() => toggle('palette.lyrics')}>{t('palette.lyrics')}<span class="chev" aria-hidden="true">{closed.has('palette.lyrics') ? '▸' : '▾'}</span></button></h3>
+    <div class="sec-body">
     <form onsubmit={(e) => { e.preventDefault(); const f = e.currentTarget.elements.lyric; onAction({ type: 'setLyric', text: f.value, advance: true }); f.value = ''; f.focus(); }}>
       <input name="lyric" type="text" maxlength="24" value={lyric} placeholder={t('palette.lyricHint')} aria-label={t('palette.lyrics')} autocomplete="off" />
       <button type="submit" aria-label={t('palette.lyricApply')}>↵</button>
@@ -307,12 +349,14 @@
       <button type="submit">{t('palette.paste')}</button>
     </form>
     {#if lyricsInfo}<p class="hint">{lyricsInfo}</p>{/if}
+  </div>
   </section>
   {/if}
 
   {#if has('pedal')}
-  <section>
-    <h3>{t('palette.pedal')}</h3>
+  <section class="sec" class:closed={closed.has('palette.pedal')}>
+    <h3><button class="sec-head" data-key="palette.pedal" aria-expanded={!closed.has('palette.pedal')} onclick={() => toggle('palette.pedal')}>{t('palette.pedal')}<span class="chev" aria-hidden="true">{closed.has('palette.pedal') ? '▸' : '▾'}</span></button></h3>
+    <div class="sec-body">
     <div class="grid two">
       <button aria-label={t('palette.pedDown')} title={t('palette.pedHint')} onclick={() => onAction({ type: 'setPedal', kind: 'down' })}>
         <span class="smufl glyph dyn">{Glyphs.PED}</span><span class="label">{t('palette.pedDown')}</span>
@@ -321,12 +365,14 @@
         <span class="smufl glyph dyn">{Glyphs.PED_UP}</span><span class="label">{t('palette.pedUp')}</span>
       </button>
     </div>
+  </div>
   </section>
   {/if}
 
   {#if has('dynamics')}
-  <section>
-    <h3>{t('palette.dynamics')}</h3>
+  <section class="sec" class:closed={closed.has('palette.dynamics')}>
+    <h3><button class="sec-head" data-key="palette.dynamics" aria-expanded={!closed.has('palette.dynamics')} onclick={() => toggle('palette.dynamics')}>{t('palette.dynamics')}<span class="chev" aria-hidden="true">{closed.has('palette.dynamics') ? '▸' : '▾'}</span></button></h3>
+    <div class="sec-body">
     <div class="grid four">
       {#each ['pp', 'p', 'mp', 'mf', 'f', 'ff', 'fp', 'sfz'] as d}
         <button class:on={tool.dyn === d} aria-label={t(`palette.${d}`)} title={t('palette.dynHint')} onclick={() => onAction({ type: 'setDyn', dyn: d })}>
@@ -341,12 +387,14 @@
         </button>
       {/each}
     </div>
+  </div>
   </section>
   {/if}
 
   {#if profile.hands}
-  <section>
-    <h3>{t('palette.hand')}</h3>
+  <section class="sec" class:closed={closed.has('palette.hand')}>
+    <h3><button class="sec-head" data-key="palette.hand" aria-expanded={!closed.has('palette.hand')} onclick={() => toggle('palette.hand')}>{t('palette.hand')}<span class="chev" aria-hidden="true">{closed.has('palette.hand') ? '▸' : '▾'}</span></button></h3>
+    <div class="sec-body">
     <div class="grid two">
       <button class:on={tool.sticking === Sticking.R} aria-label={t('palette.rightLong')} onclick={() => onAction({ type: 'setSticking', sticking: Sticking.R })}>
         <span class="glyph text">R</span><span class="label">{t('palette.right')}</span>
@@ -355,12 +403,14 @@
         <span class="glyph text">L</span><span class="label">{t('palette.left')}</span>
       </button>
     </div>
+  </div>
   </section>
   {/if}
 
   {#if heads.length}
-  <section>
-    <h3>{t('tech.head')}</h3>
+  <section class="sec" class:closed={closed.has('tech.head')}>
+    <h3><button class="sec-head" data-key="tech.head" aria-expanded={!closed.has('tech.head')} onclick={() => toggle('tech.head')}>{t('tech.head')}<span class="chev" aria-hidden="true">{closed.has('tech.head') ? '▸' : '▾'}</span></button></h3>
+    <div class="sec-body">
     <div class="grid">
       <button class:on={!tool.head} aria-label={t('tech.headDefault')} title={t('tech.headDefaultHint')} onclick={() => tool.head && onAction({ type: 'setHead', head: tool.head })}>
         <span class="smufl glyph head">{Glyphs.notehead(Notehead.NORMAL, q)}</span><span class="label">{t('tech.headDefault')}</span>
@@ -371,12 +421,14 @@
         </button>
       {/each}
     </div>
+  </div>
   </section>
   {/if}
 
   {#if techs.length}
-  <section>
-    <h3>{t('tech.technique')}</h3>
+  <section class="sec" class:closed={closed.has('tech.technique')}>
+    <h3><button class="sec-head" data-key="tech.technique" aria-expanded={!closed.has('tech.technique')} onclick={() => toggle('tech.technique')}>{t('tech.technique')}<span class="chev" aria-hidden="true">{closed.has('tech.technique') ? '▸' : '▾'}</span></button></h3>
+    <div class="sec-body">
     <div class="grid">
       {#each techs as x}
         <button class:on={tool.tech === x.id} aria-label={label(x.id)} onclick={() => tech(x.id)}>
@@ -384,15 +436,29 @@
         </button>
       {/each}
     </div>
+  </div>
   </section>
   {/if}
   </div>
 </div>
 
 <style>
-  .palette { display: flex; flex-direction: column; gap: 8px; }
+  .palette { display: flex; flex-direction: column; gap: 10px; }
   .instrument select { width: 100%; font: inherit; font-weight: 600; min-height: var(--tap); color: var(--ink); background: var(--panel); border: 2px solid var(--accent); border-radius: var(--radius); padding: 0 8px; }
   .top { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; }
+  .top .fold { min-height: 34px; font-size: 12px; font-weight: 600; line-height: 1.15; }
+  /* each section a card: where one ends and the next begins is plain to see */
+  .sec { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 0 6px 6px; }
+  .sec.closed { padding-bottom: 0; }
+  .sec h3 { margin: 0 -6px 6px; border-bottom: 1px solid var(--line); }
+  .sec.closed h3 { margin-bottom: 0; border-bottom: none; }
+  .sec.closed .sec-body { display: none; }
+  .sec-head {
+    width: 100%; min-height: 34px; padding: 0 8px; flex-direction: row; justify-content: space-between; align-items: center;
+    border: none; border-radius: var(--radius); background: none; color: var(--ink);
+    font: inherit; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;
+  }
+  .chev { font-size: 14px; color: var(--muted); }
   .aux { min-height: 44px; flex-direction: row; gap: 6px; justify-content: center; }
   .aux .label { font-size: 13px; font-weight: 600; }
   .small-text { font-size: 18px; height: auto; }
