@@ -152,7 +152,7 @@ export function removePart(full, partId) {
 }
 
 export function isEmptyPart(full, partId) {
-  return full.bars.every((b) => b.parts[partId].beats.every((bt) => leafSpans(bt).every((l) => l.leaf.notes.length === 0)));
+  return full.bars.every((b) => [...b.parts[partId].beats, ...(b.parts[partId].lower ?? [])].every((bt) => leafSpans(bt).every((l) => l.leaf.notes.length === 0)));
 }
 
 /**
@@ -216,7 +216,8 @@ export function partLabelIndex(full, partId) {
 }
 
 export function content(b) {
-  return { beats: b.beats, simile: !!b.simile, text: b.text ?? '' };
+  // `lower`: a drum part's lower voice in its own rhythm (voices.js)
+  return { beats: b.beats, simile: !!b.simile, text: b.text ?? '', ...(b.lower ? { lower: b.lower } : {}) };
 }
 
 function pick(score) {

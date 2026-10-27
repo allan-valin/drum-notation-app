@@ -33,8 +33,10 @@ export const Grace = Object.freeze({ FLAM: 'flam', DRAG: 'drag' });
  * slot's notehead (diamond for a bell, X on the snare line for cross-stick); `marks` sit above,
  * `roll` on the stem, `grace` before the head.
  */
-export function note(slotId, { articulations = [], sticking = null, head = null, marks = [], roll = null, grace = null, alter } = {}) {
+export function note(slotId, { articulations = [], sticking = null, head = null, marks = [], roll = null, grace = null, alter, stem } = {}) {
   const n = { slotId, articulations: [...articulations], sticking, head, marks: [...marks], roll, grace };
+  // drums: a stem direction other than the instrument's own ('up' or 'down', see voices.js)
+  if (stem === 'up' || stem === 'down') n.stem = stem;
   // pitched notes only: semitones from the written letter (halves are quarter tones)
   if (alter !== undefined && alter !== null) n.alter = alter;
   return n;

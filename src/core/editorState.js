@@ -10,6 +10,9 @@ import {
 import { barLeaves } from './edit.js';
 import { profileById, slotNearest, slotFor } from './profile.js';
 import { toFull, partView, zipPart, applyAll, addPart, removePart, setInstrument, toggleMute, movePartBars } from './parts.js';
+import { voiceView, zipVoice, normVoices, withStem } from './voices.js';
+import { autofill } from './autofill.js';
+import { moveNotes, moveBeats, absTick, cellAt, beatList } from './move.js';
 
 const HISTORY = 50;
 
@@ -23,14 +26,36 @@ export function initialState(score) {
   const st = {
     full,
     part,
-    score: partView(full, part),
+    // drums: `split` edits the two voices apart, `voice` says which one (0 stems up, 1 down)
+    split: false,
+    voice: 0,
+    score: viewOf(full, part, false, 0),
     cursor: mkCursor(0, 0, 0),
-    tool: { value: NoteValue.QUARTER, tuplet: null, delete: false, accent: false, ghost: false, sticking: null, splitMode: 'beat', head: null, tech: null, withNote: true, accidental: null, arts: [], dot: false, dyn: null, wedge: null },
+    tool: { value: NoteValue.QUARTER, tuplet: null, stem: null, delete: false, accent: false, ghost: false, sticking: null, splitMode: 'beat', head: null, tech: null, withNote: true, accidental: null, arts: [], dot: false, dyn: null, wedge: null },
     history: [],
     refused: null,
   };
   return syncTool(clampCursor(st));
 }
+
+/** The score the rules edit: one part, and with voices split, one voice of it. */
+function viewOf(full, part, split, voice) {
+  const p = partView(full, part);
+  const staff = profileById(p.profileId).staves[0];
+  return split && staff.voices ? voiceView(p, voice, staff) : p;
+}
+
+/** Write an edited view back into the full score (drum bars normalised, see voices.js). */
+function writeBack(full, part, split, voice, view) {
+  const staff = profileById(view.profileId).staves[0];
+  if (!staff.voices) return zipPart(full, part, view);
+  const merged = split
+    ? zipVoice(partView(full, part), voice, view, staff)
+    : { ...view, bars: view.bars.map((b) => normVoices(b, staff)) };
+  return zipPart(full, part, merged);
+}
+
+const view = (st, full = st.full, part = st.part) => viewOf(full, part, st.split, st.voice);
 
 /**
  * Parts: the rules below edit `st.score`, a one-part view of `st.full`. This layer writes each
@@ -68,14 +93,32 @@ export function reduce(state, action) {
       const r = movePartBars(state.full, state.part, action.from, action.to, action.gap);
       if (r.refused) return { ...state, refused: r.refused };
       if (r.full === state.full) return state;
-      const score = partView(r.full, state.part);
+      const score = view(state, r.full);
       return { ...pushFull(state), full: r.full, score, range: r.range, refused: null, cursor: clamp(score, { ...state.cursor, bar: r.range[0] }) };
+    }
+    case 'setSplit': {
+      const split = !!action.on;
+      const st = { ...state, split, voice: split ? state.voice : 0, refused: null };
+      const score = view(st);
+      return syncTool({ ...st, score, cursor: clamp(score, state.cursor) });
+    }
+    case 'setVoice': {
+      if (!state.split) return { ...state, refused: 'splitOff' };
+      const st = { ...state, voice: action.voice === 1 ? 1 : 0, refused: null };
+      const score = view(st);
+      return syncTool({ ...st, score, cursor: clamp(score, state.cursor) });
+    }
+    case 'selectCell': {
+      // the strips above and below the staff: pick a voice and a cell of it, write nothing.
+      // Here, not in reduceView: changing voice changes what `score` is a view of.
+      const voiced = action.voice !== undefined && state.split && action.voice !== state.voice ? reduce(state, { type: 'setVoice', voice: action.voice }) : state;
+      return { ...syncTool({ ...voiced, cursor: clamp(voiced.score, { bar: state.cursor.bar, beat: action.beat, path: action.path }) }), selectedOnly: true, refused: null };
     }
     case 'undo': {
       if (state.history.length === 0) return state;
       const [full, ...history] = state.history;
       const part = full.parts.some((p) => p.id === state.part) ? state.part : full.parts[0].id;
-      const score = partView(full, part);
+      const score = view(state, full, part);
       return syncTool({ ...state, full, part, score, history, refused: null, cursor: clamp(score, state.cursor) });
     }
     default: break;
@@ -83,14 +126,15 @@ export function reduce(state, action) {
   const next = reduceView(state, action);
   if (next.score === state.score) return next;
   const op = BAR_OPS[action.type];
-  const full = op ? applyAll(state.full, op(state, action)) : zipPart(state.full, state.part, next.score);
-  const score = op ? partView(full, state.part) : next.score;
+  const full = op ? applyAll(state.full, op(state, action)) : writeBack(state.full, state.part, state.split, state.voice, next.score);
+  // read back through the full score: a voice that folded into one tree shows as it now is
+  const score = view(next, full);
   return { ...next, full, score, cursor: clamp(score, next.cursor) };
 }
 
 function switchPart(st, part, force = false) {
   if (!force && part === st.part) return st;
-  const score = partView(st.full, part);
+  const score = viewOf(st.full, part, st.split, st.voice);
   const profile = profileById(score.profileId);
   const t = st.tool;
   const tool = {
@@ -112,7 +156,7 @@ function pushFull(st) {
 }
 
 function reduceView(state, action) {
-  const st = state.refused || state.selectedOnly || state.symbolsRemoved !== undefined || state.lyricsResult ? { ...state, refused: null, selectedOnly: false, symbolsRemoved: undefined, lyricsResult: undefined } : state;
+  const st = state.refused || state.selectedOnly || state.symbolsRemoved !== undefined || state.lyricsResult || state.autofilled || state.moved ? { ...state, refused: null, selectedOnly: false, symbolsRemoved: undefined, lyricsResult: undefined, autofilled: undefined, moved: undefined } : state;
   switch (action.type) {
     case 'tap': return tap(st, action.staffPosition);
     case 'tapAt': {
@@ -127,7 +171,54 @@ function reduceView(state, action) {
       if (st.tool.splitMode === 'cell') return split(st, shorter(currentValue(st)), action.n);
       return split(st, st.tool.value, st.tool.tuplet === action.n ? null : action.n);
     }
-    case 'setSplitMode': return tool(st, { splitMode: action.mode === 'cell' ? 'cell' : 'beat' });
+    case 'setSplitMode': return tool(st, { splitMode: ['cell', 'bar'].includes(action.mode) ? action.mode : 'beat' });
+    case 'setStem': return tool(st, { stem: st.tool.stem === action.stem ? null : action.stem });
+    case 'eraseAt': {
+      // right click: the note nearest the click in that cell goes, whatever the delete toggle says
+      const c = clamp(st.score, { bar: st.cursor.bar, beat: action.beat, path: action.path });
+      const staff = profileById(st.score.profileId).staves[0];
+      const pos = (n) => staff.slots.find((x) => x.id === n.slotId)?.staffPosition ?? 0;
+      const hit = leafAt(st.score, c).notes.reduce((best, n) => (!best || Math.abs(pos(n) - action.staffPosition) < Math.abs(pos(best) - action.staffPosition) ? n : best), null);
+      const moved = syncTool({ ...st, cursor: c });
+      if (!hit) return { ...moved, refused: 'noNoteThere' };
+      return edit(moved, (s) => deleteNote(s, c, hit.slotId));
+    }
+    case 'moveNotes': {
+      const staff = profileById(st.score.profileId).staves[0];
+      const from = clamp(st.score, action.from);
+      const to = clamp(st.score, action.to);
+      const was = staff.slots.find((x) => x.id === action.slotId);
+      const dPos = was && action.staffPosition !== undefined ? action.staffPosition - was.staffPosition : 0;
+      const s = moveNotes(st.score, [{ ...from, slotIds: [action.slotId] }], absTick(st.score, to) - absTick(st.score, from), dPos, staff);
+      if (s.refused) return { ...st, refused: s.refused };
+      return { ...syncTool({ ...push(st), score: s, cursor: to }), moved: { items: [to], count: 1 } };
+    }
+    case 'moveSelection': {
+      const staff = profileById(st.score.profileId).staves[0];
+      if (!action.items?.length) return { ...st, refused: 'nothingSelected' };
+      if (action.mode === 'beats') {
+        const list = beatList(st.score);
+        const idx = (x) => list.findIndex((y) => y.bar === x.bar && y.beat === x.beat);
+        const delta = idx(action.to) - idx(action.from);
+        const s = moveBeats(st.score, action.items, delta);
+        if (s.refused) return { ...st, refused: s.refused };
+        const items = action.items.map((x) => { const y = list[idx(x) + delta]; return { bar: y.bar, beat: y.beat, path: [0] }; });
+        return { ...syncTool({ ...push(st), score: s, cursor: clamp(s, items[0]) }), moved: { items, count: items.length } };
+      }
+      const delta = absTick(st.score, action.to) - absTick(st.score, action.from);
+      const items = action.items.map((c) => cellAt(st.score, absTick(st.score, c) + delta));
+      const s = moveNotes(st.score, action.items, delta, 0, staff);
+      if (s.refused) return { ...st, refused: s.refused };
+      return { ...syncTool({ ...push(st), score: s, cursor: clamp(s, items[0]) }), moved: { items, count: items.length } };
+    }
+    case 'autofill': {
+      const staff = profileById(st.score.profileId).staves[0];
+      // split voices: the voice being edited decides the stems
+      const s = autofill(st.score, st.cursor.bar, action.slotId, action.pattern, staff, st.split && staff.voices ? null : st.tool.stem);
+      if (s.refused) return { ...st, refused: s.refused };
+      if (s === st.score) return st;
+      return { ...push(st), score: s, autofilled: action };
+    }
     case 'merge': {
       const s = mergeCell(st.score, st.cursor);
       if (s === st.score) return { ...st, refused: 'nothingToMerge' };
@@ -268,7 +359,8 @@ function tap(st, staffPosition) {
   const alter = staff.pitched
     ? (head === 'slash' ? 0 : st.tool.accidental ?? keyAlter(writtenKey, parseSlot(slot.id).step))
     : undefined;
-  const placed = edit(st, (s) => placeNote(s, st.cursor, note(slot.id, { articulations, sticking, head: ownHead ? null : head, ...techFields, alter })));
+  const written = note(slot.id, { articulations, sticking, head: ownHead ? null : head, ...techFields, alter });
+  const placed = edit(st, (s) => placeNote(s, st.cursor, st.tool.stem && staff.voices ? withStem(written, st.tool.stem, staff) : written));
   return cellMarks(placed, placed !== st);
 }
 
@@ -279,7 +371,9 @@ function tap(st, staffPosition) {
 function applySymbols(st, staffPosition, techFields) {
   const { head, tech, sticking, accent, ghost, accidental } = st.tool;
   const extraArts = st.tool.arts;
-  if (!accent && !ghost && !sticking && !head && !tech && accidental === null && extraArts.length === 0) return { ...st, refused: 'nothingToApply' };
+  const staffV = profileById(st.score.profileId).staves[0];
+  const stem = staffV.voices ? st.tool.stem : null;
+  if (!accent && !ghost && !sticking && !head && !tech && accidental === null && extraArts.length === 0 && !stem) return { ...st, refused: 'nothingToApply' };
   // anywhere in the cell counts; with several notes, the one nearest the tap height
   const staff = profileById(st.score.profileId).staves[0];
   const pos = (n) => staff.slots.find((x) => x.id === n.slotId)?.staffPosition ?? 0;
@@ -293,7 +387,8 @@ function applySymbols(st, staffPosition, techFields) {
     && (!techFields.marks.length || (existing.marks ?? []).includes(techFields.marks[0]))
     && (!techFields.roll || existing.roll === techFields.roll)
     && (!techFields.grace || existing.grace === techFields.grace)
-    && (accidental === null || existing.alter === accidental);
+    && (accidental === null || existing.alter === accidental)
+    && (!stem || existing.stem === stem);
   const next = has
     ? {
       ...existing,
@@ -315,14 +410,16 @@ function applySymbols(st, staffPosition, techFields) {
       grace: techFields.grace ?? existing.grace,
       ...(accidental !== null ? { alter: accidental } : {}),
     };
-  return { ...edit(st, (s) => placeNote(s, st.cursor, next)), symbolsRemoved: has };
+  // the stem: set flips the note, a second tap gives it back its instrument's direction
+  const flipped = stem ? (has ? (({ stem: _, ...r }) => r)(next) : withStem(next, stem, staffV)) : next;
+  return { ...edit(st, (s) => placeNote(s, st.cursor, flipped)), symbolsRemoved: has };
 }
 
 function split(st, value, tuplet) {
   // pitched, Tempo mode: a value longer than the beat, or dotted, is a note length, not a split
   const pitched = profileById(st.score.profileId).palette.includes('length');
   const [, den] = barTimeSig(st.score, st.cursor.bar);
-  if (pitched && st.tool.splitMode !== 'cell' && !tuplet && (st.tool.dot || value.divisionsPerWhole < den)) {
+  if (pitched && st.tool.splitMode === 'beat' && !tuplet && (st.tool.dot || value.divisionsPerWhole < den)) {
     const s = setLength(st.score, st.cursor, value, st.tool.dot);
     if (s.refused) return { ...st, refused: s.refused };
     const head = barLeaves(s, st.cursor.bar).find((l) => l.leaf.notes.length && l.start <= startTick(st) && !l.leaf.cont) ?? null;
@@ -338,6 +435,11 @@ function split(st, value, tuplet) {
     // split: go into the first new cell; merge: land on the merged cell
     const path = after > before ? [...st.cursor.path, 0] : st.cursor.path;
     return syncTool({ ...push(st), score: s, cursor: clamp(s, { ...st.cursor, path: after > before ? path : shrinkTo(s, st.cursor) }) });
+  }
+  if (st.tool.splitMode === 'bar') {
+    // the whole bar: every beat split the same way
+    const out = edit(st, (s) => s.bars[st.cursor.bar].beats.reduce((acc, _, b) => splitBeat(acc, { ...st.cursor, beat: b }, value, tuplet), s));
+    return syncTool(clampCursor({ ...out, cursor: { ...out.cursor, path: [Math.min(out.cursor.path[0], 99)] } }));
   }
   const out = edit(st, (s) => splitBeat(s, st.cursor, value, tuplet));
   return syncTool(clampCursor({ ...out, cursor: { ...out.cursor, path: [Math.min(out.cursor.path[0], 99)] } }));

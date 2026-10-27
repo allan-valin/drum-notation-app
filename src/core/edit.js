@@ -221,11 +221,15 @@ export function setTimeSig(score, index, sig) {
 }
 
 function reshape(b, [num, den], [, oldDen]) {
-  let beats = b.beats;
-  if (den !== oldDen) beats = beats.map((x) => leafBeat(firstNotes(x), den));
-  if (beats.length > num) beats = beats.slice(0, num);
-  while (beats.length < num) beats = [...beats, emptyBeat(noteValueFor(den), den)];
-  return { ...b, beats };
+  const fit = (list) => {
+    let beats = list;
+    if (den !== oldDen) beats = beats.map((x) => leafBeat(firstNotes(x), den));
+    if (beats.length > num) beats = beats.slice(0, num);
+    while (beats.length < num) beats = [...beats, emptyBeat(noteValueFor(den), den)];
+    return beats;
+  };
+  // a drum bar's lower voice is shaped by the same signature
+  return { ...b, beats: fit(b.beats), ...(b.lower ? { lower: fit(b.lower) } : {}) };
 }
 
 function leafBeat(notes, den) {

@@ -72,7 +72,7 @@ describe('parts', () => {
 });
 
 describe('schema v3', () => {
-  it('is version 3', () => expect(SCHEMA_VERSION).toBe(3));
+  it('is version 4 (drum voices: lower, stem)', () => expect(SCHEMA_VERSION).toBe(4));
   it('round-trips a full score with two parts', () => {
     let full = addPart(toFull(single()), 'congas');
     full = zipPart(full, 'p1', placeNote(partView(full, 'p1'), cursor(0, 0, 0), note('kick')));

@@ -35,7 +35,12 @@ beforeAll(() => {
 
 const heads = (container) => [...container.querySelectorAll('.stage text')].filter((t) => t.textContent === Glyphs.notehead('normal', NoteValue.QUARTER) || t.textContent === Glyphs.notehead('cross', NoteValue.QUARTER));
 const spOf = (container) => Number(container.querySelectorAll('.stage .staffline')[1].getAttribute('y1'));
-const tapAt = (container, x, y) => fireEvent.pointerDown(container.querySelector('.stage svg'), { clientX: x, clientY: y });
+// a tap is a press and a release in place (a press that is held picks the note up to drag it)
+const tapAt = async (container, x, y) => {
+  const svg = container.querySelector('.stage svg');
+  await fireEvent.pointerDown(svg, { clientX: x, clientY: y });
+  await fireEvent.pointerUp(svg, { clientX: x, clientY: y });
+};
 
 describe('Editor', () => {
   it('places a snare on tap inside the focused beat and reports it', async () => {

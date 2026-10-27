@@ -158,9 +158,9 @@ export function performance(score, a, b, instrument = score.profileId ?? 'drums'
     const pitchedStaff = profile.staves[0].pitched ? profile.staves[0] : null;
     for (let beat = 0; beat < num; beat++) {
       clicks.push({ tick: offset + beat * bt, accent: beat === 0, bar: shown, beat });
-      const group = bar.beats[beat];
-      if (!group) continue;
-      for (const leaf of leafTicks(group, den)) {
+      // drums: the lower voice (its own rhythm) plays with the upper
+      const groups = [bar.beats[beat], ...(pitchedStaff ? [] : [bar.lower?.[beat]])].filter(Boolean);
+      for (const leaf of groups.flatMap((g) => leafTicks(g, den))) {
         const at = offset + beat * bt + leaf.tick;
         if (leaf.leaf.dyn || leaf.leaf.wedge) marks.push({ tick: at, dyn: leaf.leaf.dyn, wedge: leaf.leaf.wedge });
         if (leaf.leaf.chord) chord = parseChord(leaf.leaf.chord);

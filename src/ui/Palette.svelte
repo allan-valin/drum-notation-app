@@ -6,11 +6,24 @@
   import { t } from '../app/prefs.svelte.js';
 
   import { DRUM_PROFILE, INSTRUMENTS_BY_FAMILY } from '../core/profile.js';
+  import { patternsFor } from '../core/autofill.js';
 
   let {
     tool, onAction, canUndo = false, canMerge = false, onLegend = () => {}, onHelp = () => {},
     profile = DRUM_PROFILE, parts = [], part = null, lyric = '', chord = '', lyricsInfo = '',
+    /** drums: voices split, the voice edited; beats in the bar (for the autofill patterns) */
+    split = false, voice = 0, beatsInBar = 4,
+    /** selection for moving notes: null, 'cells' or 'beats'; how many are marked */
+    selectMode = null, selectedCount = 0, onSelectMode = () => {},
   } = $props();
+  const staff0 = $derived(profile.staves[0]);
+  const splitMode = $derived(tool.splitMode ?? 'beat');
+  /** Autofill: any unpitched staff (drums, congas, frame drums, taiko); its pieces by height, top first. */
+  const fillPieces = $derived(staff0.pitched ? [] : [...staff0.slots].reverse());
+  const patterns = $derived(patternsFor(beatsInBar));
+  let fillPiece = $state('hihat');
+  let fillPattern = $state('cells');
+  const patternLabel = (p) => (p.startsWith('g:') ? t('autofill.group', { g: p.slice(2) }) : t(`autofill.${p}`));
   const q = NoteValue.QUARTER;
   const HEADS = [Notehead.CROSS, Notehead.DIAMOND, Notehead.DIAMOND_OPEN, Notehead.TRIANGLE, Notehead.CIRCLE_X, Notehead.SLASHED, Notehead.SLASH];
   /** Every technique the app knows; a profile shows the ones its instrument uses. */
@@ -105,11 +118,12 @@
   </section>
   <section>
     <h3>{t('palette.figure')}</h3>
-    <div class="mode" role="radiogroup" aria-label={t('palette.figure')}>
-      <button role="radio" aria-checked={tool.splitMode !== 'cell'} class:on={tool.splitMode !== 'cell'} onclick={() => onAction({ type: 'setSplitMode', mode: 'beat' })}>{t('split.beat')}</button>
-      <button role="radio" aria-checked={tool.splitMode === 'cell'} class:on={tool.splitMode === 'cell'} onclick={() => onAction({ type: 'setSplitMode', mode: 'cell' })}>{t('split.cell')}</button>
+    <div class="mode three" role="radiogroup" aria-label={t('palette.figure')}>
+      {#each ['beat', 'cell', 'bar'] as m}
+        <button role="radio" aria-checked={splitMode === m} class:on={splitMode === m} onclick={() => onAction({ type: 'setSplitMode', mode: m })}>{t(`split.${m}`)}</button>
+      {/each}
     </div>
-    <p class="hint">{tool.splitMode === 'cell' ? t('split.hintCell') : t('split.hintBeat')}</p>
+    <p class="hint">{t({ beat: 'split.hintBeat', cell: 'split.hintCell', bar: 'split.hintBar' }[splitMode])}</p>
     <div class="grid">
       {#each NOTE_VALUES as v}
         <button class:on={tool.value === v} aria-label={t(`value.${v.id}`)} title="1/{v.divisionsPerWhole}" onclick={() => onAction({ type: 'selectValue', value: v })}>
@@ -146,6 +160,57 @@
     </div>
   </section>
   {/if}
+
+  {#if staff0.voices}
+  <section>
+    <h3>{t('voices.title')}</h3>
+    <div class="mode three" role="radiogroup" aria-label={t('voices.title')} title={t('voices.stemHint')}>
+      <button role="radio" aria-checked={!tool.stem} class:on={!tool.stem} onclick={() => tool.stem && onAction({ type: 'setStem', stem: tool.stem })}>{t('voices.auto')}</button>
+      <button role="radio" aria-checked={tool.stem === 'up'} class:on={tool.stem === 'up'} aria-label={t('voices.up')} onclick={() => onAction({ type: 'setStem', stem: 'up' })}>↑ {t('voices.up')}</button>
+      <button role="radio" aria-checked={tool.stem === 'down'} class:on={tool.stem === 'down'} aria-label={t('voices.down')} onclick={() => onAction({ type: 'setStem', stem: 'down' })}>↓ {t('voices.down')}</button>
+    </div>
+    <p class="hint">{t('voices.stemHint')}</p>
+    <label class="switch"><input type="checkbox" checked={split} onchange={(e) => onAction({ type: 'setSplit', on: e.target.checked })} /> {t('voices.split')}</label>
+    {#if split}
+      <div class="mode" role="radiogroup" aria-label={t('voices.split')}>
+        <button role="radio" aria-checked={voice === 0} class:on={voice === 0} onclick={() => onAction({ type: 'setVoice', voice: 0 })}>{t('voices.upper')}</button>
+        <button role="radio" aria-checked={voice === 1} class:on={voice === 1} onclick={() => onAction({ type: 'setVoice', voice: 1 })}>{t('voices.lower')}</button>
+      </div>
+    {/if}
+    <p class="hint">{t('voices.splitHint')}</p>
+  </section>
+  {/if}
+
+  {#if fillPieces.length}
+  <section class="fill">
+    <h3>{t('autofill.title')}</h3>
+    <label class="field">{t('autofill.piece')}
+      <select bind:value={fillPiece} aria-label={t('autofill.piece')}>
+        {#each fillPieces as x}<option value={x.id}>{t(`slot.${x.id}`)}</option>{/each}
+      </select>
+    </label>
+    <label class="field">{t('autofill.pattern')}
+      <select bind:value={fillPattern} aria-label={t('autofill.pattern')}>
+        {#each patterns as p}<option value={p}>{patternLabel(p)}</option>{/each}
+      </select>
+    </label>
+    <button class="apply" onclick={() => onAction({ type: 'autofill', slotId: fillPieces.some((x) => x.id === fillPiece) ? fillPiece : fillPieces[0].id, pattern: patterns.includes(fillPattern) ? fillPattern : patterns[0], label: patternLabel(patterns.includes(fillPattern) ? fillPattern : patterns[0]) })}>{t('autofill.apply')}</button>
+    <p class="hint">{t('autofill.hint')}</p>
+  </section>
+  {/if}
+
+  <section>
+    <h3>{t('drag.select')}</h3>
+    <div class="mode three" role="radiogroup" aria-label={t('drag.select')}>
+      <button role="radio" aria-checked={!selectMode} class:on={!selectMode} onclick={() => onSelectMode(null)}>{t('drag.off')}</button>
+      <button role="radio" aria-checked={selectMode === 'cells'} class:on={selectMode === 'cells'} onclick={() => onSelectMode('cells')}>{t('drag.cells')}</button>
+      <button role="radio" aria-checked={selectMode === 'beats'} class:on={selectMode === 'beats'} onclick={() => onSelectMode('beats')}>{t('drag.beats')}</button>
+    </div>
+    {#if selectMode}
+      <p class="hint">{t('drag.selected', { n: selectedCount })} · <button class="link" onclick={() => onSelectMode(selectMode, true)}>{t('drag.clear')}</button></p>
+    {/if}
+    <p class="hint">{t('drag.hint')} {t('drag.rightClick')}.</p>
+  </section>
 
   {#if has('accidental')}
   <section>
@@ -347,6 +412,13 @@
   .symbols { display: flex; flex-direction: column; gap: 8px; border-left: 3px solid var(--accent); padding-left: 6px; margin-left: -2px; }
   .mode button + button { border-left: 1px solid var(--line); }
   .mode { display: grid; grid-template-columns: 1fr 1fr; border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; margin-bottom: 3px; }
+  .mode.three { grid-template-columns: 1fr 1fr 1fr; }
+  .switch { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; min-height: 36px; margin: 2px 0; }
+  .switch input { width: 20px; height: 20px; }
+  .fill .field { display: flex; flex-direction: column; gap: 2px; font-size: 11px; font-weight: 600; color: var(--muted); margin-bottom: 5px; }
+  .fill select { font: inherit; font-size: 14px; font-weight: 400; min-height: 36px; color: var(--ink); background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 0 6px; }
+  .fill .apply { min-height: 40px; flex-direction: row; justify-content: center; font-size: 14px; font-weight: 600; width: 100%; }
+  .link { display: inline; min-height: 0; padding: 0; border: none; background: none; color: var(--accent); text-decoration: underline; font-size: 11px; }
   .mode button { min-height: 36px; border: none; border-radius: 0; flex-direction: row; justify-content: center; font-size: 14px; font-weight: 600; }
   .hint { margin: 0 0 5px; font-size: 11px; color: var(--muted); line-height: 1.25; }
   h3 { margin: 0 0 3px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); }

@@ -22,6 +22,9 @@
   import { t } from '../app/prefs.svelte.js';
   import { partLabelIndex, isEmptyPart, bandRows, groupOf } from '../core/parts.js';
   import { carryInto, tiesOut, slurOpenAt } from '../core/edit.js';
+  import { partView } from '../core/parts.js';
+  import { getAt, samePath } from '../core/tree.js';
+  import { patternCells } from '../core/autofill.js';
 
   /** `background`: drawn behind the welcome overlay, inert, nothing saved. */
   let { store, id, onBack, onPrint, fallback = null, background = false } = $props();
@@ -55,6 +58,13 @@
   if (!background && loaded) store.saveSettings({ ...store.loadSettings(), lastId: id });
 
   const profile = $derived(profileById(st.score.profileId));
+  /** The part as written, both drum voices included; `st.score` is what is being edited (one voice when split). */
+  const realScore = $derived(partView(st.full, st.part));
+  const voiceName = (v) => t(v === 1 ? 'voices.lower' : 'voices.upper');
+  // moving notes: marked cells ({ bar, beat, path }) or beats ({ bar, beat }), in the edited voice
+  let selectMode = $state(null);
+  let selection = $state([]);
+  let dragFrom = null;
   const staff = $derived(profile.staves[0]);
   /** "Bateria", or "Bateria 2" when the instrument appears twice. */
   const partName = (full, id) => {
@@ -68,7 +78,7 @@
   const bandList = $derived(bandRows(st.full).map((r) => ({ ...r, label: t(`instrument.${r.instrument}`) })));
   const groupEmpty = (id) => groupOf(st.full, id).every((p) => isEmptyPart(st.full, p.id));
   const shownBar = $derived(playing && playhead ? playhead.bar : st.cursor.bar);
-  const bar = $derived(st.score.bars[shownBar]);
+  const bar = $derived(realScore.bars[shownBar]);
   /** A drum's name, or a pitch spelled in the reader's language ("Fá♯4"). */
   const noteLabel = (n) => (staff.pitched ? noteName(n.slotId, n.alter ?? 0, prefs.lang, STRINGS[prefs.lang].noteNames) : t(`slot.${n.slotId}`));
   const pos = () => `${st.cursor.bar + 1}.${posLabel(st.cursor)}`;
@@ -102,7 +112,14 @@
         if (before.tool.splitMode === 'cell') return t('status.splitCell', { pos: `${before.cursor.bar + 1}.${posLabel(before.cursor)}`, value: t(`valuePlural.${after.tool.value.id}`) });
         if (a.type === 'selectTuplet') return after.tool.tuplet ? t('status.tupletOn', { n: after.tool.tuplet }) : t('status.tupletOff');
         return t('status.split', { pos: `${n}.${after.cursor.beat + 1}`, value: t(`valuePlural.${a.value.id}`) });
-      case 'setSplitMode': return t('status.mode', { mode: t(`split.${after.tool.splitMode}`) }) + ' · ' + (after.tool.splitMode === 'cell' ? t('split.hintCell') : t('split.hintBeat'));
+      case 'setSplitMode': return t('status.mode', { mode: t(`split.${after.tool.splitMode}`) }) + ' · ' + t({ beat: 'split.hintBeat', cell: 'split.hintCell', bar: 'split.hintBar' }[after.tool.splitMode]);
+      case 'setStem': return after.tool.stem ? t('voices.stemOn', { dir: t(`voices.${after.tool.stem}`) }) : t('voices.stemOff');
+      case 'setSplit': return after.split ? t('voices.splitOn', { voice: voiceName(after.voice) }) : t('voices.splitOff');
+      case 'setVoice': return t('voices.voiceSet', { voice: voiceName(after.voice) });
+      case 'selectCell': return t('voices.cellSelected', { voice: voiceName(after.voice), pos: p });
+      case 'autofill': return t('autofill.done', { n, piece: t(`slot.${a.slotId}`), count: patternCells(after.score, after.cursor.bar, a.pattern).length, pattern: a.label ?? a.pattern });
+      case 'eraseAt': return after.score === before.score ? t('status.nothingToDelete', { pos: p }) : t('status.deleted', { pos: p, notes });
+      case 'moveNotes': case 'moveSelection': return t('drag.moved', { n: after.moved?.count ?? 0 });
       case 'merge': return t('status.merged', { pos: p });
       case 'rest': return t('status.rest', { pos: p });
       case 'next': case 'prev':
@@ -218,6 +235,51 @@
       : t('status.colourSet', { value: t(`value.${valueId}`) });
   }
 
+  /** Select mode: a tap marks or unmarks a cell (or its whole beat) instead of writing. */
+  function mark({ beat, path }) {
+    const item = selectMode === 'beats' ? { bar: st.cursor.bar, beat } : { bar: st.cursor.bar, beat, path };
+    const same = (x) => x.bar === item.bar && x.beat === item.beat && (!item.path || samePath(x.path, item.path));
+    selection = selection.some(same) ? selection.filter((x) => !same(x)) : [...selection, item];
+    status = t('drag.selected', { n: selection.length });
+  }
+  function setSelectMode(mode, clear = false) {
+    if (clear || mode !== selectMode) selection = [];
+    selectMode = mode;
+    status = mode ? `${t('drag.selected', { n: selection.length })} · ${t('drag.hint')}` : t('drag.off');
+  }
+  const isMarked = (c) => selection.some((x) => x.bar === c.bar && x.beat === c.beat && (!x.path || samePath(x.path, c.path)));
+
+  /** Press and hold: a marked cell picks up the whole selection, else the note nearest the finger. */
+  function dragStart({ beat, path, staffPosition }) {
+    if (playing || background) return null;
+    const c = { bar: st.cursor.bar, beat, path };
+    if (selectMode && isMarked(c)) {
+      dragFrom = { kind: 'selection', c };
+      status = t('drag.picked');
+      return 'selection';
+    }
+    const notes = getAt(st.score.bars[c.bar].beats[beat], path)?.notes ?? [];
+    const pos = (n) => staff.slots.find((x) => x.id === n.slotId)?.staffPosition ?? 0;
+    const n = notes.reduce((best, x) => (!best || Math.abs(pos(x) - staffPosition) < Math.abs(pos(best) - staffPosition) ? x : best), null);
+    if (!n) return null;
+    dragFrom = { kind: 'note', c, slotId: n.slotId };
+    status = t('drag.picked');
+    return 'note';
+  }
+  function dragEdge(dir) {
+    const b = st.cursor.bar + dir;
+    if (b >= 0 && b < st.score.bars.length) dispatch({ type: 'goTo', cursor: mkCursor(b, 0, 0) });
+  }
+  function dragEnd(target) {
+    const from = dragFrom;
+    dragFrom = null;
+    if (!target || !from) { status = t('drag.cancelled'); return; }
+    const to = { bar: st.cursor.bar, beat: target.beat, path: target.path };
+    if (from.kind === 'note') dispatch({ type: 'moveNotes', from: from.c, slotId: from.slotId, to, staffPosition: target.staffPosition });
+    else dispatch({ type: 'moveSelection', mode: selectMode, items: selection, from: from.c, to });
+    if (st.moved && from.kind === 'selection') selection = st.moved.items.map((x) => (selectMode === 'beats' ? { bar: x.bar, beat: x.beat } : x));
+  }
+
   function onKey(e) {
     if (background || ['INPUT', 'SELECT', 'TEXTAREA'].includes(e.target.tagName)) return;
     if (e.key === 'ArrowRight') dispatch({ type: 'next' });
@@ -245,7 +307,7 @@
     <aside class="palette-area no-print" class:collapsed={!paletteOpen}>
       <button class="palette-toggle" onclick={togglePalette} aria-expanded={paletteOpen} aria-label={t(paletteOpen ? 'editor.paletteHide' : 'editor.paletteShow')} title={t(paletteOpen ? 'editor.paletteHide' : 'editor.paletteShow')}>{paletteOpen ? '«' : '»'}</button>
       <div class="palette-scroll" class:locked={playing} inert={playing} bind:this={paletteScroll}>
-      <Palette tool={st.tool} canUndo={st.history.length > 0} canMerge={st.cursor.path.length > 1} onAction={dispatch} onLegend={() => (overlay = 'legend')} onHelp={() => (overlay = 'help')} {profile} parts={partList} part={st.part} lyric={leafAt(st.score, st.cursor).lyric ?? ''} chord={leafAt(st.score, st.cursor).chord ?? ''} {lyricsInfo} />
+      <Palette split={st.split} voice={st.voice} beatsInBar={barTimeSig(realScore, st.cursor.bar)[0]} {selectMode} selectedCount={selection.length} onSelectMode={setSelectMode} tool={st.tool} canUndo={st.history.length > 0} canMerge={st.cursor.path.length > 1} onAction={dispatch} onLegend={() => (overlay = 'legend')} onHelp={() => (overlay = 'help')} {profile} parts={partList} part={st.part} lyric={leafAt(st.score, st.cursor).lyric ?? ''} chord={leafAt(st.score, st.cursor).chord ?? ''} {lyricsInfo} />
       </div>
     </aside>
 
@@ -258,18 +320,25 @@
           focusedBeat={playing ? (playhead?.beat ?? null) : st.cursor.beat}
           focusedPath={playing ? (playhead?.path ?? null) : st.cursor.path}
           {colours}
-          timeSig={barTimeSig(st.score, shownBar)}
-          keyFifths={partKey(barKey(st.score, shownBar), profile)}
-          den={barTimeSig(st.score, shownBar)[1]}
-          carry={carryInto(st.score, shownBar)}
-          tieOut={tiesOut(st.score, shownBar)}
+          timeSig={barTimeSig(realScore, shownBar)}
+          keyFifths={partKey(barKey(realScore, shownBar), profile)}
+          den={barTimeSig(realScore, shownBar)[1]}
+          carry={carryInto(realScore, shownBar)}
+          tieOut={tiesOut(realScore, shownBar)}
           dynamicsAbove={!!profile.dynamicsAbove}
-          slurIn={slurOpenAt(st.score, shownBar)}
+          slurIn={slurOpenAt(realScore, shownBar)}
+          voice={st.split && staff.voices && !playing ? st.voice : null}
+          onStrip={({ voice, beat, path }) => dispatch({ type: 'selectCell', voice, beat, path })}
+          onErase={({ beat, path, staffPosition }) => dispatch({ type: 'eraseAt', beat, path, staffPosition })}
+          onDragStart={dragStart}
+          onDragEnd={dragEnd}
+          onDragEdge={dragEdge}
+          marked={selection.filter((x) => x.bar === shownBar).map((x) => ({ beat: x.beat, path: x.path }))}
           onLyric={profile.palette.includes('lyrics') && !playing ? ({ beat, path, text }) => dispatch({ type: 'setLyricAt', beat, path, text }) : null}
           showGuides={true}
           cards={true}
           deleteMode={st.tool.delete}
-          onTap={({ beat, path, staffPosition }) => dispatch({ type: 'tapAt', beat, path, staffPosition })}
+          onTap={({ beat, path, staffPosition }) => (selectMode ? mark({ beat, path }) : dispatch({ type: 'tapAt', beat, path, staffPosition }))}
         />
       </div>
 
@@ -285,7 +354,7 @@
         <button onclick={() => dispatch({ type: 'goTo', cursor: mkCursor(st.cursor.bar + 1, 0, 0) })} disabled={st.cursor.bar >= st.score.bars.length - 1} aria-label={t('editor.nextBar')} title={t('editor.nextBar')}>»</button>
       </div>
 
-      <div class="bars-area"><BarRow score={st.score} barIndex={st.cursor.bar} onAction={dispatch} pitched={st.full.parts.some((p) => profileById(p.instrument).staves[0].pitched)} keyHere={staff.pitched} /></div>
+      <div class="bars-area"><BarRow score={realScore} barIndex={st.cursor.bar} onAction={dispatch} pitched={st.full.parts.some((p) => profileById(p.instrument).staves[0].pitched)} keyHere={staff.pitched} /></div>
 
       <div class="transport-area"><Transport full={st.full} parts={bandList} onBand={band} onSwing={(on) => dispatch({ type: 'setSwing', on })} currentBar={st.cursor.bar} {range} {store} bind:mode={playMode} bind:selecting bind:onlyPart onMove={moveBlock}
         onPlayhead={(p) => (playhead = p)} onPlaying={(on) => { playing = on; if (!on) playhead = null; }} onStatus={(m) => (status = m)} /></div>

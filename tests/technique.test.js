@@ -49,8 +49,9 @@ describe('technique marks', () => {
       const r = layoutBar(one(note('snare', { roll })), staff, cfg);
       const glyph = r.glyphs.find((x) => x.glyph === g);
       const stem = r.stems[0];
-      expect(glyph.y).toBeLessThan(stem.y1);
-      expect(glyph.y).toBeGreaterThan(stem.y2);
+      // between the stem's two ends, whichever way it points (the snare stems down)
+      expect(glyph.y).toBeLessThan(Math.max(stem.y1, stem.y2));
+      expect(glyph.y).toBeGreaterThan(Math.min(stem.y1, stem.y2));
     }
   });
   it('a flam draws one grace note before the head, a drag two', () => {

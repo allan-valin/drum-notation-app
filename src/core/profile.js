@@ -57,6 +57,8 @@ export const DRUM_PROFILE = Object.freeze({
   staves: Object.freeze([
     Object.freeze({
       lineCount: 5,
+      // two voices: stems up and stems down, each in its own rhythm when split (voices.js)
+      voices: true,
       slots: Object.freeze([
         // the Rock Band drum key (docs/drum-key-reference.png), bottom to top
         slot('hihatPedal', 'Chimbal (pé)', -1, Notehead.CROSS),

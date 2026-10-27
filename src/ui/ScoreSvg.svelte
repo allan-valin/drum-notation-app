@@ -47,6 +47,23 @@
     showKey = true,
     /** highlight for a whole bar, e.g. the bar being played */
     playingPath = null,
+    /** drums with voices split: the voice being edited (0 up, 1 down), else null */
+    voice = null,
+    /** a tap on the cell strips above (voice 0) or below (voice 1) the staff: { voice, beat, path } */
+    onStrip = null,
+    /** right click: { beat, path, staffPosition } */
+    onErase = null,
+    /**
+     * press and hold: onDragStart({ beat, path, staffPosition }) returns 'note', 'selection' or
+     * null (nothing to pick up there); onDragMove / onDragEnd get the target cell and height,
+     * onDragEdge(-1 | 1) when the finger rests past the bar's edge
+     */
+    onDragStart = null,
+    onDragMove = null,
+    onDragEnd = null,
+    onDragEdge = null,
+    /** cells ({ beat, path }) or beats ({ beat }) marked for moving, in this bar */
+    marked = [],
   } = $props();
 
   const sp = $derived(staffSpacing);
@@ -62,26 +79,137 @@
   const guideRows = $derived([...new Set(guideSlots.map((x) => x.staffPosition))].map((p) => ({ p, ids: guideSlots.filter((x) => x.staffPosition === p).map((x) => x.id) })));
   const guideTop = $derived(yOf(guideSlots[guideSlots.length - 1].staffPosition, sp) - 1.5 * sp);
   const guideBottom = $derived(yOf(guideSlots[0].staffPosition, sp) + 2.5 * sp);
-  const top = $derived(fixedRange ? -fixedRange[0] * sp : Math.min(layout.top, showGuides ? guideTop : layout.top) - 0.5 * sp);
-  const bottom = $derived(fixedRange ? fixedRange[1] * sp : Math.max(layout.bottom, showGuides ? guideBottom : layout.bottom) + 0.5 * sp);
+  // split voices: a strip of the upper voice's cells above everything, the lower voice's below
+  const stripH = $derived(voice === null ? 0 : 1.8 * sp);
+  const inner = $derived([
+    fixedRange ? -fixedRange[0] * sp : Math.min(layout.top, showGuides ? guideTop : layout.top) - 0.5 * sp,
+    fixedRange ? fixedRange[1] * sp : Math.max(layout.bottom, showGuides ? guideBottom : layout.bottom) + 0.5 * sp,
+  ]);
+  const top = $derived(inner[0] - stripH);
+  const bottom = $derived(inner[1] + stripH);
+  /** The cells taps reach: the edited voice's. */
+  const hitLeaves = $derived(voice === 1 ? layout.lowerLeaves : layout.leaves);
+  const isMarked = (l) => marked.some((m) => m.beat === l.beat && (!m.path || samePath(m.path, l.path)));
   const height = $derived(bottom - top);
   const fontSize = $derived(4 * sp);
   const colourOf = (value) => colourFor(value, colours);
+  /** The beat a stem or beam belongs to, in its own voice's tree. */
+  const beatOf = (x) => (x.voice === 1 && bar.lower ? bar.lower : bar.beats)[x.beat] ?? bar.beats[x.beat];
   const dim = (beatIndex) => (focusedBeat === null || beatIndex === focusedBeat ? 1 : 0.38);
 
   let svg;
-  function tap(e) {
-    if (!onTap || !svg) return;
+  const HOLD_MS = 450; // press this long on a note to pick it up
+  const DWELL_MS = 650; // hover this long over another column before the note goes there
+  const EDGE_MS = 900; // rest past the bar's edge this long to go to the next or previous bar
+  let press = null;
+  let drag = $state(null); // { kind, beat, path, staffPosition }
+  let pending = null;
+
+  function toSvg(e) {
     const pt = svg.createSVGPoint();
     pt.x = e.clientX;
     pt.y = e.clientY;
     const p = pt.matrixTransform(svg.getScreenCTM().inverse());
-    const x = p.x - lead;
-    const hit = layout.leaves.find((l) => x >= l.x0 && x < l.x1)
-      ?? (x < 0 ? layout.leaves[0] : layout.leaves[layout.leaves.length - 1]);
-    if (!hit) return;
-    onTap({ beat: hit.beat, path: hit.path, staffPosition: staffPositionAt(p.y, sp) });
+    return { x: p.x - lead, y: p.y };
   }
+  function leafAtX(x, leaves = hitLeaves) {
+    return leaves.find((l) => x >= l.x0 && x < l.x1) ?? (x < 0 ? leaves[0] : leaves[leaves.length - 1]);
+  }
+
+  function down(e) {
+    if (!onTap || !svg) return;
+    const p = toSvg(e);
+    const staffPosition = staffPositionAt(p.y, sp);
+    if (e.button === 2) {
+      const hit = leafAtX(p.x);
+      if (hit && onErase) onErase({ beat: hit.beat, path: hit.path, staffPosition });
+      return;
+    }
+    if (voice !== null && onStrip && (p.y < top + stripH || p.y > bottom - stripH)) {
+      const v = p.y < top + stripH ? 0 : 1;
+      const hit = leafAtX(p.x, v === 1 ? layout.lowerLeaves : layout.leaves);
+      if (hit) onStrip({ voice: v, beat: hit.beat, path: hit.path });
+      return;
+    }
+    const hit = leafAtX(p.x);
+    if (!hit) return;
+    press = { x: e.clientX, y: e.clientY, hit, staffPosition, moved: false, timer: null };
+    if (onDragStart) press.timer = setTimeout(pickUp, HOLD_MS);
+    svg.setPointerCapture?.(e.pointerId);
+  }
+
+  function pickUp() {
+    if (!press || press.moved) return;
+    const kind = onDragStart({ beat: press.hit.beat, path: press.hit.path, staffPosition: press.staffPosition });
+    if (!kind) return;
+    press.dragging = true;
+    drag = { kind, beat: press.hit.beat, path: press.hit.path, staffPosition: press.staffPosition };
+  }
+
+  function move(e) {
+    if (!press) return;
+    if (!press.dragging) {
+      // the finger slid away before the hold: a scroll or a slip, not a tap
+      if (Math.hypot(e.clientX - press.x, e.clientY - press.y) > 10) { press.moved = true; clearTimeout(press.timer); }
+      return;
+    }
+    e.preventDefault?.();
+    const p = toSvg(e);
+    const staffPosition = staffPositionAt(p.y, sp);
+    const edge = p.x < 0 ? -1 : p.x > barWidth ? 1 : 0;
+    const hit = edge ? null : leafAtX(p.x);
+    const key = edge ? `edge${edge}` : `${hit.beat}:${hit.path.join('.')}`;
+    if (drag.staffPosition !== staffPosition) {
+      drag = { ...drag, staffPosition };
+      onDragMove?.({ beat: drag.beat, path: drag.path, staffPosition });
+    }
+    if (!edge && hit.beat === drag.beat && samePath(hit.path, drag.path)) { clearTimeout(pending?.timer); pending = null; return; }
+    if (pending?.key === key) return;
+    clearTimeout(pending?.timer);
+    // a column change waits, so a slip of the finger does not move the note
+    pending = {
+      key,
+      timer: setTimeout(() => {
+        pending = null;
+        if (edge) { onDragEdge?.(edge); return; }
+        drag = { ...drag, beat: hit.beat, path: hit.path };
+        onDragMove?.({ beat: hit.beat, path: hit.path, staffPosition: drag.staffPosition });
+      }, edge ? EDGE_MS : DWELL_MS),
+    };
+  }
+
+  function up() {
+    if (!press) return;
+    clearTimeout(press.timer);
+    clearTimeout(pending?.timer);
+    pending = null;
+    const p = press;
+    press = null;
+    if (p.dragging) {
+      const d = drag;
+      drag = null;
+      onDragEnd?.({ beat: d.beat, path: d.path, staffPosition: d.staffPosition });
+      return;
+    }
+    if (!p.moved) onTap({ beat: p.hit.beat, path: p.hit.path, staffPosition: p.staffPosition });
+  }
+
+  function cancel() {
+    if (!press) return;
+    clearTimeout(press.timer);
+    clearTimeout(pending?.timer);
+    pending = null;
+    if (press.dragging) { drag = null; onDragEnd?.(null); }
+    press = null;
+  }
+
+  // a finger that holds a note must not scroll the page while it drags (needs a non-passive listener)
+  $effect(() => {
+    if (!svg) return;
+    const stop = (e) => { if (press?.dragging) e.preventDefault(); };
+    svg.addEventListener('touchmove', stop, { passive: false });
+    return () => svg.removeEventListener('touchmove', stop);
+  });
 </script>
 
 <svg
@@ -91,7 +219,11 @@
   viewBox="0 {top} {width} {height}"
   {width}
   {height}
-  onpointerdown={tap}
+  onpointerdown={down}
+  onpointermove={move}
+  onpointerup={up}
+  onpointercancel={cancel}
+  oncontextmenu={(e) => { if (onTap) e.preventDefault(); }}
   role={onTap ? 'button' : 'img'}
   aria-label={t('editor.barAria')}
 >
@@ -100,7 +232,7 @@
       <rect class="card" class:alt={bi % 2 === 1} class:focused={bi === focusedBeat} x={lead + a + 0.12 * sp} y={top + 0.12 * sp} width={b - a - 0.24 * sp} height={height - 0.24 * sp} rx={0.35 * sp} />
     {/each}
     {#if focusedBeat !== null}
-      {#each layout.leaves.filter((l) => l.beat === focusedBeat).slice(1) as l}
+      {#each hitLeaves.filter((l) => l.beat === focusedBeat).slice(1) as l}
         <line class="divider" x1={lead + l.x0} x2={lead + l.x0} y1={top + 0.6 * sp} y2={bottom - 0.6 * sp} />
       {/each}
     {/if}
@@ -109,9 +241,31 @@
     {@const [a, b] = layout.beatBounds[focusedBeat]}
     {#if !cards}<rect class="focus" x={lead + a} y={top} width={b - a} height={height} />{/if}
     {#if focusedPath}
-      {#each layout.leaves.filter((l) => l.beat === focusedBeat && samePath(l.path, focusedPath)) as l}
+      {#each hitLeaves.filter((l) => l.beat === focusedBeat && samePath(l.path, focusedPath)) as l}
         <rect class="cell" x={lead + l.x0} y={top} width={l.x1 - l.x0} height={height} />
       {/each}
+    {/if}
+  {/if}
+
+  {#each layout.leaves.filter(isMarked) as l}
+    <rect class="marked" x={lead + l.x0} y={inner[0]} width={l.x1 - l.x0} height={inner[1] - inner[0]} />
+  {/each}
+  {#if voice !== null}
+    {#each [[0, layout.leaves, top], [1, layout.lowerLeaves, bottom - stripH]] as [v, leaves, y0]}
+      {#each leaves as l}
+        <rect class="strip" class:current={v === voice} class:sel={v === voice && l.beat === focusedBeat && focusedPath && samePath(l.path, focusedPath)}
+          x={lead + l.x0 + 1} y={y0 + 0.15 * sp} width={Math.max(2, l.x1 - l.x0 - 2)} height={stripH - 0.3 * sp} rx={0.25 * sp} />
+      {/each}
+      <text class="strip-label" x={2} y={y0 + stripH * 0.68} font-size={0.9 * sp}>{v === 0 ? '↑' : '↓'}</text>
+    {/each}
+  {/if}
+  {#if drag}
+    {@const target = hitLeaves.find((l) => l.beat === drag.beat && samePath(l.path, drag.path))}
+    {#if target}
+      <rect class="drop" x={lead + target.x0} y={inner[0]} width={target.x1 - target.x0} height={inner[1] - inner[0]} />
+      {#if drag.kind === 'note'}
+        <ellipse class="ghost" cx={lead + (target.x0 + target.x1) / 2} cy={yOf(drag.staffPosition, sp)} rx={0.7 * sp} ry={0.5 * sp} />
+      {/if}
     {/if}
   {/if}
 
@@ -163,10 +317,10 @@
     {/each}
 
     {#each layout.stems as s}
-      <line x1={s.x} x2={s.x} y1={s.y1} y2={s.y2} stroke={colourOf(bar.beats[s.beat].division)} stroke-width={Metrics.stemThickness * sp} opacity={dim(s.beat)} />
+      <line x1={s.x} x2={s.x} y1={s.y1} y2={s.y2} stroke={colourOf(beatOf(s).division)} stroke-width={Metrics.stemThickness * sp} opacity={dim(s.beat)} />
     {/each}
     {#each layout.beams as b}
-      <rect x={b.x1} y={b.y1} width={b.x2 - b.x1} height={Metrics.beamThickness * sp} fill={colourOf(bar.beats[b.beat].division)} opacity={dim(b.beat)} />
+      <rect x={b.x1} y={b.y1} width={b.x2 - b.x1} height={Metrics.beamThickness * sp} fill={colourOf(beatOf(b).division)} opacity={dim(b.beat)} />
     {/each}
     {#each layout.glyphs as g}
       <text
@@ -232,6 +386,13 @@
   .card.focused { fill: var(--focus); stroke: var(--focus-ring); stroke-width: 2.5; }
   .divider { stroke: var(--focus-ring); stroke-opacity: 0.45; stroke-dasharray: 3 3; }
   .cell { fill: var(--focus-ring); fill-opacity: 0.28; }
+  .marked { fill: var(--accent); fill-opacity: 0.22; }
+  .drop { fill: var(--accent); fill-opacity: 0.18; stroke: var(--accent); stroke-dasharray: 4 3; }
+  .ghost { fill: var(--accent); fill-opacity: 0.55; }
+  .strip { fill: var(--card-b); stroke: var(--card-line); stroke-width: 1; opacity: 0.55; }
+  .strip.current { opacity: 1; }
+  .strip.sel { fill: var(--focus-ring); fill-opacity: 0.6; }
+  .strip-label { fill: var(--muted); font-family: system-ui, sans-serif; font-weight: 700; }
   .guide { stroke: var(--focus-ring); stroke-opacity: 0.35; stroke-dasharray: 2 3; }
   .guide-label { fill: var(--muted); font-family: system-ui, sans-serif; pointer-events: none; }
   .ink { fill: var(--ink); }

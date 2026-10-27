@@ -49,7 +49,8 @@ describe('layoutBar', () => {
   it('a lone eighth gets a flag, not a beam', () => {
     const r = layoutBar(bar([beat(NoteValue.EIGHTH, null, [cell([note('snare')]), cell()])]), staff, config);
     expect(r.beams.length).toBe(0);
-    expect(r.glyphs.some((g) => g.glyph === Glyphs.flag(NoteValue.EIGHTH))).toBe(true);
+    // the snare stems down, so its flag is the down flag
+    expect(r.glyphs.some((g) => g.glyph === Glyphs.flag(NoteValue.EIGHTH, 'down'))).toBe(true);
   });
   it('every sounding cell has a stem', () => {
     const r = layoutBar(bar([snareBeat(NoteValue.EIGHTH, 2)]), staff, config);

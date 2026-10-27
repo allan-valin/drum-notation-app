@@ -6,6 +6,7 @@ import { beamsOf, beamLevel } from './beaming.js';
 import { drawUnits } from './units.js';
 import { leafSpans, groupSpans } from './tree.js';
 import { parseSlot, keyAlter } from './pitch.js';
+import { layoutVoices } from './voices.js';
 
 /** Vertical centre of a staff position, measured down from the top line; 0 is the bottom line. */
 export function yOf(staffPosition, spacing) {
@@ -27,6 +28,25 @@ export function staffPositionAt(y, spacing) {
  * times the width of an ordinary beat, so one beat is big enough to edit on a phone.
  */
 export function layoutBar(bar, staff, config) {
+  if (staff.voices && !config.dir) {
+    // drums: one pass per voice over the same beat widths, merged; the lower voice draws no bar lines
+    const vs = layoutVoices(bar, staff, config.den ?? 4);
+    if (vs.length === 1) return layoutBar({ ...bar, beats: vs[0].beats }, staff, { ...config, dir: vs[0].dir });
+    const up = layoutBar({ ...bar, beats: vs[0].beats }, staff, { ...config, dir: 'up', twoVoices: true });
+    const down = layoutBar({ ...bar, beats: vs[1].beats, text: '' }, staff, { ...config, dir: 'down', twoVoices: true });
+    const tag = (x) => ({ ...x, voice: 1 });
+    return {
+      ...up,
+      glyphs: [...up.glyphs, ...down.glyphs.filter((g) => g.kind !== 'barline' && g.kind !== 'simile').map(tag)],
+      stems: [...up.stems, ...down.stems.map(tag)],
+      beams: [...up.beams, ...down.beams.map(tag)],
+      texts: [...up.texts, ...down.texts.map(tag)],
+      ties: [...up.ties, ...down.ties],
+      lowerLeaves: down.leaves,
+      top: Math.min(up.top, down.top),
+      bottom: Math.max(up.bottom, down.bottom),
+    };
+  }
   const sp = config.staffSpacing;
   const focusScale = config.focusScale ?? 2.5;
   const glyphs = [];
@@ -85,6 +105,7 @@ export function layoutBar(bar, staff, config) {
      * sit, on average, on the middle line or above, the usual engraving rule.
      */
     const dirOf = (i) => {
+      if (config.dir) return config.dir;
       if (!pitched) return 'up';
       const h = hostOf(i);
       const [a, b] = h && h.from !== h.to ? [h.from, h.to] : [i, i];
@@ -131,7 +152,9 @@ export function layoutBar(bar, staff, config) {
         if (lf.wedge) texts.push({ kind: 'wedge', text: lf.wedge === 'cresc' ? 'cresc.' : 'dim.', x: centreX(i) + (lf.dyn ? 2.2 * sp : -1 * sp), y: dy, beat: beatIndex, cell: span.unit.idx });
       }
       if (notes.length === 0) {
-        const restY = value === NoteValue.WHOLE ? sp : 2 * sp;
+        let restY = value === NoteValue.WHOLE ? sp : 2 * sp;
+        // two voices: the upper voice's rests sit higher, the lower voice's lower
+        if (config.twoVoices) restY += config.dir === 'down' ? 2 * sp : -1.5 * sp;
         glyphs.push({ ...base, kind: 'rest', glyph: Glyphs.rest(value), x: centreX(i) - 0.5 * sp, y: restY });
         return;
       }
@@ -232,10 +255,12 @@ export function layoutBar(bar, staff, config) {
           slurFrom = null;
         }
       }
-      let markY = stemTop - 0.5 * sp;
+      // marks go over the stem; in the lower of two voices, under it
+      const under = config.twoVoices && down;
+      let markY = under ? stemEnd + 1.4 * sp : stemTop - 0.5 * sp;
       if (!pitched && notes.some((n) => n.articulations.includes(Articulation.ACCENT))) {
         glyphs.push({ ...base, kind: 'accent', glyph: Glyphs.ACCENT, x: centreX(i) - 0.68 * sp, y: markY });
-        markY -= 1.3 * sp;
+        markY += under ? 1.3 * sp : -1.3 * sp;
       }
       const MARK_GLYPH = { [Mark.OPEN]: Glyphs.OPEN, [Mark.CLOSED]: Glyphs.CLOSED, [Mark.HALF_OPEN]: Glyphs.HALF_OPEN, [Mark.CHOKE]: Glyphs.STACCATO }; // choke: a dot over the stem (Rock Band key)
       // strings and ornaments: bowings, harmonic and trill signs above, pizz./arco as words
@@ -262,11 +287,11 @@ export function layoutBar(bar, staff, config) {
       }
       for (const m of new Set(notes.flatMap((n) => n.marks ?? []).filter((m) => MARK_GLYPH[m]))) {
         glyphs.push({ ...base, kind: 'mark', glyph: MARK_GLYPH[m], x: centreX(i) - 0.6 * sp, y: markY });
-        markY -= 1.5 * sp;
+        markY += under ? 1.5 * sp : -1.5 * sp;
       }
       const roll = notes.map((n) => n.roll).find((r) => r);
       if (roll && value !== NoteValue.WHOLE) {
-        const mid = (bottomY - Metrics.stemUpSE.y * sp + stemTop) / 2;
+        const mid = down ? (bottomY + stemEnd) / 2 : (bottomY - Metrics.stemUpSE.y * sp + stemTop) / 2;
         if (roll === Roll.BUZZ) glyphs.push({ ...base, kind: 'roll', glyph: Glyphs.BUZZ, x: stemX(i), y: mid + 1.0 * sp });
         else glyphs.push({ ...base, kind: 'roll', glyph: Glyphs.TREMOLO3, x: stemX(i) - 0.6 * sp, y: mid });
       }
@@ -289,7 +314,9 @@ export function layoutBar(bar, staff, config) {
       beams.push({ x1, x2, y1: y, y2: y, level: b.level, beat: beatIndex, value: valueOf(b.from) });
     });
 
-    const tupletY = () => Math.min(0, ...stems.filter((s) => s.beat === beatIndex).map((s) => s.y2)) - 0.6 * sp;
+    const tupletY = () => (config.twoVoices && config.dir === 'down'
+      ? Math.max(4 * sp, ...stems.filter((s) => s.beat === beatIndex).map((s) => s.y2)) + 1.8 * sp
+      : Math.min(0, ...stems.filter((s) => s.beat === beatIndex).map((s) => s.y2)) - 0.6 * sp);
     if (beat.tuplet) {
       glyphs.push({ kind: 'tuplet', glyph: Glyphs.tupletDigit(beat.tuplet), x: x + beatWidth / 2 - 0.4 * sp, y: tupletY(), beat: beatIndex });
     }
@@ -331,7 +358,7 @@ export function layoutBar(bar, staff, config) {
   ys.push(...texts.map((t) => t.y - 1.2 * sp));
   const top = Math.min(...ys) - sp;
   const bottom = Math.max(...ys) + sp;
-  return { glyphs, stems, beams, texts, ties, slurs, beatBounds, leaves, top, bottom };
+  return { glyphs, stems, beams, texts, ties, slurs, beatBounds, leaves, lowerLeaves: leaves, top, bottom };
 }
 
 /** Leger lines a notehead needs: positions outside 0..8 on even half-steps up to its own. */

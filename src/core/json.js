@@ -10,9 +10,9 @@ import { MAQAMAT } from './pitch.js';
 import { PROFILES } from './profile.js';
 
 /** Bump when the shape changes. docs/SCORE_IMPORT_PROMPT.md targets this schema. */
-export const SCHEMA_VERSION = 3;
+export const SCHEMA_VERSION = 4;
 
-/** Write a score (one-part or full) as schema v3: parts listed once, notes per part per bar. */
+/** Write a score (one-part or full) as schema v4: parts listed once, notes per part per bar (v4: drum voices). */
 export function encode(score) {
   const full = toFull(score);
   return JSON.stringify(
@@ -34,7 +34,7 @@ export function encode(score) {
         ...(b.repeatEnd ? { repeatEnd: true } : {}),
         parts: Object.fromEntries(full.parts.map((p) => {
           const c = b.parts[p.id];
-          return [p.id, { ...(c.simile ? { simile: true } : {}), ...(c.text ? { text: c.text } : {}), beats: c.beats.map(encodeGroup) }];
+          return [p.id, { ...(c.simile ? { simile: true } : {}), ...(c.text ? { text: c.text } : {}), beats: c.beats.map(encodeGroup), ...(c.lower ? { lower: c.lower.map(encodeGroup) } : {}) }];
         })),
       })),
     },
@@ -59,7 +59,7 @@ function encodeGroup(g) {
 function encodeNote(n) {
   const marks = n.marks ?? [];
   const hasAlter = typeof n.alter === 'number';
-  if (n.articulations.length === 0 && !n.sticking && !n.head && marks.length === 0 && !n.roll && !n.grace && !hasAlter) return n.slotId;
+  if (n.articulations.length === 0 && !n.sticking && !n.head && marks.length === 0 && !n.roll && !n.grace && !hasAlter && !n.stem) return n.slotId;
   return {
     slot: n.slotId,
     ...(hasAlter ? { alter: n.alter } : {}),
@@ -69,6 +69,7 @@ function encodeNote(n) {
     ...(marks.length ? { marks } : {}),
     ...(n.roll ? { roll: n.roll } : {}),
     ...(n.grace ? { grace: n.grace } : {}),
+    ...(n.stem ? { stem: n.stem } : {}),
   };
 }
 
@@ -128,15 +129,24 @@ function decodeOnePart(j) {
     if (beats.length !== sig[0]) {
       throw new Error(`compasso ${bi + 1}: ${sig[0]}/${sig[1]} precisa de ${sig[0]} tempos, veio ${beats.length}`);
     }
-    return bar(
-      beats.map((bt, ti) => {
-        const where = `compasso ${bi + 1}, tempo ${ti + 1}`;
-        const division = noteValueById(bt.division ?? 'quarter');
-        const tuplet = bt.tuplet ? int(bt.tuplet, `${where}: tuplet`) : null;
-        return decodeGroup(bt, cellsPerBeat(division, sig[1], tuplet), staff, where);
-      }),
+    const decodeBeats = (list, label) => list.map((bt, ti) => {
+      const where = `compasso ${bi + 1}, ${label}tempo ${ti + 1}`;
+      const division = noteValueById(bt.division ?? 'quarter');
+      const tuplet = bt.tuplet ? int(bt.tuplet, `${where}: tuplet`) : null;
+      return decodeGroup(bt, cellsPerBeat(division, sig[1], tuplet), staff, where);
+    });
+    // drums: the lower voice in its own rhythm, as many beats as the upper
+    let lower = null;
+    if (b.lower !== undefined && b.lower !== null) {
+      if (!staff.voices) throw new Error(`compasso ${bi + 1}: lower (voz de baixo) só existe na bateria`);
+      if (!Array.isArray(b.lower) || b.lower.length !== sig[0]) throw new Error(`compasso ${bi + 1}: lower precisa de ${sig[0]} tempos, como beats`);
+      lower = decodeBeats(b.lower, 'voz de baixo, ');
+    }
+    const made = bar(
+      decodeBeats(beats, ''),
       { timeSig, key: (Number.isInteger(b.key) && Math.abs(b.key) <= 7) || MAQAMAT[b.key] ? b.key : null, simile: b.simile === true && bi > 0, repeatStart: b.repeatStart === true, repeatEnd: b.repeatEnd === true, text: typeof b.text === 'string' ? b.text.slice(0, 80) : '' },
     );
+    return lower ? { ...made, lower } : made;
   });
 
   return newScore({
@@ -217,6 +227,7 @@ function decodeNote(n, staff, where) {
     roll: oneOf(n.roll, Object.values(Roll), 'roll'),
     grace: oneOf(n.grace, Object.values(Grace), 'grace'),
     alter: n.alter === undefined ? undefined : oneOf(n.alter, [-2, -1.5, -1, -0.5, 0, 0.5, 1, 1.5, 2], 'alter'),
+    stem: oneOf(n.stem, ['up', 'down'], 'stem') ?? undefined,
   });
 }
 
