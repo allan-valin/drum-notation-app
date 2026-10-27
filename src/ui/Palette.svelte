@@ -185,12 +185,12 @@
   <section class="fill">
     <h3>{t('autofill.title')}</h3>
     <label class="field">{t('autofill.piece')}
-      <select bind:value={fillPiece} aria-label={t('autofill.piece')}>
+      <select bind:value={fillPiece} aria-label={`${t('autofill.title')}: ${t('autofill.piece')}`}>
         {#each fillPieces as x}<option value={x.id}>{t(`slot.${x.id}`)}</option>{/each}
       </select>
     </label>
     <label class="field">{t('autofill.pattern')}
-      <select bind:value={fillPattern} aria-label={t('autofill.pattern')}>
+      <select bind:value={fillPattern} aria-label={`${t('autofill.title')}: ${t('autofill.pattern')}`}>
         {#each patterns as p}<option value={p}>{patternLabel(p)}</option>{/each}
       </select>
     </label>

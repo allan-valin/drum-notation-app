@@ -58,6 +58,35 @@ function writeBack(full, part, split, voice, view) {
 const view = (st, full = st.full, part = st.part) => viewOf(full, part, st.split, st.voice);
 
 /**
+ * Drums whose bar has two voices in their own rhythms (or with voices split): a click must
+ * reach the note it is on whichever voice holds it. Each entry: the note, its voice, and the
+ * cell of that voice that starts where `c` (a cell of the edited view) starts.
+ */
+export function notesAt(st, c) {
+  const staff = profileById(st.score.profileId).staves[0];
+  const real = partView(st.full, st.part);
+  const routed = staff.voices && (st.split || !!real.bars[c.bar]?.lower);
+  const here = getAt(st.score.bars[c.bar]?.beats[c.beat], c.path)?.notes ?? [];
+  if (!routed) return here.map((n) => ({ note: n, voice: undefined, cell: c }));
+  const tick = absTick(st.score, c);
+  return [0, 1].flatMap((v) => {
+    const vs = viewOf(st.full, st.part, true, v);
+    const cell = cellAt(vs, tick);
+    if (cell.refused) return [];
+    return (getAt(vs.bars[cell.bar].beats[cell.beat], cell.path)?.notes ?? []).map((n) => ({ note: n, voice: v, cell }));
+  });
+}
+
+/** Run an edit on one voice of the part (whatever is being edited) and write it back. */
+function inVoice(state, v, f) {
+  const vs = viewOf(state.full, state.part, true, v);
+  const out = f(vs);
+  if (out.refused) return out;
+  if (out === vs) return state.full;
+  return writeBack(state.full, state.part, true, v, out);
+}
+
+/**
  * Parts: the rules below edit `st.score`, a one-part view of `st.full`. This layer writes each
  * change back into the full score, runs bar operations on every part so they stay aligned,
  * keeps whole full scores in the undo history, and handles the part actions themselves.
@@ -113,6 +142,38 @@ export function reduce(state, action) {
       // Here, not in reduceView: changing voice changes what `score` is a view of.
       const voiced = action.voice !== undefined && state.split && action.voice !== state.voice ? reduce(state, { type: 'setVoice', voice: action.voice }) : state;
       return { ...syncTool({ ...voiced, cursor: clamp(voiced.score, { bar: state.cursor.bar, beat: action.beat, path: action.path }) }), selectedOnly: true, refused: null };
+    }
+    case 'eraseAt': {
+      // right click: the note nearest the click in that cell, in either voice
+      const c = clamp(state.score, { bar: state.cursor.bar, beat: action.beat, path: action.path });
+      const staff = profileById(state.score.profileId).staves[0];
+      const pos = (n) => staff.slots.find((x) => x.id === n.slotId)?.staffPosition ?? 0;
+      const found = notesAt(state, c).reduce((best, x) => (!best || Math.abs(pos(x.note) - action.staffPosition) < Math.abs(pos(best.note) - action.staffPosition) ? x : best), null);
+      const st = syncTool({ ...state, cursor: c, refused: null, selectedOnly: false });
+      if (!found) return { ...st, refused: 'noNoteThere' };
+      const full = found.voice === undefined
+        ? writeBack(state.full, state.part, state.split, state.voice, deleteNote(state.score, c, found.note.slotId))
+        : inVoice(state, found.voice, (vs) => deleteNote(vs, found.cell, found.note.slotId));
+      const score = view(st, full);
+      return { ...pushFull(st), full, score, cursor: clamp(score, c) };
+    }
+    case 'moveNotes': {
+      if (action.voice === undefined) break;
+      // a note of a given voice: moved inside that voice's tree
+      const staff = profileById(state.score.profileId).staves[0];
+      const from = clamp(state.score, action.from);
+      const to = clamp(state.score, action.to);
+      const was = staff.slots.find((x) => x.id === action.slotId);
+      const dPos = was && action.staffPosition !== undefined ? action.staffPosition - was.staffPosition : 0;
+      const tick = absTick(state.score, from);
+      const delta = absTick(state.score, to) - tick;
+      const full = inVoice(state, action.voice, (vs) => {
+        const at = cellAt(vs, tick);
+        return at.refused ? at : moveNotes(vs, [{ ...at, slotIds: [action.slotId] }], delta, dPos, staff);
+      });
+      if (full.refused) return { ...state, refused: full.refused };
+      const score = view(state, full);
+      return { ...syncTool({ ...pushFull(state), full, score, cursor: clamp(score, to), refused: null }), moved: { items: [to], count: 1 } };
     }
     case 'undo': {
       if (state.history.length === 0) return state;
@@ -173,16 +234,6 @@ function reduceView(state, action) {
     }
     case 'setSplitMode': return tool(st, { splitMode: ['cell', 'bar'].includes(action.mode) ? action.mode : 'beat' });
     case 'setStem': return tool(st, { stem: st.tool.stem === action.stem ? null : action.stem });
-    case 'eraseAt': {
-      // right click: the note nearest the click in that cell goes, whatever the delete toggle says
-      const c = clamp(st.score, { bar: st.cursor.bar, beat: action.beat, path: action.path });
-      const staff = profileById(st.score.profileId).staves[0];
-      const pos = (n) => staff.slots.find((x) => x.id === n.slotId)?.staffPosition ?? 0;
-      const hit = leafAt(st.score, c).notes.reduce((best, n) => (!best || Math.abs(pos(n) - action.staffPosition) < Math.abs(pos(best) - action.staffPosition) ? n : best), null);
-      const moved = syncTool({ ...st, cursor: c });
-      if (!hit) return { ...moved, refused: 'noNoteThere' };
-      return edit(moved, (s) => deleteNote(s, c, hit.slotId));
-    }
     case 'moveNotes': {
       const staff = profileById(st.score.profileId).staves[0];
       const from = clamp(st.score, action.from);

@@ -84,3 +84,28 @@ describe('split voices', () => {
     expect(hits.filter((x) => x === 'snare').length).toBe(2);
   });
 });
+
+describe('right click and drag reach both voices', () => {
+  const splitGroove = () => {
+    let st = run(start(), { type: 'setSplitMode', mode: 'bar' }, { type: 'selectValue', value: NoteValue.EIGHTH });
+    st = run(st, { type: 'autofill', slotId: 'hihat', pattern: 'cells' }, { type: 'autofill', slotId: 'snare', pattern: 'alt2' }, { type: 'autofill', slotId: 'kick', pattern: 'alt1' });
+    st = run(st, { type: 'setSplit', on: true }, { type: 'setVoice', voice: 1 }, { type: 'selectValue', value: NoteValue.QUARTER });
+    return run(st, { type: 'setSplitMode', mode: 'beat' }, { type: 'setSplit', on: false });
+  };
+  it('right click on the snare of a split bar deletes the snare, not the hi-hat above it', () => {
+    const st = run(splitGroove(), { type: 'eraseAt', beat: 1, path: [0], staffPosition: 5 });
+    expect(real(st).lower[1].cells[0].notes).toEqual([]);
+    expect(names(real(st).beats[1].cells[0])).toEqual(['hihat']);
+  });
+  it('dragging the snare of beat 4 to beat 2 moves it within the lower voice', () => {
+    const before = splitGroove();
+    const st = run(before, { type: 'eraseAt', beat: 1, path: [0], staffPosition: 5 }, { type: 'moveNotes', from: { bar: 0, beat: 3, path: [0] }, slotId: 'snare', voice: 1, to: { bar: 0, beat: 1, path: [0] }, staffPosition: 5 });
+    expect(real(st).lower.map((b) => names(b.cells[0]))).toEqual([['kick'], ['snare'], ['kick'], []]);
+    expect(real(st).beats.every((b) => b.cells.every((c) => names(c).join() === 'hihat'))).toBe(true);
+  });
+  it('notesAt lists the notes of both voices at a cell, with their voice', async () => {
+    const { notesAt } = await import('../src/core/editorState.js');
+    const found = notesAt(splitGroove(), { bar: 0, beat: 1, path: [0] }).map((x) => [x.note.slotId, x.voice]);
+    expect(found).toEqual([['hihat', 0], ['snare', 1]]);
+  });
+});

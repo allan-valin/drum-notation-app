@@ -285,8 +285,8 @@
       {#each guideRows as row, i}
         {@const y = yOf(row.p, sp)}
         <line class="guide" x1={lead + a} x2={lead + b} y1={y} y2={y} />
-        <!-- two staggered columns so names one half-step apart do not collide -->
-        <text class="guide-label" x={lead + a + 0.2 * sp + (i % 2) * 3.4 * sp} y={y + 0.25 * sp} font-size={0.7 * sp}>{row.ids.map((id) => t(`slot.${id}`)).join(' / ')}</text>
+        <!-- names one half-step apart alternate between the left and the right edge of the beat -->
+        <text class="guide-label" x={i % 2 ? lead + b - 0.2 * sp : lead + a + 0.2 * sp} text-anchor={i % 2 ? 'end' : 'start'} y={y + 0.25 * sp} font-size={0.62 * sp}>{row.ids.map((id) => t(`slot.${id}`)).join(' / ')}</text>
       {/each}
     {/if}
   {/if}

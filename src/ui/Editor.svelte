@@ -8,7 +8,7 @@
   import Legend from './Legend.svelte';
   import Help from './Help.svelte';
   import Transport from './Transport.svelte';
-  import { initialState, reduce } from '../core/editorState.js';
+  import { initialState, reduce, notesAt } from '../core/editorState.js';
   import { profileById } from '../core/profile.js';
   import { DEFAULT_COLOURS, INK, normaliseColours, overridesOnly } from '../core/colours.js';
   import { cursor as mkCursor, leafAt, posLabel } from '../core/cursor.js';
@@ -23,7 +23,7 @@
   import { partLabelIndex, isEmptyPart, bandRows, groupOf } from '../core/parts.js';
   import { carryInto, tiesOut, slurOpenAt } from '../core/edit.js';
   import { partView } from '../core/parts.js';
-  import { getAt, samePath } from '../core/tree.js';
+  import { samePath } from '../core/tree.js';
   import { patternCells } from '../core/autofill.js';
 
   /** `background`: drawn behind the welcome overlay, inert, nothing saved. */
@@ -258,11 +258,11 @@
       status = t('drag.picked');
       return 'selection';
     }
-    const notes = getAt(st.score.bars[c.bar].beats[beat], path)?.notes ?? [];
+    // the note nearest the finger, in either voice of a split bar
     const pos = (n) => staff.slots.find((x) => x.id === n.slotId)?.staffPosition ?? 0;
-    const n = notes.reduce((best, x) => (!best || Math.abs(pos(x) - staffPosition) < Math.abs(pos(best) - staffPosition) ? x : best), null);
+    const n = notesAt(st, c).reduce((best, x) => (!best || Math.abs(pos(x.note) - staffPosition) < Math.abs(pos(best.note) - staffPosition) ? x : best), null);
     if (!n) return null;
-    dragFrom = { kind: 'note', c, slotId: n.slotId };
+    dragFrom = { kind: 'note', c, slotId: n.note.slotId, voice: n.voice };
     status = t('drag.picked');
     return 'note';
   }
@@ -275,7 +275,7 @@
     dragFrom = null;
     if (!target || !from) { status = t('drag.cancelled'); return; }
     const to = { bar: st.cursor.bar, beat: target.beat, path: target.path };
-    if (from.kind === 'note') dispatch({ type: 'moveNotes', from: from.c, slotId: from.slotId, to, staffPosition: target.staffPosition });
+    if (from.kind === 'note') dispatch({ type: 'moveNotes', from: from.c, slotId: from.slotId, voice: from.voice, to, staffPosition: target.staffPosition });
     else dispatch({ type: 'moveSelection', mode: selectMode, items: selection, from: from.c, to });
     if (st.moved && from.kind === 'selection') selection = st.moved.items.map((x) => (selectMode === 'beats' ? { bar: x.bar, beat: x.beat } : x));
   }
