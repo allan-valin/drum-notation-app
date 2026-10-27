@@ -64,6 +64,13 @@
     onDragEdge = null,
     /** cells ({ beat, path }) or beats ({ beat }) marked for moving, in this bar */
     marked = [],
+    /**
+     * what a tap at a height would write in the selected cell: (staffPosition) →
+     * { staffPosition, glyph, label } or null; drawn see-through under the mouse, or under the
+     * finger while it presses (onPreview gets the label, since the finger hides the note)
+     */
+    preview = null,
+    onPreview = null,
   } = $props();
 
   const sp = $derived(staffSpacing);
@@ -104,6 +111,16 @@
   let press = null;
   let drag = $state(null); // { kind, beat, path, staffPosition }
   let pending = null;
+  let hover = $state(null); // { x, staffPosition, glyph }
+
+  /** The preview for a point, if it is inside the selected cell. */
+  function previewAt(p) {
+    if (!preview || focusedBeat === null || !focusedPath) return null;
+    const cell = hitLeaves.find((l) => l.beat === focusedBeat && samePath(l.path, focusedPath));
+    if (!cell || p.x < cell.x0 || p.x >= cell.x1) return null;
+    const w = preview(staffPositionAt(p.y, sp));
+    return w ? { ...w, x: (cell.x0 + cell.x1) / 2 } : null;
+  }
 
   function toSvg(e) {
     const pt = svg.createSVGPoint();
@@ -133,6 +150,8 @@
     }
     const hit = leafAtX(p.x);
     if (!hit) return;
+    hover = previewAt(p);
+    if (hover) onPreview?.(hover.label);
     press = { x: e.clientX, y: e.clientY, hit, staffPosition, moved: false, timer: null };
     if (onDragStart) press.timer = setTimeout(pickUp, HOLD_MS);
     svg.setPointerCapture?.(e.pointerId);
@@ -143,14 +162,16 @@
     const kind = onDragStart({ beat: press.hit.beat, path: press.hit.path, staffPosition: press.staffPosition });
     if (!kind) return;
     press.dragging = true;
+    hover = null;
     drag = { kind, beat: press.hit.beat, path: press.hit.path, staffPosition: press.staffPosition };
   }
 
   function move(e) {
-    if (!press) return;
+    // mouse or stylus hovering: show what a click here would write
+    if (!press) { hover = e.pointerType === 'touch' ? null : previewAt(toSvg(e)); return; }
     if (!press.dragging) {
       // the finger slid away before the hold: a scroll or a slip, not a tap
-      if (Math.hypot(e.clientX - press.x, e.clientY - press.y) > 10) { press.moved = true; clearTimeout(press.timer); }
+      if (Math.hypot(e.clientX - press.x, e.clientY - press.y) > 10) { press.moved = true; hover = null; clearTimeout(press.timer); }
       return;
     }
     e.preventDefault?.();
@@ -180,6 +201,7 @@
 
   function up() {
     if (!press) return;
+    hover = null; // a mouse brings it back on its next move
     clearTimeout(press.timer);
     clearTimeout(pending?.timer);
     pending = null;
@@ -195,6 +217,7 @@
   }
 
   function cancel() {
+    hover = null;
     if (!press) return;
     clearTimeout(press.timer);
     clearTimeout(pending?.timer);
@@ -223,6 +246,7 @@
   onpointermove={move}
   onpointerup={up}
   onpointercancel={cancel}
+  onpointerleave={() => { if (!press) hover = null; }}
   oncontextmenu={(e) => { if (onTap) e.preventDefault(); }}
   role={onTap ? 'button' : 'img'}
   aria-label={t('editor.barAria')}
@@ -258,6 +282,9 @@
       {/each}
       <text class="strip-label" x={2} y={y0 + stripH * 0.68} font-size={0.9 * sp}>{v === 0 ? '↑' : '↓'}</text>
     {/each}
+  {/if}
+  {#if hover && !drag}
+    <text class="smufl preview" x={lead + hover.x - 0.59 * sp} y={yOf(hover.staffPosition, sp)} font-size={fontSize}>{hover.glyph}</text>
   {/if}
   {#if drag}
     {@const target = hitLeaves.find((l) => l.beat === drag.beat && samePath(l.path, drag.path))}
@@ -389,6 +416,7 @@
   .marked { fill: var(--accent); fill-opacity: 0.22; }
   .drop { fill: var(--accent); fill-opacity: 0.18; stroke: var(--accent); stroke-dasharray: 4 3; }
   .ghost { fill: var(--accent); fill-opacity: 0.55; }
+  .preview { fill: var(--ink); fill-opacity: 0.35; pointer-events: none; }
   .strip { fill: var(--card-b); stroke: var(--card-line); stroke-width: 1; opacity: 0.55; }
   .strip.current { opacity: 1; }
   .strip.sel { fill: var(--focus-ring); fill-opacity: 0.6; }

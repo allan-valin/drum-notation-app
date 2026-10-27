@@ -400,3 +400,33 @@ describe('round 4', () => {
     expect(top).toBe(420);
   });
 });
+
+describe('see-through preview', () => {
+  it('a mouse over the selected cell shows the note a click would write; off the cell, nothing', async () => {
+    const store = createStore(memoryStorage());
+    store.save(newScore({ id: 'a', title: 'T' }));
+    const { container } = render(Editor, { store, id: 'a', onBack: () => {}, onPrint: () => {} });
+    const svg = container.querySelector('.stage svg');
+    const sp = spOf(container);
+    await fireEvent.pointerMove(svg, { clientX: 5.5 * sp + 20, clientY: yOf(5, sp), pointerType: 'mouse' });
+    expect(container.querySelector('.preview')).not.toBeNull();
+    expect(Number(container.querySelector('.preview').getAttribute('y'))).toBeCloseTo(yOf(5, sp));
+    await fireEvent.pointerMove(svg, { clientX: 290, clientY: yOf(5, sp), pointerType: 'mouse' });
+    expect(container.querySelector('.preview')).toBeNull();
+    // nothing was written by hovering
+    expect(heads(container).length).toBe(0);
+  });
+  it('a finger pressing the selected cell shows the preview and says what lifting writes', async () => {
+    const store = createStore(memoryStorage());
+    store.save(newScore({ id: 'a', title: 'T' }));
+    const { container } = render(Editor, { store, id: 'a', onBack: () => {}, onPrint: () => {} });
+    const svg = container.querySelector('.stage svg');
+    const sp = spOf(container);
+    await fireEvent.pointerDown(svg, { clientX: 5.5 * sp + 20, clientY: yOf(1, sp), pointerType: 'touch' });
+    expect(container.querySelector('.preview')).not.toBeNull();
+    expect(container.querySelector('.status').textContent).toContain('Soltar escreve: Bumbo');
+    await fireEvent.pointerUp(svg, { clientX: 5.5 * sp + 20, clientY: yOf(1, sp), pointerType: 'touch' });
+    expect(container.querySelector('.preview')).toBeNull();
+    expect(loadView(store, 'a').bars[0].beats[0].cells[0].notes[0].slotId).toBe('kick');
+  });
+});

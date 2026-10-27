@@ -171,7 +171,7 @@ export const STRINGS = {
       picked: 'Nota pega: arraste. Para outra coluna, segure sobre ela um instante.', moved: '{n} nota(s) movida(s)', cancelled: 'Movimento cancelado',
       select: 'Seleção', off: 'Desligada', cells: 'Células', beats: 'Tempos', clear: 'Limpar',
       hint: 'Toque nas células (ou tempos) para marcar; segure uma marcada e arraste: todas vão juntas, mantendo a distância entre elas.',
-      selected: '{n} marcada(s)', rightClick: 'Botão direito apaga a nota',
+      selected: '{n} marcada(s)', rightClick: 'Botão direito apaga a nota', preview: 'Soltar escreve: {what}',
     },
     welcome: {
       intro: 'Escreva exercícios de bateria tocando na pauta. Escolha a figura, toque na altura do instrumento e avance com ›. Cabeças, hastes, barras e pausas são desenhadas para você.',
@@ -441,7 +441,7 @@ export const STRINGS = {
       picked: 'Note picked up: drag it. To another column, hold over it for a moment.', moved: '{n} note(s) moved', cancelled: 'Move cancelled',
       select: 'Selection', off: 'Off', cells: 'Cells', beats: 'Beats', clear: 'Clear',
       hint: 'Tap cells (or beats) to mark them; hold a marked one and drag: they all move together, keeping their spacing.',
-      selected: '{n} marked', rightClick: 'Right click deletes the note',
+      selected: '{n} marked', rightClick: 'Right click deletes the note', preview: 'Lifting writes: {what}',
     },
     welcome: {
       intro: 'Write drum exercises by tapping the staff. Pick a note value, tap at the instrument\'s height, move on with ›. Heads, stems, beams and rests are drawn for you.',
@@ -711,7 +711,7 @@ export const STRINGS = {
       picked: 'Note aufgenommen: ziehen. In eine andere Spalte: kurz darüber halten.', moved: '{n} Note(n) verschoben', cancelled: 'Verschieben abgebrochen',
       select: 'Auswahl', off: 'Aus', cells: 'Zellen', beats: 'Schläge', clear: 'Leeren',
       hint: 'Zellen (oder Schläge) antippen, um sie zu markieren; eine markierte halten und ziehen: alle wandern zusammen, mit gleichem Abstand.',
-      selected: '{n} markiert', rightClick: 'Rechtsklick löscht die Note',
+      selected: '{n} markiert', rightClick: 'Rechtsklick löscht die Note', preview: 'Loslassen schreibt: {what}',
     },
     welcome: {
       intro: 'Schlagzeugübungen durch Tippen auf das Notensystem schreiben. Notenwert wählen, auf Höhe des Instruments tippen, mit › weiter. Köpfe, Hälse, Balken und Pausen werden gezeichnet.',

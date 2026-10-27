@@ -9,6 +9,9 @@
   import Help from './Help.svelte';
   import Transport from './Transport.svelte';
   import { initialState, reduce, notesAt } from '../core/editorState.js';
+  import { slotFor } from '../core/profile.js';
+  import { Glyphs } from '../core/glyphs.js';
+  import { NoteValue } from '../core/noteValue.js';
   import { profileById } from '../core/profile.js';
   import { DEFAULT_COLOURS, INK, normaliseColours, overridesOnly } from '../core/colours.js';
   import { cursor as mkCursor, leafAt, posLabel } from '../core/cursor.js';
@@ -280,6 +283,15 @@
     if (st.moved && from.kind === 'selection') selection = st.moved.items.map((x) => (selectMode === 'beats' ? { bar: x.bar, beat: x.beat } : x));
   }
 
+  /** What a tap at this height would write (same choice as the reducer's tap), for the see-through preview. */
+  function previewFor(pos) {
+    if (playing || background || selectMode || st.tool.delete || !st.tool.withNote) return null;
+    const slash = staff.pitched && st.tool.head === 'slash';
+    const slot = slash ? (staff.slots.find((x) => x.staffPosition === 4) ?? slotFor(staff, 4)) : slotFor(staff, pos, st.tool.head);
+    const head = slot.notehead === st.tool.head ? slot.notehead : (st.tool.head ?? slot.notehead);
+    return { staffPosition: slot.staffPosition, glyph: Glyphs.notehead(head, NoteValue.QUARTER), label: noteLabel({ slotId: slot.id, alter: st.tool.accidental ?? 0 }) };
+  }
+
   function onKey(e) {
     if (background || ['INPUT', 'SELECT', 'TEXTAREA'].includes(e.target.tagName)) return;
     if (e.key === 'ArrowRight') dispatch({ type: 'next' });
@@ -330,6 +342,8 @@
           voice={st.split && staff.voices && !playing ? st.voice : null}
           onStrip={({ voice, beat, path }) => dispatch({ type: 'selectCell', voice, beat, path })}
           onErase={({ beat, path, staffPosition }) => dispatch({ type: 'eraseAt', beat, path, staffPosition })}
+          preview={previewFor}
+          onPreview={(what) => (status = t('drag.preview', { what }))}
           onDragStart={dragStart}
           onDragEnd={dragEnd}
           onDragEdge={dragEdge}
