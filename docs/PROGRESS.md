@@ -44,7 +44,39 @@ Source: the TODO.md written on 2026-10-26 (now deleted; everything in it is belo
 - Moving a selection to another bar works by dragging past the bar's edge; marked cells in
   other bars are kept but only the shown bar highlights them.
 
-## Gaps in music notation (not built; to choose from)
+## Next: tasks (start here next session)
+
+Allan, 2026-10-27: add all the missing notation as tasks. Mark `[x]` when done, with the date.
+Order is the suggested order (most used in drum charts first); each task is TDD and ends with a
+real-browser check.
+
+- [ ] **T1. Beaming by meter (defect).** Six eighths in 6/8 draw as six flagged notes, because
+  each eighth is its own beat and beams never cross beats. Beam by the meter's groups: 6/8 and
+  12/8 in threes, 9/8 3+3+3, 7/8 and 5/8 by a grouping the bar carries (default 2+2+3 / 3+2),
+  x/4 by the beat as now.
+- [ ] **T2. Endings and road map.** 1st/2nd endings (volta brackets over one or more bars), D.C.,
+  D.S., segno, coda, To Coda, Fine; drawn, in JSON (schema bump), in the import prompt, and
+  followed by playback.
+- [ ] **T3. Tuplets across beats.** A quarter-note triplet over two beats, half-note triplets, any
+  n-tuplet spanning several beats; drawn with a bracket, played in time.
+- [ ] **T4. Multi-bar rests and the two-bar repeat (%%).**
+- [ ] **T5. Tempo inside the score.** A new ♩ = at any bar, rit. and accel.; playback follows.
+- [ ] **T6. Dynamics completed.** Hairpins drawn as wedges (cresc./dim. are words today), plus
+  `ppp`, `fff`, `sf`, `sffz`, `rfz`.
+- [ ] **T7. Pickup bar (anacrusis)** and other incomplete bars.
+- [ ] **T8. Two voices for pitched instruments on one staff** (guitar, a piano hand with
+  polyphony), reusing the drum voices (`voices.js`).
+- [ ] **T9. Ornaments and lines.** Mordent, turn, grace notes for pitched instruments,
+  glissando/slide, arpeggio, 8va/8vb/15ma lines.
+- [ ] **T10. Rehearsal marks and bar lines.** Boxed rehearsal letters (A, B…), double and final
+  bar lines.
+- [ ] **T11. Real-phone check** of round 3's touch gestures: press-and-hold drag, the voice strips,
+  the press preview (Allan's Redmi).
+- [ ] **T12. Name of the "cell".** Allan's drum teacher doubts the word "Célula"; decide the term
+  with Allan (suggested: Subdivisão / Subdivision / Unterteilung), then rename in strings, help
+  and the import prompt.
+
+## Gaps in music notation (the reasoning behind T1–T10)
 
 Most useful first, for drum charts in particular:
 

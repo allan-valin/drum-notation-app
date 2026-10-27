@@ -119,7 +119,7 @@
   <section>
     <h3>{t('palette.figure')}</h3>
     <div class="mode three" role="radiogroup" aria-label={t('palette.figure')}>
-      {#each ['beat', 'cell', 'bar'] as m}
+      {#each ['bar', 'beat', 'cell'] as m}
         <button role="radio" aria-checked={splitMode === m} class:on={splitMode === m} onclick={() => onAction({ type: 'setSplitMode', mode: m })}>{t(`split.${m}`)}</button>
       {/each}
     </div>

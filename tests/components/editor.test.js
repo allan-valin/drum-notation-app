@@ -430,3 +430,13 @@ describe('see-through preview', () => {
     expect(loadView(store, 'a').bars[0].beats[0].cells[0].notes[0].slotId).toBe('kick');
   });
 });
+
+describe('note value modes', () => {
+  it('are listed widest first: bar, beat, cell', () => {
+    const store = createStore(memoryStorage());
+    store.save(newScore({ id: 'a', title: 'T' }));
+    const { getByRole } = render(Editor, { store, id: 'a', onBack: () => {}, onPrint: () => {} });
+    const group = getByRole('radiogroup', { name: 'Figura' });
+    expect([...group.querySelectorAll('[role=radio]')].map((b) => b.textContent.trim())).toEqual(['Compasso', 'Tempo', 'Célula']);
+  });
+});
